@@ -7,10 +7,8 @@ def convert_to_array(bytes):
     it = iter(bytes)
     for x in it:
         y, z = next(it), next(it)
-        for i in range(8):
-            offset = 7-i
-            mask = 1 << offset
-            n = ((x & mask) >> offset) * 4 + ((y & mask) >> offset) * 2+ ((z & mask) >> offset)
+        for i in range(7, -1, -1):
+            n = (x >> i) & 1 * 4 + (y >> i) & 1 * 2+ (z >> i) & 1
             array.append(n)
     return array
 
