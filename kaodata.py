@@ -63,14 +63,6 @@ KHAN_KAODATA = "/Users/tzengyuxio/DOSBox/KHAN/KAODATA.DAT"
 KHAN_PALETTE = ['#302000', '#417120', '#D33030', '#D3B282', '#204182', '#418292', '#C38251',
                 '#D3D3B2']  # 黑 綠 紅 粉 藍 青 橙 白
 
-# 歐陸戰線
-EUROPE_KAODATA = "/Users/tzengyuxio/DOSBox/OLZX/FACE.DAT"
-EUROPE_PALETTE = ['#000000', '#419241', '#B24120', '#F3C361', '#104192', '#6FAEAE', '#D371B2', '#F3F3F3']
-
-# 提督的決斷2
-TK2_KAODATA = "/Users/tzengyuxio/DOSBox/TK2/KAO.TK2"
-TK2_PALETTE = ['#000000', '#419241', '#B24120', '#F3C361', '#104192', '#6FAEAE', '#D371B2',
-               '#F3F3F3']  # 黑 綠 紅 粉 藍 青 橙 白
 
 # 魔法皇冠
 GEMFIRE_KAODATA = "/Users/tzengyuxio/DOSBox/GEMFIRE/KAODATA.DAT"
@@ -88,6 +80,12 @@ GAME_INFOS = {
         "name": "提督之決斷II",
         "face_file": "KAO.TK2",
         "face_size": (48, 64),
+        "palette": ['#000000', '#417100', '#D32000', '#E3A261', '#0030A2', '#7192B2', '#C36161', '#F3F3F3']
+    },
+    "KOHRYUKI": {
+        "name": "項劉記",
+        "face_file": "KAO.KR1",
+        "face_size": (64, 80),
         "palette": ['#000000', '#417100', '#D32000', '#E3A261', '#0030A2', '#7192B2', '#C36161', '#F3F3F3']
     }
 }
@@ -389,10 +387,16 @@ def revert(array):
 # 魔法皇冠
 # export_kaodata('GEMFIRE', GEMFIRE_KAODATA, GEMFIRE_PALETTE, stretch=True)
 
+# ----------------------------------------------------------------------
+
 # 歐陸戰線
 # export_faces('EUROPE', '/Users/tzengyuxio/DOSBox/OLZX')
 # export_faces('EUROPE', '/Users/tzengyuxio/DOSBox/OLZX', all_in_one=True)
 
 # 提督的決斷2
-export_faces('TK2', '/Users/tzengyuxio/DOSBox/TK2')
-export_faces('TK2', '/Users/tzengyuxio/DOSBox/TK2', all_in_one=True)
+# export_faces('TK2', '/Users/tzengyuxio/DOSBox/TK2')
+# export_faces('TK2', '/Users/tzengyuxio/DOSBox/TK2', all_in_one=True)
+
+# 項劉記 (色盤未定)
+export_faces('KOHRYUKI', '/Users/tzengyuxio/DOSBox/KANSO')
+export_faces('KOHRYUKI', '/Users/tzengyuxio/DOSBox/KANSO', all_in_one=True)
