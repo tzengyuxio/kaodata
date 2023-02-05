@@ -17,41 +17,11 @@ SAN2_PALETTE = ['#000000', '#10B251', '#F35100', '#F3E300', '#0041F3', '#00C3F3'
                 '#F3F3F3']  # 黑 綠 朱 黃 藍 青 洋紅 白
 
 # 307張
-SAN3_KAODATA = "/Users/tzengyuxio/DOSBox/SAN3/KAODATA.DAT"
 SAN3_HAN16P = "/Users/tzengyuxio/DOSBox/SAN3/HAN.16P"  # 1335 字
 SAN3_NAME16P = "/Users/tzengyuxio/DOSBox/SAN3/NAME.16P"
-SAN3_PALETTE = ['#000000', '#10B251', '#F35100', '#F3E300', '#0041F3', '#00C3F3', '#F351D3',
-                '#F3F3F3']  # 黑 綠 朱 黃 藍 青 洋紅 白
 
 # 530,413 byte (340 人需要 652,800)
 SAN4_KAODATA = "/Users/tzengyuxio/DOSBox/SAN4/KAODATA.S4"
-SAN4_PALETTE = ['#302000', '#204182', '#B24120', '#C38251', '#417120', '#418292', '#D3B282',
-                '#D3D3B2']  # 黑 綠 朱 黃 藍 青 洋紅 白
-
-# KAODATA2.S4: 320張, 水滸傳
-SAN4_KAODATA2 = "/Users/tzengyuxio/DOSBox/SAN4/KAODATA2.S4"
-SAN4_PALETTE2 = ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251',
-                 '#D3D3B2']  # 黑 綠 紅 粉 藍 青 橙 白
-
-# KAODATAP.S4: 701張, 1,346,621 byte
-SAN4_KAODATAP = "/Users/tzengyuxio/DOSBox/SAN4/KAODATAP.S4"
-SAN4_PALETTEP = ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251',
-                 '#D3D3B2']  # 黑 綠 紅 粉 藍 青 橙 白
-
-# KAODATA.S5, KAODATAP.S5: 1,503,360 = 783 * 1920, 兩檔案相同
-SAN5_KAODATA = "/Users/tzengyuxio/DOSBox/SAN5/KAODATA.S5"
-SAN5_PALETTE = ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251',
-                '#D3D3B2']  # 黑 綠 紅 粉 藍 青 橙 白
-
-# KAOEX.S5: 733,440 = 382 * 1920
-SAN5_KAODATAEX = "/Users/tzengyuxio/DOSBox/SAN5/KAOEX.S5"
-SAN5_PALETTEEX = ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251',
-                  '#D3D3B2']  # 黑 綠 紅 粉 藍 青 橙 白
-
-# 項劉紀 KANSO/KAO.KR1: 186,240 = 97 * 1920
-KANSO_KAODATA = "/Users/tzengyuxio/DOSBox/KANSO/KAO.KR1"
-KANSO_PALETTE = ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251',
-                 '#D3D3B2']  # 黑 綠 紅 粉 藍 青 橙 白
 
 # 古事記外傳 KAMI/FACEGRP.DAT: 23,040 = 12 * 1920 (不成相)
 KAMI_KAODATA = "/Users/tzengyuxio/DOSBox/KAMI/FACEGRP.DAT"
@@ -62,7 +32,6 @@ KAMI_PALETTE = ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292'
 KHAN_KAODATA = "/Users/tzengyuxio/DOSBox/KHAN/KAODATA.DAT"
 KHAN_PALETTE = ['#302000', '#417120', '#D33030', '#D3B282', '#204182', '#418292', '#C38251',
                 '#D3D3B2']  # 黑 綠 紅 粉 藍 青 橙 白
-
 
 # 魔法皇冠
 GEMFIRE_KAODATA = "/Users/tzengyuxio/DOSBox/GEMFIRE/KAODATA.DAT"
@@ -86,7 +55,47 @@ GAME_INFOS = {
         "name": "項劉記",
         "face_file": "KAO.KR1",
         "face_size": (64, 80),
-        "palette": ['#000000', '#417100', '#D32000', '#E3A261', '#0030A2', '#7192B2', '#C36161', '#F3F3F3']
+        "palette": ['#000000', '#418200', '#C34100', '#E3A251', '#0030A2', '#71A2B2', '#B27171', '#F3E3D3']
+    },
+    "SAN1": {},
+    "SAN2": {
+        "name": "三國志II",
+        "face_file": "KAODATA.DAT",
+        "face_size": (64, 80),
+        "palette": ['#000000x', '#418200x', '#C34100x', '#E3A251x', '#0030A2x', '#71A2B2x', '#B27171x', '#F3E3D3x']
+    },
+    "SAN3": {
+        "name": "三國志III",
+        "face_file": "KAODATA.DAT",
+        "face_size": (64, 80),
+        "palette": ['#000000', '#10B251', '#F35100', '#F3E300', '#0041F3', '#00C3F3', '#F351D3', '#F3F3F3']
+    },
+    "SAN4": {
+        "name": "三國志IV",
+        "face_file": "KAODATAP.S4",
+        "face_size": (64, 80),
+        "palette": ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251', '#D3D3B2']
+    },
+    "SAN4P": {
+        "name": "三國志IV 威力加強版",
+        "face_file": "KAODATA2.S4",
+        "face_size": (64, 80),
+        "palette": ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251', '#D3D3B2']
+        # color pallete (威力加強版編輯器)
+        #   | 黑[0] | 深藍[4] | 朱紅[2] | 深皮[6] |
+        #   | 綠[1] | 淺藍[5] | 淺皮[3] | 雪白[7] |
+    },
+    "SAN5": {
+        "name": "三國志V",
+        "face_file": "KAODATA.S5", # KAODATA.S5, KAODATAP.S5: 1,503,360 = 783 * 1920, 兩檔案相同
+        "face_size": (64, 80),
+        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
+    },
+    "SAN5P": {
+        "name": "三國志V 威力加強版",
+        "face_file": "KAOEX.S5",
+        "face_size": (64, 80),
+        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
     }
 }
 
@@ -163,6 +172,8 @@ def export_faces(tag, path, all_in_one=False):
         f.seek(0)
 
         while data_bytes := f.read(data_size):
+            if len(data_bytes) < data_size:
+                break
             images.append(bytes_to_image(data_bytes, face_w, face_h, color_table))
 
     if not os.path.exists(tag):
@@ -354,35 +365,17 @@ def revert(array):
 # export_font('SAN2', SAN2_NAME16P)
 
 # 三國志3
-# export_kaodata('SAN3', SAN3_KAODATA, SAN3_PALETTE)
 # export_font('SAN3', SAN3_HAN16P, font_h=14)
 # export_font('SAN3', SAN3_NAME16P, font_h=14)
 
 # 三國志4
 # export_kaodata('SAN4', SAN4_KAODATA, SAN4_PALETTE)
-# export_kaodata('SAN4_2', SAN4_KAODATA2, SAN4_PALETTE2)
-# export_kaodata('SAN4_P', SAN4_KAODATAP, SAN4_PALETTEP)
-
-# 三國志5
-# export_kaodata('SAN5', SAN5_KAODATA, SAN5_PALETTE)
-# export_kaodata('SAN5_EX', SAN5_KAODATAEX, SAN5_PALETTEEX)
-
-# 項劉記 (色盤未確定)
-# export_kaodata('KANSO', KANSO_KAODATA, KANSO_PALETTE)
 
 # 古事記外傳 (色盤未確定)
 # export_kaodata('KAMI', KAMI_KAODATA, KAMI_PALETTE)
 
 # 成吉思涵 (色盤未確定)
 # export_kaodata('KHAN', KHAN_KAODATA, KHAN_PALETTE)
-
-# 歐陸戰線
-# export_kaodata('EUROPE', EUROPE_KAODATA, EUROPE_PALETTE)
-# export_single_kaodata('EUROPE', EUROPE_KAODATA, EUROPE_PALETTE)
-
-# 提督的決斷2
-# export_kaodata('TK2', TK2_KAODATA, TK2_PALETTE)
-# export_single_kaodata('TK2', TK2_KAODATA, TK2_PALETTE)
 
 # 魔法皇冠
 # export_kaodata('GEMFIRE', GEMFIRE_KAODATA, GEMFIRE_PALETTE, stretch=True)
@@ -397,6 +390,18 @@ def revert(array):
 # export_faces('TK2', '/Users/tzengyuxio/DOSBox/TK2')
 # export_faces('TK2', '/Users/tzengyuxio/DOSBox/TK2', all_in_one=True)
 
-# 項劉記 (色盤未定)
-export_faces('KOHRYUKI', '/Users/tzengyuxio/DOSBox/KANSO')
-export_faces('KOHRYUKI', '/Users/tzengyuxio/DOSBox/KANSO', all_in_one=True)
+# 項劉記
+# export_faces('KOHRYUKI', '/Users/tzengyuxio/DOSBox/KANSO')
+# export_faces('KOHRYUKI', '/Users/tzengyuxio/DOSBox/KANSO', all_in_one=True)
+
+# 三國志 1~5
+# export_faces('SAN3', '/Users/tzengyuxio/DOSBox/SAN3')
+# export_faces('SAN3', '/Users/tzengyuxio/DOSBox/SAN3', all_in_one=True)
+# export_faces('SAN4', '/Users/tzengyuxio/DOSBox/SAN4')
+# export_faces('SAN4', '/Users/tzengyuxio/DOSBox/SAN4', all_in_one=True)
+# export_faces('SAN4P', '/Users/tzengyuxio/DOSBox/SAN4')
+# export_faces('SAN4P', '/Users/tzengyuxio/DOSBox/SAN4', all_in_one=True)
+# export_faces('SAN5', '/Users/tzengyuxio/DOSBox/SAN5')
+# export_faces('SAN5', '/Users/tzengyuxio/DOSBox/SAN5', all_in_one=True)
+# export_faces('SAN5P', '/Users/tzengyuxio/DOSBox/SAN5')
+# export_faces('SAN5P', '/Users/tzengyuxio/DOSBox/SAN5', all_in_one=True)
