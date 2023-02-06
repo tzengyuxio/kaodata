@@ -2,8 +2,10 @@ import itertools
 import os.path
 import math
 from functools import reduce
-
 from PIL import Image
+from game_infos import GAME_INFOS
+from numpy import *
+from bitstream import *
 
 
 #
@@ -28,102 +30,6 @@ KHAN_PALETTE = ['#302000', '#417120', '#D33030', '#D3B282', '#204182', '#418292'
 GEMFIRE_KAODATA = "/Users/tzengyuxio/DOSBox/GEMFIRE/KAODATA.DAT"
 GEMFIRE_PALETTE = ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251',
                    '#D3D3B2']  # 黑 綠 紅 粉 藍 青 橙 白
-
-GAME_INFOS = {
-    "EUROPE": {
-        "name": "歐陸戰線",
-        "face_file": "FACE.DAT",
-        "face_size": (64, 80),
-        "palette": ['#000000', '#419241', '#B24120', '#F3C361', '#104192', '#6FAEAE', '#D371B2', '#F3F3F3']
-    },
-    "TK2": {
-        "name": "提督之決斷II",
-        "face_file": "KAO.TK2",
-        "face_size": (48, 64),
-        "palette": ['#000000', '#417100', '#D32000', '#E3A261', '#0030A2', '#7192B2', '#C36161', '#F3F3F3']
-    },
-    "KOHRYUKI": {
-        "name": "項劉記",
-        "face_file": "KAO.KR1",
-        "face_size": (64, 80),
-        "palette": ['#000000', '#418200', '#C34100', '#E3A251', '#0030A2', '#71A2B2', '#B27171', '#F3E3D3']
-    },
-    "SAN1": {
-        "name": "三國志",
-        "face_file": "SAN_B/PICDATA.DAT",
-        "face_size": (48, 80),
-        "face_count": 114,
-        "double_height": True,
-        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55']
-    },
-    "SAN2": {
-        "name": "三國志II",
-        "face_file": "KAODATA.DAT",
-        "face_size": (64, 80),
-        "double_height": True,
-        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
-    },
-    "SAN3": {
-        "name": "三國志III",
-        "face_file": "KAODATA.DAT",
-        "face_size": (64, 80),
-        "palette": ['#000000', '#10B251', '#F35100', '#F3E300', '#0041F3', '#00C3F3', '#F351D3', '#F3F3F3']
-    },
-    "SAN4": {
-        "name": "三國志IV",
-        "face_file": "KAODATAP.S4", # KAODATA.S4 作用尚不明, File Size: 530,413 byte (340 人需要 652,800)
-        "face_size": (64, 80),
-        "palette": ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251', '#D3D3B2']
-    },
-    "SAN4P": {
-        "name": "三國志IV 威力加強版",
-        "face_file": "KAODATA2.S4",
-        "face_size": (64, 80),
-        "palette": ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251', '#D3D3B2']
-        # color pallete (威力加強版編輯器)
-        #   | 黑[0] | 深藍[4] | 朱紅[2] | 深皮[6] |
-        #   | 綠[1] | 淺藍[5] | 淺皮[3] | 雪白[7] |
-    },
-    "SAN5": {
-        "name": "三國志V",
-        "face_file": "KAODATA.S5", # KAODATA.S5, KAODATAP.S5: 1,503,360 = 783 * 1920, 兩檔案相同
-        "face_size": (64, 80),
-        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
-    },
-    "SAN5P": {
-        "name": "三國志V 威力加強版",
-        "face_file": "KAOEX.S5",
-        "face_size": (64, 80),
-        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
-    },
-    "DAIKOKAI": {
-        "name": "大航海時代",
-        "face_file": "KAO.PUT",
-        "face_size": (64, 80),
-        "face_count": 96,
-        "double_height": True,
-        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
-    },
-    "DAIKOH2": {
-        "name": "大航海時代II",
-        "face_file": "KOUKAI2.DAT", # "CHAR.LZW", # "KAO.LZW",
-        "face_size": (64, 80),
-        "face_count": 320,
-        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
-    },
-    "AIR2": {
-        "name": "航空霸業II",
-        "face_file": "MAN.GDT", # CITYFACE.GDT, MAKFACE.GDT, MAKER.GDT, MAN.GDT, STAFF1.GDT 均非 KAO
-        "face_size": (64, 80),
-        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
-    },
-    "LIBERTY": {
-        "name": "獨立戰爭",
-        "face_file": "FACE.IDX",
-        "face_size": (64, 80),
-        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
-    }
-}
 
 
 def convert_to_array_4color(data_bytes):
@@ -302,6 +208,105 @@ def export_font(tag, filename, font_h=14, pre=False):
     print()
 
 
+def get_codes(data):
+    codes = []
+    stream = BitStream(data, bytes)
+    c1, c2 = 0, 0
+    cursor = 0
+    pos_end = len(data)*8
+    l = 0
+    while True:
+        bit = stream.read(bool)
+        cursor += 1
+        # print('bit: {}'.format(bit))
+        c1 = (c1 << 1) | bit
+        l += 1
+        if not bit:
+            # print('l: {}'.format(l))
+            for i in range(l):
+                c2 = (c2 << 1) | stream.read(bool)
+                cursor += 1
+            codes.append(c1+c2)
+            c1, c2 = 0, 0
+            l = 0
+        if cursor >= pos_end:
+            break
+    return codes
+
+
+def size_of_codes(codes):
+    cnt = 0
+    do_copy = False
+    for c in codes:
+        if do_copy:
+            cnt += (3 + c)
+            do_copy = False
+        elif c > 256:
+            do_copy = True
+        else:
+            cnt += 1
+    return cnt
+
+
+def ls11_decode(filename):
+    with open(filename, 'rb') as f, open('KAO2.DEC', 'wb') as fout:
+        header = f.read(16)
+        dictionary = f.read(256)
+        encode_infos = []
+        b1 = f.read(4)
+        while b1 != b'\x00\x00\x00\x00':
+            b2 = f.read(4)
+            b3 = f.read(4)
+            compressed_size = int.from_bytes(b1, 'big')
+            original_size = int.from_bytes(b2, 'big')
+            start_pos = int.from_bytes(b3, 'big')
+            encode_infos.append((compressed_size, original_size, start_pos))
+            b1 = f.read(4)
+        n = len(encode_infos)
+        print('N: {}'.format(n))
+        for i in range(n):
+            print('  {} {} {}'.format(*encode_infos[i]))
+
+        original_size = reduce(lambda x, y: x+y, [x[1] for x in encode_infos])
+        print('original size: {}'.format(original_size))
+
+        original_bytes = bytearray(original_size)
+        pos = 0
+        for i in range(n):
+            # encode_info = encode_infos[i]
+            compressed_size, original_size, start_pos = encode_infos[i]
+            f.seek(start_pos)
+            data = f.read(compressed_size)
+            codes = get_codes(data)
+            # print('[{}] {}'.format(i, codes))
+            # print('[{}]: ({}, {}, {}) ({}, {})'.format(pos, *encode_infos[i], len(data), size_of_codes(codes)))
+            offset = 0
+            count_in_block = 0
+            for code in codes:
+                # if pos >= original_size:
+                #     break
+                if count_in_block >= original_size:
+                    continue
+                if offset > 0:
+                    length = 3 + code
+                    for _ in range(length):
+                        original_bytes[pos] = original_bytes[pos-offset]
+                        pos += 1
+                        count_in_block += 1
+                        if count_in_block >= original_size:
+                            break
+                    offset = 0
+                elif code < 256:
+                    original_bytes[pos] = dictionary[code]
+                    pos += 1
+                    count_in_block += 1
+                else:
+                    offset = code - 256
+        print('original bytes len: {}'.format(len(original_bytes)))
+        fout.write(bytes(original_bytes))
+        
+
+
 def grouper(iterable, n):
     return itertools.zip_longest(*[iter(iterable)] * n)
 
@@ -371,6 +376,10 @@ def revert(array):
 # export_faces('DAIKOKAI', '/Users/tzengyuxio/DOSBox/DAIKOKAI', all_in_one=True)
 # export_faces('DAIKOH2', '/Users/tzengyuxio/DOSBox/DAIKOH2')
 export_faces('DAIKOH2', '/Users/tzengyuxio/DOSBox/DAIKOH2', all_in_one=True)
+# ls11_decode('/Users/tzengyuxio/DOSBox/DAIKOH2/KAO.LZW')
+# data = b'\x3C\x93\xF8\x17\x13\xF8\x3B\x2F\x13\xF8\x16\xC3'
+# print(get_codes(data))
+
 
 # 航空霸業II (尚未找到)
 # export_faces('AIR2', '/Users/tzengyuxio/DOSBox/AIR2', all_in_one=True)
