@@ -1,5 +1,6 @@
 import itertools
 import os.path
+import math
 from functools import reduce
 
 from PIL import Image
@@ -93,6 +94,21 @@ GAME_INFOS = {
         "name": "三國志V 威力加強版",
         "face_file": "KAOEX.S5",
         "face_size": (64, 80),
+        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
+    },
+    "DAIKOKAI": {
+        "name": "大航海時代",
+        "face_file": "KAO.PUT",
+        "face_size": (64, 80),
+        "face_count": 96,
+        "double_height": True,
+        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
+    },
+    "DAIKOH2": {
+        "name": "大航海時代II",
+        "face_file": "KOUKAI2.DAT", # "CHAR.LZW", # "KAO.LZW",
+        "face_size": (64, 80),
+        "face_count": 320,
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
     },
     "AIR2": {
@@ -198,7 +214,7 @@ def export_faces(tag, path, all_in_one=False):
 
     if all_in_one:
         img_w = face_w * 16
-        img_h = face_h * ((num_face // 16) + 1)
+        img_h = face_h * math.ceil(num_face // 16)
         back_image = Image.new('RGB', (img_w, img_h), color='black')
         for idx, img in enumerate(images):
             pos_x = (idx % 16) * face_w
@@ -350,9 +366,15 @@ def revert(array):
 # export_faces('SAN5P', '/Users/tzengyuxio/DOSBox/SAN5')
 # export_faces('SAN5P', '/Users/tzengyuxio/DOSBox/SAN5', all_in_one=True)
 
+# 大航海時代
+# export_faces('DAIKOKAI', '/Users/tzengyuxio/DOSBox/DAIKOKAI')
+# export_faces('DAIKOKAI', '/Users/tzengyuxio/DOSBox/DAIKOKAI', all_in_one=True)
+# export_faces('DAIKOH2', '/Users/tzengyuxio/DOSBox/DAIKOH2')
+export_faces('DAIKOH2', '/Users/tzengyuxio/DOSBox/DAIKOH2', all_in_one=True)
+
 # 航空霸業II (尚未找到)
 # export_faces('AIR2', '/Users/tzengyuxio/DOSBox/AIR2', all_in_one=True)
 
 # 獨立戰爭 (尚未找到)
 # export_faces('LIBERTY', '/Users/tzengyuxio/DOSBox/LIBERTY')
-export_faces('LIBERTY', '/Users/tzengyuxio/DOSBox/LIBERTY', all_in_one=True)
+# export_faces('LIBERTY', '/Users/tzengyuxio/DOSBox/LIBERTY', all_in_one=True)
