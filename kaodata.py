@@ -94,19 +94,20 @@ def export_faces(tag, path, all_in_one=False):
     face_w, face_h = game_info['face_size']
     dh = True if 'double_height' in game_info and game_info['double_height'] else False
     face_count = -1 if 'face_count' not in game_info else game_info['face_count']
+    start_pos = 0 if 'start_pos' not in game_info else game_info['start_pos']
     num_bits_per_color = 2 if len(color_table) == 4 else 3
     data_size = int((face_w * face_h) * num_bits_per_color / 8)
     if dh:
         data_size = int(data_size / 2)
     images = []
     with open(filename, 'rb') as f:
-        f.seek(0, os.SEEK_END)
+        f.seek(start_pos, os.SEEK_END)
         file_size = f.tell()
         num_face = face_count if face_count > 0 else file_size // data_size
         print('  file size   : {}'.format(file_size))
         print('  face size   : {}x{}, ({} bytes)'.format(face_w, face_h, data_size))
         print('  num of faces: {}'.format(num_face))
-        f.seek(0)
+        f.seek(start_pos)
 
         i = 0
         while data_bytes := f.read(data_size):
@@ -119,8 +120,10 @@ def export_faces(tag, path, all_in_one=False):
         os.makedirs(tag)
 
     if all_in_one:
+        print((face_w, face_h, num_face))
         img_w = face_w * 16
-        img_h = face_h * math.ceil(num_face // 16)
+        img_h = face_h * math.ceil(num_face / 16)
+        print((img_w, img_h))
         back_image = Image.new('RGB', (img_w, img_h), color='black')
         for idx, img in enumerate(images):
             pos_x = (idx % 16) * face_w
@@ -279,7 +282,7 @@ def ls11_decode(filename):
             data = f.read(compressed_size)
             codes = get_codes(data)
             # print('[{}] {}'.format(i, codes))
-            # print('[{}]: ({}, {}, {}) ({}, {})'.format(pos, *encode_infos[i], len(data), size_of_codes(codes)))
+            # print('{:03d}: [{}]: ({}, {}, {}) ({}, {})'.format(i, pos, *encode_infos[i], len(data), size_of_codes(codes)))
             offset = 0
             count_in_block = 0
             for code in codes:
@@ -372,14 +375,19 @@ def revert(array):
 # export_faces('SAN5P', '/Users/tzengyuxio/DOSBox/SAN5', all_in_one=True)
 
 # 大航海時代
-# export_faces('DAIKOKAI', '/Users/tzengyuxio/DOSBox/DAIKOKAI')
-# export_faces('DAIKOKAI', '/Users/tzengyuxio/DOSBox/DAIKOKAI', all_in_one=True)
-# export_faces('DAIKOH2', '/Users/tzengyuxio/DOSBox/DAIKOH2')
-export_faces('DAIKOH2', '/Users/tzengyuxio/DOSBox/DAIKOH2', all_in_one=True)
+# export_faces('KOUKAI', '/Users/tzengyuxio/DOSBox/DAIKOKAI')
+# export_faces('KOUKAI', '/Users/tzengyuxio/DOSBox/DAIKOKAI', all_in_one=True)
+# export_faces('KOUKAI2', '/Users/tzengyuxio/DOSBox/DAIKOH2')
+# export_faces('KOUKAI2', '/Users/tzengyuxio/DOSBox/DAIKOH2', all_in_one=True)
+# export_faces('KOUKAI2I', '/Users/tzengyuxio/DOSBox/DAIKOH2', all_in_one=True) # items
+# export_faces('KOUKAI2M', '/Users/tzengyuxio/DOSBox/DAIKOH2', all_in_one=True) # montage
 # ls11_decode('/Users/tzengyuxio/DOSBox/DAIKOH2/KAO.LZW')
 # data = b'\x3C\x93\xF8\x17\x13\xF8\x3B\x2F\x13\xF8\x16\xC3'
 # print(get_codes(data))
 
+# 水滸傳
+export_faces('SUIKODEN', '/Users/tzengyuxio/DOSBox/SUI')
+export_faces('SUIKODEN', '/Users/tzengyuxio/DOSBox/SUI', all_in_one=True)
 
 # 航空霸業II (尚未找到)
 # export_faces('AIR2', '/Users/tzengyuxio/DOSBox/AIR2', all_in_one=True)

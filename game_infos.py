@@ -66,29 +66,53 @@ GAME_INFOS = {
         "face_size": (64, 80),
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
     },
-    "DAIKOKAI": {
+    "KOUKAI": {
         "name": "大航海時代",
         "face_file": "KAO.PUT",
         "face_size": (64, 80),
-        "face_count": 96,
+        "face_count": 34,
         "double_height": True,
-        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
+        "start_pos": 47616,
+        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
     },
-    "DAIKOH2": {
+    "KOUKAI2": {
         "name": "大航海時代II",
-        "face_file": "KAO2.DEC",  # "CHAR.LZW", # "KAO.LZW",
+        "face_file": "KAO2.DEC",  # "KAO.LZW", 465890 bytes (KAO: first 210279 bytes, THEN: 864B x 128)
         "face_size": (64, 80),
-        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
+        "face_count": 128,
+        "palette": ['#000000', '#00A261', '#D34100', '#F3A261', '#0041D3', '#00A2F3', '#D361A2', '#F3E3D3']
+    },
+    "KOUKAI2M": {
+        "name": "大航海時代II",
+        "face_file": "KAO.LZW",  # "KAO.LZW", 465890 bytes (LS11: first 292514 bytes, MONTAGE: 173376)
+        "face_size": (64, 80),
+        "start_pos": 292514,
+        "palette": ['#000000', '#00A261', '#D34100', '#F3A261', '#0041D3', '#00A2F3', '#D361A2', '#F3E3D3']
+    },
+    "KOUKAI2I": {
+        "name": "大航海時代II 道具",
+        "face_file": "KAO2.DEC",
+        "face_size": (48, 48),
+        "face_count": 128,
+        "start_pos": 245760,
+        "palette": ['#000000', '#00A261', '#D34100', '#F3A261', '#0041D3', '#00A2F3', '#D361A2', '#F3E3D3']
+    },
+    "SUIKODEN": {
+        "name": "水滸傳",
+        "face_file": "KAOIBM.DAT",
+        "face_size": (64, 80),
+        "double_height": True,
+        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
     },
     "AIR2": {
-        "name": "航空霸業II",
+        "name": "航空霸業II",  # NOT READY
         # CITYFACE.GDT, MAKFACE.GDT, MAKER.GDT, MAN.GDT, STAFF1.GDT 均非 KAO
         "face_file": "MAN.GDT",
         "face_size": (64, 80),
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
     },
     "LIBERTY": {
-        "name": "獨立戰爭",
+        "name": "獨立戰爭",  # NOT READY
         "face_file": "FACE.IDX",
         "face_size": (64, 80),
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
