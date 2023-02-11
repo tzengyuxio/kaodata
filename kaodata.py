@@ -101,20 +101,33 @@ def export_faces(tag, path, all_in_one=False):
         data_size = int(data_size / 2)
     images = []
     with open(filename, 'rb') as f:
-        f.seek(start_pos, os.SEEK_END)
-        file_size = f.tell()
-        num_face = face_count if face_count > 0 else file_size // data_size
-        print('  file size   : {}'.format(file_size))
-        print('  face size   : {}x{}, ({} bytes)'.format(face_w, face_h, data_size))
-        print('  num of faces: {}'.format(num_face))
-        f.seek(start_pos)
+        if type(start_pos) is not list:
+            f.seek(start_pos, os.SEEK_END)
+            file_size = f.tell()
+            num_face = face_count if face_count > 0 else file_size // data_size
+            print('  file size   : {}'.format(file_size))
+            print('  face size   : {}x{}, ({} bytes)'.format(face_w, face_h, data_size))
+            print('  num of faces: {}'.format(num_face))
+            f.seek(start_pos)
 
-        i = 0
-        while data_bytes := f.read(data_size):
-            if len(data_bytes) < data_size or i >= num_face:
-                break
-            images.append(bytes_to_image(data_bytes, face_w, face_h, color_table, dh))
-            i += 1
+            i = 0
+            while data_bytes := f.read(data_size):
+                if len(data_bytes) < data_size or i >= num_face:
+                    break
+                images.append(bytes_to_image(data_bytes, face_w, face_h, color_table, dh))
+                i += 1
+        else:
+            parts = []
+            num_face = 0
+            for sp, fc in zip(start_pos, face_count):
+                f.seek(sp)
+                db = f.read(fc * data_size)
+                num_face += fc
+                parts.append(db)
+            all_face_data_bytes = b''.join(parts)
+            for i in range(num_face):
+                data_bytes = all_face_data_bytes[i*data_size: i*data_size+data_size]
+                images.append(bytes_to_image(data_bytes, face_w, face_h, color_table, dh))
 
     if not os.path.exists(tag):
         os.makedirs(tag)
@@ -307,7 +320,6 @@ def ls11_decode(filename):
                     offset = code - 256
         print('original bytes len: {}'.format(len(original_bytes)))
         fout.write(bytes(original_bytes))
-        
 
 
 def grouper(iterable, n):
@@ -374,6 +386,12 @@ def revert(array):
 # export_faces('SAN5P', '/Users/tzengyuxio/DOSBox/SAN5')
 # export_faces('SAN5P', '/Users/tzengyuxio/DOSBox/SAN5', all_in_one=True)
 
+# export_faces('SAN1S', '/Users/tzengyuxio/DOSBox/SteamSAN1', all_in_one=True)
+export_faces('SAN1PC98', '/Users/tzengyuxio/DOSBox/SAN')
+export_faces('SAN1PC98', '/Users/tzengyuxio/DOSBox/SAN', all_in_one=True)
+export_faces('SAN2PC98', '/Users/tzengyuxio/DOSBox/SAN2')
+export_faces('SAN2PC98', '/Users/tzengyuxio/DOSBox/SAN2', all_in_one=True)
+
 # 大航海時代
 # export_faces('KOUKAI', '/Users/tzengyuxio/DOSBox/DAIKOKAI')
 # export_faces('KOUKAI', '/Users/tzengyuxio/DOSBox/DAIKOKAI', all_in_one=True)
@@ -386,8 +404,8 @@ def revert(array):
 # print(get_codes(data))
 
 # 水滸傳
-export_faces('SUIKODEN', '/Users/tzengyuxio/DOSBox/SUI')
-export_faces('SUIKODEN', '/Users/tzengyuxio/DOSBox/SUI', all_in_one=True)
+# export_faces('SUIKODEN', '/Users/tzengyuxio/DOSBox/SUI')
+# export_faces('SUIKODEN', '/Users/tzengyuxio/DOSBox/SUI', all_in_one=True)
 
 # 航空霸業II (尚未找到)
 # export_faces('AIR2', '/Users/tzengyuxio/DOSBox/AIR2', all_in_one=True)
