@@ -1,4 +1,5 @@
 # kaodata
+
 Early KOEI Games Data Research
 
 ## Faces 頭像
@@ -34,8 +35,9 @@ Early KOEI Games Data Research
 ### Notes
 
 * Steam 版 SAN1, SAN2 用的是 PC9801 的版本
-* SAN1 DOS 版(Eng.) 與 Steam/PC98 版，除了顏色的差別外(4色 vs 8色), 顏良頭盔也是一個差別
+* SAN1 DOS 版(Eng.) 與 Steam/PC98 版，除了顏色的差別外(4色 vs 8色), 顏良(No.41)頭盔也是一個差別
 * 上面兩個版本在大眾臉武將處的空白也有差異
-* SAN2 DOS 版 與 Steam/PC98 版，人物幾乎重繪
+* SAN2 DOS 版 與 Steam/PC98 版，人物大致相同但有差異，前者感覺大小比較一致
+* SAN2 DOS 版 與 Steam/PC98 版，關羽的帽子色不同，張飛的帽子則有明顯顏色不同（前藍後紅）
 
 ## Fonts 字庫

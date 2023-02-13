@@ -373,8 +373,8 @@ def revert(array):
 # 三國志 1~5
 # export_faces('SAN1', '/Users/tzengyuxio/DOSBox/SAN1')
 # export_faces('SAN1', '/Users/tzengyuxio/DOSBox/SAN1', all_in_one=True)
-# export_faces('SAN2', '/Users/tzengyuxio/DOSBox/SAN2')
-# export_faces('SAN2', '/Users/tzengyuxio/DOSBox/SAN2', all_in_one=True)
+export_faces('SAN2', '/Users/tzengyuxio/DOSBox/romance-of-the-three-kingdoms-ii')
+export_faces('SAN2', '/Users/tzengyuxio/DOSBox/romance-of-the-three-kingdoms-ii', all_in_one=True)
 # export_faces('SAN3', '/Users/tzengyuxio/DOSBox/SAN3')
 # export_faces('SAN3', '/Users/tzengyuxio/DOSBox/SAN3', all_in_one=True)
 # export_faces('SAN4', '/Users/tzengyuxio/DOSBox/SAN4')
@@ -387,10 +387,10 @@ def revert(array):
 # export_faces('SAN5P', '/Users/tzengyuxio/DOSBox/SAN5', all_in_one=True)
 
 # export_faces('SAN1S', '/Users/tzengyuxio/DOSBox/SteamSAN1', all_in_one=True)
-export_faces('SAN1PC98', '/Users/tzengyuxio/DOSBox/SAN')
-export_faces('SAN1PC98', '/Users/tzengyuxio/DOSBox/SAN', all_in_one=True)
-export_faces('SAN2PC98', '/Users/tzengyuxio/DOSBox/SAN2')
-export_faces('SAN2PC98', '/Users/tzengyuxio/DOSBox/SAN2', all_in_one=True)
+# export_faces('SAN1PC98', '/Users/tzengyuxio/DOSBox/SAN')
+# export_faces('SAN1PC98', '/Users/tzengyuxio/DOSBox/SAN', all_in_one=True)
+# export_faces('SAN2PC98', '/Users/tzengyuxio/DOSBox/SAN2')
+# export_faces('SAN2PC98', '/Users/tzengyuxio/DOSBox/SAN2', all_in_one=True)
 
 # 大航海時代
 # export_faces('KOUKAI', '/Users/tzengyuxio/DOSBox/DAIKOKAI')
