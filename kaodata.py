@@ -14,11 +14,6 @@ KHAN_KAODATA = "/Users/tzengyuxio/DOSBox/KHAN/KAODATA.DAT"
 KHAN_PALETTE = ['#302000', '#417120', '#D33030', '#D3B282', '#204182', '#418292', '#C38251',
                 '#D3D3B2']  # 黑 綠 紅 粉 藍 青 橙 白
 
-# 魔法皇冠
-GEMFIRE_KAODATA = "/Users/tzengyuxio/DOSBox/GEMFIRE/KAODATA.DAT"
-GEMFIRE_PALETTE = ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251',
-                   '#D3D3B2']  # 黑 綠 紅 粉 藍 青 橙 白
-
 
 def convert_to_array_4color(data_bytes):
     array = []
@@ -101,6 +96,11 @@ def export_faces(tag, path, all_in_one=False):
     if dh:
         data_size = int(data_size / 2)
     num_face = 0
+    ls11_encoded = False if 'ls11_encoded' not in game_info else game_info['ls11_encoded']
+    if ls11_encoded:
+        out_filename = '{}.DEC'.format(filename)
+        ls11_decode(filename, out_filename)
+        filename = out_filename
     with open(filename, 'rb') as f:
         all_face_data_bytes = b''
         if type(start_pos) is not list:
@@ -129,10 +129,8 @@ def export_faces(tag, path, all_in_one=False):
         os.makedirs(tag)
 
     if all_in_one:
-        print((face_w, face_h, num_face))
         img_w = face_w * 16
         img_h = face_h * math.ceil(num_face / 16)
-        print((img_w, img_h))
         back_image = Image.new('RGB', (img_w, img_h), color='magenta')
         for idx, img in enumerate(images):
             pos_x = (idx % 16) * face_w
@@ -189,8 +187,8 @@ def size_of_codes(codes):
     return cnt
 
 
-def ls11_decode(filename):
-    with open(filename, 'rb') as f, open('KAO2.DEC', 'wb') as fout:
+def ls11_decode(in_filename, out_filename):
+    with open(in_filename, 'rb') as f, open(out_filename, 'wb') as fout:
         header = f.read(16)
         dictionary = f.read(256)
         encode_infos = []
@@ -268,18 +266,9 @@ def revert(array):
 # 成吉思涵 (色盤未確定)
 # export_kaodata('KHAN', KHAN_KAODATA, KHAN_PALETTE)
 
-# 魔法皇冠
-# export_kaodata('GEMFIRE', GEMFIRE_KAODATA, GEMFIRE_PALETTE, stretch=True)
-
 # ----------------------------------------------------------------------
 
-# 項劉記
-# export_faces('KOHRYUKI', '/Users/tzengyuxio/DOSBox/KANSO')
-# export_faces('KOHRYUKI', '/Users/tzengyuxio/DOSBox/KANSO', all_in_one=True)
-
 # 三國志 1~5
-# export_faces('SAN3', '/Users/tzengyuxio/DOSBox/SAN3')
-# export_faces('SAN3', '/Users/tzengyuxio/DOSBox/SAN3', all_in_one=True)
 # export_faces('SAN4', '/Users/tzengyuxio/DOSBox/SAN4')
 # export_faces('SAN4', '/Users/tzengyuxio/DOSBox/SAN4', all_in_one=True)
 # export_faces('SAN4P', '/Users/tzengyuxio/DOSBox/SAN4')
@@ -296,8 +285,6 @@ def revert(array):
 # export_faces('SAN2PC98', '/Users/tzengyuxio/DOSBox/SAN2', all_in_one=True)
 
 # 大航海時代
-# export_faces('KOUKAI', '/Users/tzengyuxio/DOSBox/DAIKOKAI')
-# export_faces('KOUKAI', '/Users/tzengyuxio/DOSBox/DAIKOKAI', all_in_one=True)
 # export_faces('KOUKAI2', '/Users/tzengyuxio/DOSBox/DAIKOH2')
 # export_faces('KOUKAI2', '/Users/tzengyuxio/DOSBox/DAIKOH2', all_in_one=True)
 # export_faces('KOUKAI2I', '/Users/tzengyuxio/DOSBox/DAIKOH2', all_in_one=True) # items

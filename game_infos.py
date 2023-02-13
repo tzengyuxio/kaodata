@@ -5,17 +5,72 @@ GAME_INFOS = {
         "face_size": (64, 80),
         "palette": ['#000000', '#419241', '#B24120', '#F3C361', '#104192', '#6FAEAE', '#D371B2', '#F3F3F3']
     },
-    "TK2": {
-        "name": "提督之決斷II",
-        "face_file": "KAO.TK2",
-        "face_size": (48, 64),
-        "palette": ['#000000', '#417100', '#D32000', '#E3A261', '#0030A2', '#7192B2', '#C36161', '#F3F3F3']
+    "GENGHIS": {
+        "name": "蒼狼與白鹿 成吉思汗",  # 蒼狼與白鹿 成吉思汗, 系列第二作
+        "face_file": "KAO.DAT",  # 中英文版相同
+        "face_size": (64, 80),
+        "double_height": True,
+        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
+    },
+    "GENCHOH": {
+        "name": "蒼狼與白鹿 元朝秘史",  # 蒼狼與白鹿 元朝秘史, 系列第三作
+        "face_file": "",
+        "face_size": (64, 80),
+        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']  # 未校色
     },
     "KOHRYUKI": {
         "name": "項劉記",
         "face_file": "KAO.KR1",
         "face_size": (64, 80),
         "palette": ['#000000', '#418200', '#C34100', '#E3A251', '#0030A2', '#71A2B2', '#B27171', '#F3E3D3']
+    },
+    "KOUKAI": {
+        "name": "大航海時代",
+        "face_file": "KAO.PUT",
+        "face_size": (64, 80),
+        "face_count": 34,
+        "double_height": True,
+        "start_pos": 47616,
+        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
+    },
+    "KOUKAI2": {
+        "name": "大航海時代II",
+        "face_file": "KAO2.LZW",  # "KAO.LZW", 465890 bytes (KAO: first 210279 bytes, THEN: 864B x 128)
+        "face_size": (64, 80),
+        "face_count": 128,
+        "ls11_encoded": True,
+        "palette": ['#000000', '#00A261', '#D34100', '#F3A261', '#0041D3', '#00A2F3', '#D361A2', '#F3E3D3']
+    },
+    "KOUKAI2M": {
+        "name": "大航海時代II",
+        "face_file": "KAO.LZW",  # "KAO.LZW", 465890 bytes (LS11: first 292514 bytes, MONTAGE: 173376)
+        "face_size": (64, 80),
+        "start_pos": 292514,
+        "ls11_encoded": True,
+        "palette": ['#000000', '#00A261', '#D34100', '#F3A261', '#0041D3', '#00A2F3', '#D361A2', '#F3E3D3']
+    },
+    "KOUKAI2I": {
+        "name": "大航海時代II 道具",
+        "face_file": "KAO2.LZW",
+        "face_size": (48, 48),
+        "face_count": 128,
+        "start_pos": 245760,
+        "ls11_encoded": True,
+        "palette": ['#000000', '#00A261', '#D34100', '#F3A261', '#0041D3', '#00A2F3', '#D361A2', '#F3E3D3']
+    },
+    "LEMPE": {
+        "name": "拿破崙",
+        "face_file": "KAODATA.DAT",  # 中英文版相同
+        "face_size": (64, 80),
+        "double_height": True,
+        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
+    },
+    "ROYAL": {
+        "name": "魔法皇冠",
+        "face_file": "KAODATA.DAT",
+        "face_size": (64, 80),
+        "double_height": True,
+        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
     },
     "SAN1": {
         "name": "三國志",
@@ -66,21 +121,11 @@ GAME_INFOS = {
         "face_size": (64, 80),
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
     },
-    "SAN1S": {
-        "name": "三國志 STEAM",
-        "face_file": "SAN1.EXE",
-        "face_size": (48, 80),
-        "face_count": 360,
-        "start_pos": 1056963, # 1056960, # 241920,
-        "double_height": True,
-        # "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55']
-        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
-    },
     "SAN1PC98": {
         "name": "三國志",
         "face_file": "PC98_SAN_B.FDI",
         "face_size": (48, 80),
-        "face_count": 113, # 後面有 (48, 80)x158個 montage 資料(應為動畫)
+        "face_count": 113,  # 後面有 (48, 80)x158個 montage 資料(應為動畫)
         "start_pos": 15120+240,
         "double_height": True,
         "palette": ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
@@ -89,40 +134,9 @@ GAME_INFOS = {
         "name": "三國志II",
         "face_file": "PC98_SAN2_B.FDI",
         "face_size": (64, 80),
-        "face_count": [95, 124], # 後面有 (64,80)x52個 montage 資料
-        "start_pos": [189440, 371842+894], # 189120 (~121 後半正確) 365697
+        "face_count": [95, 124],  # 後面有 (64,80)x52個 montage 資料
+        "start_pos": [189440, 371842+894],  # 189120 (~121 後半正確) 365697
         "palette": ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
-    },
-    "KOUKAI": {
-        "name": "大航海時代",
-        "face_file": "KAO.PUT",
-        "face_size": (64, 80),
-        "face_count": 34,
-        "double_height": True,
-        "start_pos": 47616,
-        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
-    },
-    "KOUKAI2": {
-        "name": "大航海時代II",
-        "face_file": "KAO2.DEC",  # "KAO.LZW", 465890 bytes (KAO: first 210279 bytes, THEN: 864B x 128)
-        "face_size": (64, 80),
-        "face_count": 128,
-        "palette": ['#000000', '#00A261', '#D34100', '#F3A261', '#0041D3', '#00A2F3', '#D361A2', '#F3E3D3']
-    },
-    "KOUKAI2M": {
-        "name": "大航海時代II",
-        "face_file": "KAO.LZW",  # "KAO.LZW", 465890 bytes (LS11: first 292514 bytes, MONTAGE: 173376)
-        "face_size": (64, 80),
-        "start_pos": 292514,
-        "palette": ['#000000', '#00A261', '#D34100', '#F3A261', '#0041D3', '#00A2F3', '#D361A2', '#F3E3D3']
-    },
-    "KOUKAI2I": {
-        "name": "大航海時代II 道具",
-        "face_file": "KAO2.DEC",
-        "face_size": (48, 48),
-        "face_count": 128,
-        "start_pos": 245760,
-        "palette": ['#000000', '#00A261', '#D34100', '#F3A261', '#0041D3', '#00A2F3', '#D361A2', '#F3E3D3']
     },
     "SUIKODEN": {
         "name": "水滸傳",
@@ -131,12 +145,11 @@ GAME_INFOS = {
         "double_height": True,
         "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
     },
-    "LEMPE": {
-        "name": "拿破崙",
-        "face_file": "KAODATA.DAT",
-        "face_size": (64, 80),
-        "double_height": True,
-        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
+    "TK2": {
+        "name": "提督之決斷II",
+        "face_file": "KAO.TK2",
+        "face_size": (48, 64),
+        "palette": ['#000000', '#417100', '#D32000', '#E3A261', '#0030A2', '#7192B2', '#C36161', '#F3F3F3']
     },
     "AIR2": {
         "name": "航空霸業II",  # NOT READY
@@ -144,6 +157,12 @@ GAME_INFOS = {
         "face_file": "MAN.GDT",
         "face_size": (64, 80),
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
+    },
+    "TAIKOH": {
+        "name": "太閣立志傳",
+        "face_file": "KAO.PUT",
+        "face_size": (64, 80),
+        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']  # 未校色
     },
     "LIBERTY": {
         "name": "獨立戰爭",  # NOT READY
