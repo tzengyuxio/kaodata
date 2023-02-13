@@ -131,6 +131,13 @@ GAME_INFOS = {
         "double_height": True,
         "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
     },
+    "LEMPE": {
+        "name": "拿破崙",
+        "face_file": "KAODATA.DAT",
+        "face_size": (64, 80),
+        "double_height": True,
+        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
+    },
     "AIR2": {
         "name": "航空霸業II",  # NOT READY
         # CITYFACE.GDT, MAKFACE.GDT, MAKER.GDT, MAN.GDT, STAFF1.GDT 均非 KAO
