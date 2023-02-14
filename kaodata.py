@@ -304,6 +304,8 @@ def revert(array):
 # export_faces('LIBERTY', '/Users/tzengyuxio/DOSBox/LIBERTY')
 # export_faces('LIBERTY', '/Users/tzengyuxio/DOSBox/LIBERTY', all_in_one=True)
 
+# ls11_decode('KAODATA/ISHIN2_FACE.I2', 'KAODATA/ISHIN2_FACE.DEC')
+
 
 def main():
     args = sys.argv[1:]

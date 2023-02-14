@@ -145,6 +145,12 @@ GAME_INFOS = {
         "double_height": True,
         "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
     },
+    "TAIKOH": {
+        "name": "太閣立志傳",
+        "face_file": "KAO.PUT",
+        "face_size": (64, 80),
+        "palette": ['#000000', '#41C341', '#F35100', '#F3D300', '#2061A2', '#00C3F3', '#F361B2', '#F3F3F3']
+    },
     "TK2": {
         "name": "提督之決斷II",
         "face_file": "KAO.TK2",
@@ -158,16 +164,29 @@ GAME_INFOS = {
         "face_size": (64, 80),
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
     },
-    "TAIKOH": {
-        "name": "太閣立志傳",
-        "face_file": "KAO.PUT",
+    "ISHIN2": {
+        "name": "維新之嵐2",  # NOT READY
+        "face_file": "ISHIN2.I2",
         "face_size": (64, 80),
-        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']  # 未校色
+        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
     },
     "LIBERTY": {
         "name": "獨立戰爭",  # NOT READY
         "face_file": "FACE.IDX",
         "face_size": (64, 80),
+        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
+    },
+    "TEST": {
+        "name": "測試用",
+        "face_file": "KAODATA.DAT",
+        "face_size": (64, 80),
+        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
+    },
+    "TEST2": {
+        "name": "測試用",
+        "face_file": "KAODATA.DAT",
+        "face_size": (48, 80),
+        "double_height": True,
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
     }
 }
