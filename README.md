@@ -23,7 +23,9 @@ Early KOEI Games Data Research
 | SAN St   | 三國志 Steam     |      | `.`           | 60x100  |      |                              |
 | SAN2 St  | 三國志II Steam   |      | `.`           | 80x100  |      |                              |
 | SAN3W    | 三國志III Win    |      | `.`           | 80x100  |      |                              |
-| SAN6     | 三國志VI         |      | `.`           | 120x150 |      |                              |
+| SAN6     | 三國志VI         |      | `.`           | 96x120  |      |                              |
+| SAN7     | 三國志VII        |      | `.`           | 96x120  |      |                              |
+| SAN8     | 三國志VIII       |      | `.`           | 160x180 |      |                              |
 
 * 「年份」無特別標示者均為 DOS 或 Windows 平台的首發行年份
 * 各代用語
