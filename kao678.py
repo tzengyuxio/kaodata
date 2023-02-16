@@ -183,4 +183,5 @@ def main():
 
 
 if __name__ == '__main__':
+    # 大航海時代3 80x96
     main()

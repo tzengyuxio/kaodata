@@ -98,7 +98,7 @@ def export_faces(tag, path, all_in_one=False):
     num_face = 0
 
     filename_postfix = ''
-    if tag in ('TEST', 'TEST2'):
+    if tag in ('TEST', 'TEST2', 'TEST3'):
         all_in_one = True
         filename_postfix = '_' + os.path.basename(filename).split('.')[0]
 

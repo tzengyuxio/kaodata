@@ -18,6 +18,15 @@ GAME_INFOS = {
         "face_size": (64, 80),
         "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']  # 未校色
     },
+    "ISHIN": {
+        "name": "維新之嵐",
+        "face_file": "",
+        "face_size": (48, 80),
+        "face_count": 105,
+        "double_height": True,
+        "start_pos": 582656,
+        "palette": ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']  # 未校色
+    },
     "KOHRYUKI": {
         "name": "項劉記",
         "face_file": "KAO.KR1",
@@ -63,6 +72,17 @@ GAME_INFOS = {
         "face_file": "KAODATA.DAT",  # 中英文版相同
         "face_size": (64, 80),
         "double_height": True,
+        "persons": {
+            "start_pos": [8934, 13274],
+            "data_size": [17, 15],
+            "data_count": 255
+        },
+        "nations": ["France", "Holland", "Bavaria", "Denmark", "Turkey", "Italy", "Venice", "Naples", "Portugal", "Sweden", "Spain", "Prussia", "Russia", "Austria", "England", "Dublin"],
+        "places": {
+            "start_pos": 7404,
+            "data_size": 34,
+            "data_count": 45 # 1-46?
+            },
         "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
     },
     "ROYAL": {
@@ -187,6 +207,13 @@ GAME_INFOS = {
         "face_file": "KAODATA.DAT",
         "face_size": (48, 80),
         "double_height": True,
+        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
+    },
+    "TEST3": {
+        "name": "測試用",
+        "face_file": "KAODATA.DAT",
+        "face_size": (128, 160),
+        "ls11_encoded": True,
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
     }
 }
