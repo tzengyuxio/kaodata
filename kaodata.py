@@ -96,6 +96,12 @@ def export_faces(tag, path, all_in_one=False):
     if dh:
         data_size = int(data_size / 2)
     num_face = 0
+
+    filename_postfix = ''
+    if tag in ('TEST', 'TEST2'):
+        all_in_one = True
+        filename_postfix = '_' + os.path.basename(filename).split('.')[0]
+
     ls11_encoded = False if 'ls11_encoded' not in game_info else game_info['ls11_encoded']
     if ls11_encoded:
         out_filename = '{}.DEC'.format(filename)
@@ -136,7 +142,7 @@ def export_faces(tag, path, all_in_one=False):
             pos_x = (idx % 16) * face_w
             pos_y = (idx // 16) * face_h
             back_image.paste(img, (pos_x, pos_y))
-        out_filename = '{}/00_{}_FACES.png'.format(tag, tag)
+        out_filename = '{}/00_{}_FACES{}.png'.format(tag, tag, filename_postfix)
         back_image.save(out_filename)
         print('...save {}'.format(out_filename))
     else:
