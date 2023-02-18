@@ -177,6 +177,12 @@ GAME_INFOS = {
         "face_size": (48, 64),
         "palette": ['#000000', '#417100', '#D32000', '#E3A261', '#0030A2', '#7192B2', '#C36161', '#F3F3F3']
     },
+    "WINNING": {
+        "name": "光榮賽馬",
+        "face_file": "",
+        "face_size": (64, 80),
+        "palette": ['#000000', '#20D320', '#F30000', '#F3D300', '#0061C3', '#00B2F3', '#F351F3', '#F3F3F3']
+    },
     "AIR2": {
         "name": "航空霸業II",  # NOT READY
         # CITYFACE.GDT, MAKFACE.GDT, MAKER.GDT, MAN.GDT, STAFF1.GDT 均非 KAO
@@ -200,6 +206,7 @@ GAME_INFOS = {
         "name": "測試用",
         "face_file": "KAODATA.DAT",
         "face_size": (64, 80),
+        "start_pos": 2,
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
     },
     "TEST2": {

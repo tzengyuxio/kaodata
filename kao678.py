@@ -5,6 +5,8 @@ import math
 
 endian = 'little'
 
+color_tab = set()
+
 
 def load_pallete(filename, start_pos=0, reverse_rgb=False):
     with open(filename, 'rb') as f:
@@ -30,6 +32,26 @@ def load_san8_pallete(filename, start_pos=0, reverse_rgb=False):
         if reverse_rgb:
             return [tuple([x[i] for i in range(3, -1, -1)]) for x in bytes_list]
         return [tuple([x[i] for i in range(4)]) for x in bytes_list]
+
+def load_k3_pallete(filename):
+    img = Image.open(filename)
+    print('mode: {}'.format(img.mode))
+    pm, raw = img.palette.getdata()
+    print(pm)
+    print(type(raw), len(raw))
+    palette = []
+    bytes_list = [raw[i:i+4] for i in range(0, 1024, 4)]
+    # r = [tuple([x[i] for i in range(4)]) for x in bytes_list]
+    r = [tuple([x[i] for i in range(2, -1, -1)]) for x in bytes_list]
+    # r[:64] = r[63::-1]
+    for idx, rr in enumerate(r): 
+        if rr in [(173,156,140), (173,148,123), (156,132,115)]:
+            print('-[{}] {}'.format(idx, rr))
+        if rr in [(49,126,38), (132,107,82), (107,90,74)]:
+            print('+[{}] {}'.format(idx, rr))
+    return r
+
+
 
 
 def load_pallete_test(filename):
@@ -164,6 +186,47 @@ def export_san8_face(filename, p_filename, tag):
             back_image.paste(image, (pos_x, pos_y))
         back_image.save(out_filename)
 
+def export_k3_face(filename, p_filename, tag):
+    pallete = load_k3_pallete(p_filename)
+
+    if not os.path.exists(tag):
+        os.makedirs(tag)
+
+    count = os.path.getsize(filename) // (80*96)
+    with open(filename, 'rb') as f:
+
+        f.seek(0)  # 大頭像 160x180 # 9393 from van's text
+        face_w, face_h = 80, 96
+        # f.seek(24374192)  # 小頭像 64x80 # 24374193 from van's text
+        # face_w, face_h = 64, 80
+
+        img_size = face_w * face_h
+        img_w = face_w * 16
+        img_h = face_h * math.ceil(count / 16)
+        back_image = Image.new('RGB', (img_w, img_h), color='magenta')
+        out_filename = '00_{}_FACES.png'.format(tag)
+        for idx in range(count):
+            # generate one image
+            bytes_data = f.read(img_size)
+            image = Image.new('RGB', (face_w, face_h), color='magenta')
+            for i in range(img_size):
+                x, y = i % face_w, i // face_w
+                color_index = bytes_data[i]
+                # print(color_index)
+                image .putpixel((x, y), pallete[color_index])
+                color_tab.add(color_index)
+            print("process {:04d} image...".format(idx))
+            single_filename = '{}/{}_{:04d}.png'.format(tag, tag, idx+1)
+            image.save(single_filename)
+
+            # paste to back image
+            pos_x = (idx % 16) * face_w
+            pos_y = (idx // 16) * face_h
+            back_image.paste(image, (pos_x, pos_y))
+        back_image.save(out_filename)
+
+
+
 
 def main():
     args = sys.argv[1:]
@@ -178,8 +241,17 @@ def main():
     # export_all_face('KAO/SAN7_Kaodata.s7', 'KAO/SAN7_P_Kao.s7', args[0])
 
     # SAN8
-    export_san8_face("KAO/SAN8_g_maindy.s8", 'KAO/SAN8_P_MAIN.S8', args[0])
+    # export_san8_face("KAO/SAN8_g_maindy.s8", 'KAO/SAN8_P_MAIN.S8', args[0])
     # export_san8_face("KAO/SAN8_g_maindy.s8", 'KAO/SAN7_P_KAO.S7', args[0])
+
+    # KOUKAI3
+    # export_k3_face("KAO/KOUKAI3_FEMALE.CDS.DEC", 'KAO/KOUKAI3_palette256.bmp', args[0])
+    # export_k3_face("KAO/KOUKAI3_FEMALE.CDS.DEC", 'KAO/cds95FaceHeader.bmp', args[0])
+    export_k3_face("KAO/KOUKAI3_MALE.CDS.DEC", 'KAO/cds95FaceHeader.bmp', args[0])
+    # load_k3_pallete("KAO/KOUKAI3_palette64.bmp")
+    # print(len(color_tab))
+    # for cc in color_tab:
+    #     print(cc)
 
 
 if __name__ == '__main__':

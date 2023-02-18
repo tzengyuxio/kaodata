@@ -137,7 +137,8 @@ def export_faces(tag, path, all_in_one=False):
     if all_in_one:
         img_w = face_w * 16
         img_h = face_h * math.ceil(num_face / 16)
-        back_image = Image.new('RGB', (img_w, img_h), color='magenta')
+        back_image = Image.new('RGB', (img_w, img_h), color=(55, 55, 55))
+        # back_image = Image.new('RGB', (img_w, img_h), color='black')
         for idx, img in enumerate(images):
             pos_x = (idx % 16) * face_w
             pos_y = (idx // 16) * face_h
