@@ -33,6 +33,31 @@ Early KOEI Games Data Research
 | SAN13    | 三國志13         | 2016 | `.`           |        |      |                              |
 | SAN14    | 三國志14         | 2020 | `.`           |        |      |                              |
 
+SAN1_PC98_ALL_
+
+SAN1_PC98_K0001
+SAN1_DOS_K0001
+SAN1_DOS_K0001_TW
+
+SAN1_PC98_F0001
+SAN1_DOS_F0001
+SAN1_DOS_F0001_TW
+
+SAN9_WIN_K0001 (ID_PLATFORM_CATEGORY[NO]_EXTRA)
+
+K: Kao
+KL: Kao Large
+KM: Kao Midiem
+KS: Kao Small
+F: Face
+FL: Face Large
+FM: Face Midiem
+FS: Face Small
+I: Item
+E: Event
+M: Map
+U: Unit
+
 * 「年份」無特別標示者均為 DOS 或 Windows 平台的首發行年份
 * 各代用語
   * 臉譜: 4, 5

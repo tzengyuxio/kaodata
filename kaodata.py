@@ -77,7 +77,7 @@ def bytes_to_images(data, size_per_image, w, h, color_table, dh=False):
     return images
 
 
-def export_faces(tag, path, all_in_one=False):
+def export_faces(tag, path, prefix, with_single=False):
     game_info = GAME_INFOS[tag]
 
     color_table = []
@@ -99,8 +99,9 @@ def export_faces(tag, path, all_in_one=False):
 
     filename_postfix = ''
     if tag in ('TEST', 'TEST2', 'TEST3'):
-        all_in_one = True
-        filename_postfix = '_' + os.path.basename(filename).split('.')[0]
+        with_single = False 
+        pure_base = os.path.basename(filename).split('/')[-1].split('.')[0]
+        filename_postfix = '_' + pure_base
 
     ls11_encoded = False if 'ls11_encoded' not in game_info else game_info['ls11_encoded']
     if ls11_encoded:
@@ -134,7 +135,7 @@ def export_faces(tag, path, all_in_one=False):
     if not os.path.exists(tag):
         os.makedirs(tag)
 
-    if all_in_one:
+    if True:
         img_w = face_w * 16
         img_h = face_h * math.ceil(num_face / 16)
         back_image = Image.new('RGB', (img_w, img_h), color=(55, 55, 55))
@@ -143,12 +144,12 @@ def export_faces(tag, path, all_in_one=False):
             pos_x = (idx % 16) * face_w
             pos_y = (idx // 16) * face_h
             back_image.paste(img, (pos_x, pos_y))
-        out_filename = '{}/00_{}_FACES{}.png'.format(tag, tag, filename_postfix)
+        out_filename = '{}/{}00-INDEX{}.png'.format(tag, prefix, filename_postfix)
         back_image.save(out_filename)
         print('...save {}'.format(out_filename))
-    else:
+    if with_single:
         for idx, img in enumerate(images):
-            out_filename = '{}/{}_{:04d}.png'.format(tag, tag, idx + 1)
+            out_filename = '{}/{}{:04d}.png'.format(tag, prefix, idx + 1)
             img.save(out_filename)
             print('...save {}'.format(out_filename))
         print('{} images of face saved in [{}]'.format(num_face, tag))
@@ -317,9 +318,11 @@ def revert(array):
 def main():
     args = sys.argv[1:]
     if len(args) == 2:
-        export_faces(args[0], args[1])
+        export_faces(args[0], args[1], args[0])
     elif len(args) == 3:
-        export_faces(args[0], args[1], True)
+        export_faces(args[0], args[1], args[2])
+    elif len(args) == 4:
+        export_faces(args[0], args[1], args[2], args[3])
     else:
         print("Usage: {} KEYWORD FILENAME (all_in_one)".format(sys.argv[0]))
 

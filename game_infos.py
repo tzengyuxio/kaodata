@@ -92,6 +92,14 @@ GAME_INFOS = {
         "double_height": True,
         "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
     },
+    "ROYALPC98": {
+        "name": "魔法皇冠",
+        "face_file": "KAODATA.DAT",
+        "face_size": (64, 80),
+        "start_pos": 368640+46080,
+        "face_count": 91,
+        "palette": ['#000000', '#00BA65', '#FF5555', '#EFCF55', '#0065BA', '#459ADF', '#FF55FF', '#FFFFFF']
+    },
     "SAN1": {
         "name": "三國志",
         "face_file": "SAN_B/PICDATA.DAT",
@@ -164,6 +172,14 @@ GAME_INFOS = {
         "face_size": (64, 80),
         "double_height": True,
         "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
+    },
+    "SUI98": {
+        "name": "水滸傳",
+        "face_file": "KAOIBM.DAT",
+        "face_size": (64, 80),
+        "start_pos": 15360,
+        "face_count": 260,
+        "palette": ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
     },
     "TAIKOH": {
         "name": "太閣立志傳",
@@ -242,7 +258,7 @@ GAME_INFOS = {
     "TEST3": {
         "name": "測試用",
         "face_file": "KAODATA.DAT",
-        "face_size": (128, 160),
+        "face_size": (64, 80),
         "ls11_encoded": True,
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
     }
