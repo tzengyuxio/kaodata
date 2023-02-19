@@ -25,7 +25,7 @@ GAME_INFOS = {
         "face_count": 105,
         "double_height": True,
         "start_pos": 582656,
-        "palette": ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']  # 未校色
+        "palette": ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
     },
     "KOHRYUKI": {
         "name": "項劉記",
