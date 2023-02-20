@@ -202,11 +202,34 @@ GAME_INFOS = {
         "face_size": (64, 80),
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
     },
+    "NOBU1": {
+        "name": "",
+        "face_file": "",
+        "face_size": (48, 80),
+        # "face_count": 114,
+        "double_height": True,
+        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55']
+    },
+    "NOBU2": {
+        "name": "",
+        "face_file": "",
+        "face_size": (64, 80),
+        # "face_count": 114, #177 之後是大眾臉
+        "double_height": True,
+        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
+    },
+    "NOBU4": {
+        "name": "",
+        "face_file": "",
+        "face_size": (64, 80),
+        # "face_count": 114, #177 之後是大眾臉
+        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
+    },
     "TEST": {
         "name": "測試用",
         "face_file": "KAODATA.DAT",
         "face_size": (64, 80),
-        "start_pos": 2,
+        # "start_pos": 2,
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
     },
     "TEST2": {
