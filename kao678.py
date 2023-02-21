@@ -224,6 +224,40 @@ def export_k3_face(filename, p_filename, tag, prefix):
         back_image.save(out_filename)
 
 
+def nobu5():
+    args = sys.argv[1:]
+    # sep = b'\x00\x00\x00\x00\x40\x00\x50\x00'
+    sep = b'\x40\x00\x50\x00'
+    lsep = len(sep)
+    tt = dict()
+    with open(args[0], 'rb') as f:
+        f.seek(0, os.SEEK_END)
+        file_size = f.tell()
+        f.seek(0)
+
+        bs = f.read()
+        i = 0
+        old_pos = 0
+        pos = bs.find(sep)
+        while pos != -1:
+            ss = pos+lsep-old_pos
+            if ss in tt:
+                tt[ss] += 1
+            else:
+                tt[ss] = 1
+            f.seek(old_pos)
+            nn = f.read(1)
+            print('[{:04d}] {:8d}  {:8d} {:2d}(byte size)'.format(i, pos, ss, int.from_bytes(nn, 'big')))
+            i+=1
+            old_pos = pos + lsep
+            pos = bs.find(sep, old_pos)
+        print('[{:04d}] {:8d}  {:8d}'.format(i, pos, file_size-old_pos))
+
+        # for k in sorted(tt.keys()):
+        #     print("{:4d} : {:4d}".format(k, tt[k]))
+
+
+
 
 
 def main():
@@ -254,4 +288,6 @@ def main():
 
 if __name__ == '__main__':
     # 大航海時代3 80x96
-    main()
+    # main()
+
+    nobu5()

@@ -287,10 +287,6 @@ def revert(array):
 # export_faces('SAN5P', '/Users/tzengyuxio/DOSBox/SAN5', all_in_one=True)
 
 # export_faces('SAN1S', '/Users/tzengyuxio/DOSBox/SteamSAN1', all_in_one=True)
-# export_faces('SAN1PC98', '/Users/tzengyuxio/DOSBox/SAN')
-# export_faces('SAN1PC98', '/Users/tzengyuxio/DOSBox/SAN', all_in_one=True)
-# export_faces('SAN2PC98', '/Users/tzengyuxio/DOSBox/SAN2')
-# export_faces('SAN2PC98', '/Users/tzengyuxio/DOSBox/SAN2', all_in_one=True)
 
 # 大航海時代
 # export_faces('KOUKAI2', '/Users/tzengyuxio/DOSBox/DAIKOH2')
@@ -324,7 +320,7 @@ def main():
     elif len(args) == 4:
         export_faces(args[0], args[1], args[2], args[3])
     else:
-        print("Usage: {} KEYWORD FILENAME (all_in_one)".format(sys.argv[0]))
+        print("Usage: {} KEYWORD FILENAME prefix (all_in_one)".format(sys.argv[0]))
 
 
 if __name__ == '__main__':
