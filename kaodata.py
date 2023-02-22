@@ -36,9 +36,24 @@ def convert_to_array_8color(data_bytes):
             array.append(n)
     return array
 
+def convert_to_array_16color(data_bytes):
+    array = []
+    it = iter(data_bytes)
+    for b1 in it:
+        b2, b3, b4 = next(it), next(it), next(it)
+        for i in range(7, -1, -1):
+            n = ((b1 >> i) & 1) * 8 + ((b2 >> i) & 1) * 4 + ((b3 >> i) & 1) *2 + ((b4 >> i) & 1)
+            array.append(n)
+    return array
+
 
 def convert_to_array(data_bytes, color_table):
-    return convert_to_array_4color(data_bytes) if len(color_table) == 4 else convert_to_array_8color(data_bytes)
+    if len(color_table) == 4:
+        return convert_to_array_4color(data_bytes)
+    elif len(color_table) == 16:
+        return convert_to_array_16color(data_bytes)
+    else:
+        return convert_to_array_8color(data_bytes)
 
 
 def bytes_to_image(data, w, h, color_table, dh=False):
@@ -91,7 +106,7 @@ def export_faces(tag, path, prefix, with_single=False):
     dh = True if 'double_height' in game_info and game_info['double_height'] else False
     face_count = -1 if 'face_count' not in game_info else game_info['face_count']
     start_pos = 0 if 'start_pos' not in game_info else game_info['start_pos']
-    num_bits_per_color = 2 if len(color_table) == 4 else 3
+    num_bits_per_color = 2 if len(color_table) == 4 else 4 if len(color_table) == 16 else 3
     data_size = int((face_w * face_h) * num_bits_per_color / 8)
     if dh:
         data_size = int(data_size / 2)

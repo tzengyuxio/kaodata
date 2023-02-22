@@ -68,7 +68,7 @@ def load_pallete_test(filename):
     return palettes[0]
 
 
-def export_all_face(filename, palette_file, tag):
+def export_all_face(filename, palette_file, tag, prefix):
     pallete = load_pallete(palette_file)
 
     if not os.path.exists(tag):
@@ -103,7 +103,7 @@ def export_all_face(filename, palette_file, tag):
         # save single
         print('saving single files, count={}, {}'.format(count, len(images)))
         for idx, img in enumerate(images):
-            out_filename = '{}/{}_{:04d}.png'.format(tag, tag, idx+1)
+            out_filename = '{}/{}{:04d}.png'.format(tag, prefix, idx + 1)
             img.save(out_filename)
             print('...save {}'.format(out_filename))
 
@@ -114,7 +114,7 @@ def export_all_face(filename, palette_file, tag):
         img_w = face_w * 16
         img_h = face_h * math.ceil(count / 16)
         back_image = Image.new('RGB', (img_w, img_h), color=(55,55,55))
-        out_filename = '{}/00_{}_FACES.png'.format(tag, tag)
+        out_filename = '{}/{}00-INDEX{}.png'.format(tag, prefix, "")
         for idx, img in enumerate(images):
             pos_x = (idx % 16) * face_w
             pos_y = (idx // 16) * face_h
@@ -267,7 +267,7 @@ def main():
     # export_face("KAO/SAN6_KAODATA.S6", int(args[0], 10))
 
     # SAN6 輸出全部單圖與全圖
-    # export_all_face("KAO/SAN6_KAODATA.S6", "KAO/SAN6_PALETTE.S6", args[0])
+    export_all_face("KAO/SAN6_KAODATA.S6", "KAO/SAN6_PALETTE.S6", args[0], args[1])
 
     # SAN7 輸出全部單圖與全圖
     # export_all_face('KAO/SAN7_Kaodata.s7', 'KAO/SAN7_P_Kao.s7', args[0])
@@ -277,9 +277,8 @@ def main():
     # export_san8_face("KAO/SAN8_g_maindy.s8", 'KAO/SAN7_P_KAO.S7', args[0])
 
     # KOUKAI3
-    # export_k3_face("KAO/KOUKAI3_FEMALE.CDS.DEC", 'KAO/KOUKAI3_palette256.bmp', args[0])
-    export_k3_face("KAO/KOUKAI3_MALE.CDS.DEC", 'KAO/cds95FaceHeader.bmp', args[0], 'KOUKAI3_WIN_FM')
-    export_k3_face("KAO/KOUKAI3_FEMALE.CDS.DEC", 'KAO/cds95FaceHeader.bmp', args[0], 'KOUKAI3_WIN_FF')
+    # export_k3_face("KAO/KOUKAI3_MALE.CDS.DEC", 'KAO/cds95FaceHeader.bmp', args[0], 'KOUKAI3_WIN_FM')
+    # export_k3_face("KAO/KOUKAI3_FEMALE.CDS.DEC", 'KAO/cds95FaceHeader.bmp', args[0], 'KOUKAI3_WIN_FF')
     # load_k3_pallete("KAO/KOUKAI3_palette64.bmp")
     # print(len(color_tab))
     # for cc in color_tab:
@@ -288,6 +287,6 @@ def main():
 
 if __name__ == '__main__':
     # 大航海時代3 80x96
-    # main()
+    main()
 
-    nobu5()
+    # nobu5()

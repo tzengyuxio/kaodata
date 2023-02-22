@@ -230,7 +230,7 @@ GAME_INFOS = {
         "name": "",
         "face_file": "",
         "face_size": (64, 80),
-        # "face_count": 114, #177 之後是大眾臉
+        "face_count": 177, # 177 之後是大眾臉
         "double_height": True,
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
     },
@@ -244,8 +244,14 @@ GAME_INFOS = {
     "TEST": {
         "name": "測試用",
         "face_file": "KAODATA.DAT",
-        "face_size": (64, 80),
+        "face_size": (208, 80),
+        # "start_pos": 1920,
+        # "face_size": (128, 160),
+        # "face_size": (72, 32),
+        # "face_size": (80, 160),
         # "start_pos": 2,
+        # "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF', '#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
+        "double_height": True,
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
     },
     "TEST2": {
