@@ -149,7 +149,7 @@ def export_face(filename, idx):
     image.save(out_filename)
 
 
-def export_san8_face(filename, p_filename, tag):
+def export_san8_face(filename, p_filename, tag, prefix):
     pallete = load_san8_pallete(p_filename, 5720)  # 5701 from van's text
 
     if not os.path.exists(tag):
@@ -167,7 +167,7 @@ def export_san8_face(filename, p_filename, tag):
         img_w = face_w * 16
         img_h = face_h * math.ceil(count / 16)
         back_image = Image.new('RGB', (img_w, img_h), color=(55,55,55))
-        out_filename = '00_{}_FACES.png'.format(tag)
+        out_filename = '{}/{}00-INDEX.png'.format(tag, prefix)
         for idx in range(count):
             # generate one image
             bytes_data = f.read(img_size)
@@ -177,7 +177,7 @@ def export_san8_face(filename, p_filename, tag):
                 color_index = bytes_data[i]
                 image .putpixel((x, y), pallete[color_index])
             print("process {:04d} image...".format(idx))
-            single_filename = '{}/{}_{:04d}.png'.format(tag, tag, idx+1)
+            single_filename = '{}/{}{:04d}.png'.format(tag, prefix, idx + 1)
             image.save(single_filename)
 
             # paste to back image
@@ -267,14 +267,14 @@ def main():
     # export_face("KAO/SAN6_KAODATA.S6", int(args[0], 10))
 
     # SAN6 輸出全部單圖與全圖
-    export_all_face("KAO/SAN6_KAODATA.S6", "KAO/SAN6_PALETTE.S6", args[0], args[1])
+    # export_all_face("KAO/SAN6_KAODATA.S6", "KAO/SAN6_PALETTE.S6", args[0], args[1])
 
     # SAN7 輸出全部單圖與全圖
-    # export_all_face('KAO/SAN7_Kaodata.s7', 'KAO/SAN7_P_Kao.s7', args[0])
+    # export_all_face('KAO/SAN7_Kaodata.s7', 'KAO/SAN7_P_Kao.s7', args[0], args[1])
 
     # SAN8
-    # export_san8_face("KAO/SAN8_g_maindy.s8", 'KAO/SAN8_P_MAIN.S8', args[0])
-    # export_san8_face("KAO/SAN8_g_maindy.s8", 'KAO/SAN7_P_KAO.S7', args[0])
+    export_san8_face("KAO/SAN8_g_maindy.s8", 'KAO/SAN8_P_MAIN.S8', args[0], args[1])
+    # export_san8_face("KAO/SAN8_g_maindy.s8", 'KAO/SAN7_P_KAO.S7', args[0], args[1])
 
     # KOUKAI3
     # export_k3_face("KAO/KOUKAI3_MALE.CDS.DEC", 'KAO/cds95FaceHeader.bmp', args[0], 'KOUKAI3_WIN_FM')

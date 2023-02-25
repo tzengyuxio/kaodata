@@ -126,6 +126,7 @@ GAME_INFOS = {
         # KAODATA.S4 作用尚不明, File Size: 530,413 byte (340 人需要 652,800)
         "face_file": "KAODATAP.S4",
         "face_size": (64, 80),
+        "face_count": 340, # 專用頭像340, 之後水滸117, 之後大眾臉244, 共701
         "palette": ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251', '#D3D3B2']
     },
     "SAN4P": {
@@ -226,25 +227,25 @@ GAME_INFOS = {
         "double_height": True,
         "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55']
     },
-    "NOBU2": {
-        "name": "",
-        "face_file": "",
+    "NOBU3": {
+        "name": "信長之野望II 戰國群雄傳",
+        "face_file": "KAODATA.DAT", # KAO_OE 僅有前 28 人
         "face_size": (64, 80),
         "face_count": 177, # 177 之後是大眾臉
         "double_height": True,
-        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
+        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
     },
     "NOBU4": {
-        "name": "",
-        "face_file": "",
+        "name": "武將風雲錄",
+        "face_file": "KAODATA.DAT",
         "face_size": (64, 80),
-        # "face_count": 114, #177 之後是大眾臉
-        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
+        "palette": ['#000000', '#00AA00', '#AA0000', '#FFFF00', '#0000AA', '#00AAAA', '#AA00AA', '#FFFFFF']
     },
     "TEST": {
         "name": "測試用",
         "face_file": "KAODATA.DAT",
-        "face_size": (208, 80),
+        # "face_size": (208, 80),
+        "face_size": (64, 80),
         # "start_pos": 1920,
         # "face_size": (128, 160),
         # "face_size": (72, 32),
