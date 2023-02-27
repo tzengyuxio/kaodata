@@ -36,13 +36,14 @@ def convert_to_array_8color(data_bytes):
             array.append(n)
     return array
 
+
 def convert_to_array_16color(data_bytes):
     array = []
     it = iter(data_bytes)
     for b1 in it:
         b2, b3, b4 = next(it), next(it), next(it)
         for i in range(7, -1, -1):
-            n = ((b1 >> i) & 1) * 8 + ((b2 >> i) & 1) * 4 + ((b3 >> i) & 1) *2 + ((b4 >> i) & 1)
+            n = ((b1 >> i) & 1) * 8 + ((b2 >> i) & 1) * 4 + ((b3 >> i) & 1) * 2 + ((b4 >> i) & 1)
             array.append(n)
     return array
 
@@ -114,7 +115,7 @@ def export_faces(tag, path, prefix, with_single=False):
 
     filename_postfix = ''
     if tag in ('TEST', 'TEST2', 'TEST3'):
-        with_single = False 
+        with_single = False
         pure_base = os.path.basename(filename).split('/')[-1].split('.')[0]
         filename_postfix = '_' + pure_base
 
@@ -292,15 +293,6 @@ def revert(array):
 # ----------------------------------------------------------------------
 
 # 三國志 1~5
-# export_faces('SAN4', '/Users/tzengyuxio/DOSBox/SAN4')
-# export_faces('SAN4', '/Users/tzengyuxio/DOSBox/SAN4', all_in_one=True)
-# export_faces('SAN4P', '/Users/tzengyuxio/DOSBox/SAN4')
-# export_faces('SAN4P', '/Users/tzengyuxio/DOSBox/SAN4', all_in_one=True)
-# export_faces('SAN5', '/Users/tzengyuxio/DOSBox/SAN5')
-# export_faces('SAN5', '/Users/tzengyuxio/DOSBox/SAN5', all_in_one=True)
-# export_faces('SAN5P', '/Users/tzengyuxio/DOSBox/SAN5')
-# export_faces('SAN5P', '/Users/tzengyuxio/DOSBox/SAN5', all_in_one=True)
-
 # export_faces('SAN1S', '/Users/tzengyuxio/DOSBox/SteamSAN1', all_in_one=True)
 
 # 大航海時代
@@ -312,9 +304,6 @@ def revert(array):
 # data = b'\x3C\x93\xF8\x17\x13\xF8\x3B\x2F\x13\xF8\x16\xC3'
 # print(get_codes(data))
 
-# 水滸傳
-# export_faces('SUIKODEN', '/Users/tzengyuxio/DOSBox/SUI')
-# export_faces('SUIKODEN', '/Users/tzengyuxio/DOSBox/SUI', all_in_one=True)
 
 # 航空霸業II (尚未找到)
 # export_faces('AIR2', '/Users/tzengyuxio/DOSBox/AIR2', all_in_one=True)
