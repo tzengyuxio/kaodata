@@ -33,6 +33,7 @@ def load_san8_pallete(filename, start_pos=0, reverse_rgb=False):
             return [tuple([x[i] for i in range(3, -1, -1)]) for x in bytes_list]
         return [tuple([x[i] for i in range(4)]) for x in bytes_list]
 
+
 def load_k3_pallete(filename):
     img = Image.open(filename)
     print('mode: {}'.format(img.mode))
@@ -44,14 +45,12 @@ def load_k3_pallete(filename):
     # r = [tuple([x[i] for i in range(4)]) for x in bytes_list]
     r = [tuple([x[i] for i in range(2, -1, -1)]) for x in bytes_list]
     # r[:64] = r[63::-1]
-    for idx, rr in enumerate(r): 
-        if rr in [(173,156,140), (173,148,123), (156,132,115)]:
+    for idx, rr in enumerate(r):
+        if rr in [(173, 156, 140), (173, 148, 123), (156, 132, 115)]:
             print('-[{}] {}'.format(idx, rr))
-        if rr in [(49,126,38), (132,107,82), (107,90,74)]:
+        if rr in [(49, 126, 38), (132, 107, 82), (107, 90, 74)]:
             print('+[{}] {}'.format(idx, rr))
     return r
-
-
 
 
 def load_pallete_test(filename):
@@ -93,7 +92,7 @@ def export_all_face(filename, palette_file, tag, prefix):
             f.seek(offset + pos)
             img_data = f.read(size)
 
-            image = Image.new('RGB', (w, h), color=(55,55,55))
+            image = Image.new('RGB', (w, h), color=(55, 55, 55))
             for i in range(size):
                 x, y = i % w, i // w
                 color_index = img_data[i]
@@ -113,7 +112,7 @@ def export_all_face(filename, palette_file, tag, prefix):
         face_h = img_props[0][3]
         img_w = face_w * 16
         img_h = face_h * math.ceil(count / 16)
-        back_image = Image.new('RGB', (img_w, img_h), color=(55,55,55))
+        back_image = Image.new('RGB', (img_w, img_h), color=(55, 55, 55))
         out_filename = '{}/{}00-INDEX{}.png'.format(tag, prefix, "")
         for idx, img in enumerate(images):
             pos_x = (idx % 16) * face_w
@@ -140,7 +139,7 @@ def export_face(filename, idx):
     pallete = load_pallete("KAO/SAN6_PALETTE.S6")
 
     print('img_data len: {}, type: {}'.format(len(img_data), type(img_data)))
-    image = Image.new('RGB', (w, h), color=(55,55,55))
+    image = Image.new('RGB', (w, h), color=(55, 55, 55))
     for i in range(size):
         x, y = i % w, i // w
         color_index = img_data[i]
@@ -166,12 +165,12 @@ def export_san8_face(filename, p_filename, tag, prefix):
         img_size = face_w * face_h
         img_w = face_w * 16
         img_h = face_h * math.ceil(count / 16)
-        back_image = Image.new('RGB', (img_w, img_h), color=(55,55,55))
+        back_image = Image.new('RGB', (img_w, img_h), color=(55, 55, 55))
         out_filename = '{}/{}00-INDEX.png'.format(tag, prefix)
         for idx in range(count):
             # generate one image
             bytes_data = f.read(img_size)
-            image = Image.new('RGB', (face_w, face_h), color=(55,55,55))
+            image = Image.new('RGB', (face_w, face_h), color=(55, 55, 55))
             for i in range(img_size):
                 x, y = i % face_w, i // face_w
                 color_index = bytes_data[i]
@@ -185,6 +184,7 @@ def export_san8_face(filename, p_filename, tag, prefix):
             pos_y = (idx // 16) * face_h
             back_image.paste(image, (pos_x, pos_y))
         back_image.save(out_filename)
+
 
 def export_k3_face(filename, p_filename, tag, prefix):
     pallete = load_k3_pallete(p_filename)
@@ -201,12 +201,12 @@ def export_k3_face(filename, p_filename, tag, prefix):
         img_size = face_w * face_h
         img_w = face_w * 16
         img_h = face_h * math.ceil(count / 16)
-        back_image = Image.new('RGB', (img_w, img_h), color=(55,55,55))
+        back_image = Image.new('RGB', (img_w, img_h), color=(55, 55, 55))
         out_filename = '{}/{}00-INDEX.png'.format(tag, prefix)
         for idx in range(count):
             # generate one image
             bytes_data = f.read(img_size)
-            image = Image.new('RGB', (face_w, face_h), color=(55,55,55))
+            image = Image.new('RGB', (face_w, face_h), color=(55, 55, 55))
             for i in range(img_size):
                 x, y = i % face_w, i // face_w
                 color_index = bytes_data[i]
@@ -248,16 +248,13 @@ def nobu5():
             f.seek(old_pos)
             nn = f.read(1)
             print('[{:04d}] {:8d}  {:8d} {:2d}(byte size)'.format(i, pos, ss, int.from_bytes(nn, 'big')))
-            i+=1
+            i += 1
             old_pos = pos + lsep
             pos = bs.find(sep, old_pos)
         print('[{:04d}] {:8d}  {:8d}'.format(i, pos, file_size-old_pos))
 
         # for k in sorted(tt.keys()):
         #     print("{:4d} : {:4d}".format(k, tt[k]))
-
-
-
 
 
 def main():
@@ -290,3 +287,12 @@ if __name__ == '__main__':
     main()
 
     # nobu5()
+
+# GT1G0500 2C400000 20000000 01000000 00000000 00000000 00000000 04000000 10016600 00102100 B0-1 (64)
+# GT1G0500 2C400000 20000000 01000000 00000000 00000000 00000000 04000000 10016600 00102100 B0-2
+# G1TG0050 00000030 00000020 00000001 00000001 00000000 00000000 00000004 01010000 00011200 FF405154 <- 48bytes
+# GT1G0500 2C100000 20000000 01000000 00000000 00000000 00000000 04000000 10015500 00102100 B1-1 (32)
+# GT1G0500 2C001000 20000000 01000000 00000000 00000000 00000000 04000000 10019900 00102100 B2-1 (512)
+#          ^^x4
+#          16428
+#          block size

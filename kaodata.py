@@ -286,7 +286,6 @@ def revert(array):
 
 # revert([0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 3, 0, 3, 2, 3, 2, 2])
 
-
 # 成吉思涵 (色盤未確定)
 # export_kaodata('KHAN', KHAN_KAODATA, KHAN_PALETTE)
 

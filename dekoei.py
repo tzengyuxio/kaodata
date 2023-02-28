@@ -79,7 +79,17 @@ def san12():
 
     Example:
 
-        <placeholder>
+        dekoei.py san12 face -f KAO/SAN12_KAO_W_L.S12  --index KAO/SAN12_KAODATA.S12 --tag SAN12LARGE --prefix "SAN12_WIN_FL"
+        ./dekoei.py san12 face -f KAO/SAN12_ADD00_KAO_W_L.S12  --index KAO/SAN12_ADD00.dat --tag SAN12LARGE --prefix "SAN12_WIN_FL"
+        ./dekoei.py san12 face -f KAO/SAN12_ADD20_KAO_W_L.S12  --index KAO/SAN12_ADD20.dat --tag SAN12LARGE --prefix "SAN12_WIN_FL"
+        ./dekoei.py san12 face -f KAO/SAN12_ADD21_KAO_W_L.S12  --index KAO/SAN12_ADD21.dat --tag SAN12LARGE --prefix "SAN12_WIN_FL"
+        ./dekoei.py san12 face -f KAO/SAN12_SP0_KAO_W_L.S12  --index KAO/SAN12_SP0.dat --tag SAN12LARGE --prefix "SAN12_WIN_FL"
+
+        ./dekoei.py san12 face -f KAO/SAN12_KAO_F_M.S12  --index KAO/SAN12_KAODATA.S12 --tag SAN12SMALL --prefix "SAN12_WIN_FM"
+        ./dekoei.py san12 face -f KAO/SAN12_ADD00_KAO_F_M.S12  --index KAO/SAN12_ADD00.dat --tag SAN12SMALLA00 --prefix "SAN12_WIN_FM"
+        ./dekoei.py san12 face -f KAO/SAN12_ADD20_KAO_F_M.S12  --index KAO/SAN12_ADD20.dat --tag SAN12SMALLA20 --prefix "SAN12_WIN_FM"
+        ./dekoei.py san12 face -f KAO/SAN12_ADD21_KAO_F_M.S12  --index KAO/SAN12_ADD21.dat --tag SAN12SMALLA21 --prefix "SAN12_WIN_FM"
+        ./dekoei.py san12 face -f KAO/SAN12_SP0_KAO_F_M.S12  --index KAO/SAN12_SP0.dat --tag SAN12SMALLSP --prefix "SAN12_WIN_FM"
     """
     pass
 
@@ -269,7 +279,7 @@ def save_faces(face_images, face_w, face_h, prefix, out_dir, crop_size=None):
         img_h = face_h * math.ceil(count / 16)
         index_image = Image.new('RGB', (img_w, img_h), color=(55, 55, 55))
         out_filename = '{}/{}00-INDEX.png'.format(out_dir, prefix)
-        for idx, img in face_images.items():
+        for idx, img in enumerate(face_images.values()):
             pos_x = (idx % 16) * face_w
             pos_y = (idx // 16) * face_h
             if crop_size is not None:
@@ -279,7 +289,7 @@ def save_faces(face_images, face_w, face_h, prefix, out_dir, crop_size=None):
         index_image.save(out_filename)
 
 
-def san12_decode_group(f, start_pos: int, data_size: int, crop_w, crop_h, face_w, face_h):
+def san12_decode_group(f, start_pos: int, data_size: int, crop_w, crop_h, face_w, face_h, indexes=None):
     print(start_pos, data_size)
     f.seek(start_pos)
     group_header = f.read(4)  # "LINK"
@@ -297,16 +307,20 @@ def san12_decode_group(f, start_pos: int, data_size: int, crop_w, crop_h, face_w
         block_start_pos, block_data_size = block_info
         f.seek(start_pos + block_start_pos)
         header = f.read(8)  # header, "GT1G0500" or "G1TG0050"
-        endian = 'little' if header == "GT1G0500" else 'big'
+        endian = 'little' if header == b"GT1G0500" else 'big'
         block_size = int.from_bytes(f.read(4), endian)  # data size
         if block_size < 32 * 32:
             print('... [{}] skipped, no data'.format(idx))
             continue
-        print('... [{}] read'.format(idx))
+        print('... [{}][{}] read, block_start_pos: {}, block_size: {}'.format(
+            idx, header, block_start_pos, block_size))
         f.read(32)  # unknown
         px_data = f.read(crop_size)
         image = san11_load_face(px_data, crop_w, crop_h, 32)
-        face_images[idx] = image
+        if indexes is None:
+            face_images[idx] = image
+        else:
+            face_images[indexes[idx]] = image
     return face_images
 
 
@@ -440,10 +454,39 @@ def san11_face(face_file, tag, prefix, count):
 
 @click.command(help="顏CG解析")
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--index', 'index_file', help="索引檔案")
 @click.option('-t', '--tag', 'tag', default='SAN12', help='')
 @click.option('--count', 'count', default=9999, help='')
 @click.option('--prefix', 'prefix', help='')
-def san12_face(face_file, tag, prefix, count):
+def san12_face(face_file, index_file, tag, prefix, count):
+    if index_file is not None:
+        face_w, face_h, canvas_w, canvas_h = 32, 32, 32, 32
+        if "F_M" in face_file:
+            face_w, face_h, canvas_w, canvas_h = 48, 60, 64, 64
+        elif "W_S" in face_file:
+            face_w, face_h, canvas_w, canvas_h = 90, 128, 128, 128
+        elif "W_L" in face_file:
+            face_w, face_h, canvas_w, canvas_h = 360, 512, 512, 512
+        indexes = []
+        with open(index_file, 'rb') as f:
+            header = f.read(3)
+            print('header: {}'.format(header))
+            if header == b"S12":
+                print("This is a S12 index file.")
+                indexes = None
+            else:
+                f.seek(0)
+                idx_count = int.from_bytes(f.read(4), 'little')
+                while True:
+                    raw = f.read(4)
+                    if raw == b'':
+                        break
+                    indexes.append(int.from_bytes(raw, 'little'))
+        with open(face_file, 'rb') as f:
+            start_pos, data_size = 0, -1
+            face_images = san12_decode_group(f, start_pos, data_size, canvas_w, canvas_h, face_w, face_h, indexes)
+            save_faces(face_images, face_w, face_h, prefix, tag, crop_size=(0, 0, face_w, face_h))
+        return
     with open(face_file, 'rb') as f:
         header = f.read(4)
         count = int.from_bytes(f.read(4), 'little')

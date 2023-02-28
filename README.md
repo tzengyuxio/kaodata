@@ -33,45 +33,7 @@ Early KOEI Games Data Research
 | SAN13    | 三國志13         | 2016 | `.`           |        |      |                              |
 | SAN14    | 三國志14         | 2020 | `.`           |        |      |                              |
 
-SAN1_PC98_ALL_
-
-SAN1_PC98_K0001
-SAN1_DOS_K0001
-SAN1_DOS_K0001_TW
-
-SAN1_PC98_F0001
-SAN1_DOS_F0001
-SAN1_DOS_F0001_TW
-
-SAN9_WIN_K0001 (ID_PLATFORM_CATEGORY[NO]_EXTRA)
-
-K: Kao
-KL: Kao Large
-KM: Kao Midiem
-KS: Kao Small
-F: Face
-FL: Face Large
-FM: Face Midiem
-FS: Face Small
-I: Item
-E: Event
-M: Map
-U: Unit
-
 * 「年份」無特別標示者均為 DOS 或 Windows 平台的首發行年份
-* 各代用語
-  * 臉譜: 4, 5
-  * 相貌: 7, 8
-  * 容貌: 11, 12, 13
-  * 臉孔: 14 (又稱, 臉部畫像)
-
-### Notes
-
-* Steam 版 SAN1, SAN2 用的是 PC9801 的版本
-* SAN1 DOS 版(Eng.) 與 Steam/PC98 版，除了顏色的差別外(4色 vs 8色), 顏良(No.41)頭盔也是一個差別
-* 上面兩個版本在大眾臉武將處的空白也有差異
-* SAN2 DOS 版 與 Steam/PC98 版，人物大致相同但有差異，前者感覺大小比較一致
-* SAN2 DOS 版 與 Steam/PC98 版，關羽的帽子色不同，張飛的帽子則有明顯顏色不同（前藍後紅）
 
 ## Fonts 字庫
 
