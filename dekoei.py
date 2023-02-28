@@ -69,6 +69,21 @@ def san11():
     pass
 
 
+@click.group()
+def san12():
+    """三國志XII
+
+    \b
+    File List:
+        <placeholder>
+
+    Example:
+
+        <placeholder>
+    """
+    pass
+
+
 def get_codes(data):
     codes = []
     stream = BitStream(data, bytes)
@@ -213,25 +228,37 @@ def san11_load_face(data, face_w, face_h, bpp):
             color_index = face_data[px_idx]
             image.putpixel((x, y), palette[color_index])
         return image
-    for px_idx in range(data_size):
-        x, y = px_idx % face_w, px_idx // face_w
-        color = [data[px_idx*3+i] for i in range(3)]
-        color.reverse()
-        image.putpixel((x, y), tuple(color))
-    return image
+    if bpp == 24:
+        for px_idx in range(data_size):
+            x, y = px_idx % face_w, px_idx // face_w
+            color = [data[px_idx*3+i] for i in range(3)]
+            color.reverse()
+            image.putpixel((x, y), tuple(color))
+        return image
+    else:  # bpp == 32
+        for px_idx in range(data_size):
+            x, y = px_idx % face_w, px_idx // face_w
+            color = [data[px_idx*4+i] for i in range(4)]
+            color = color[2::-1] + color[3:]
+            image.putpixel((x, y), tuple(color))
+        return image
 
 
-def save_faces(face_images, face_w, face_h, prefix, out_dir):
+def save_faces(face_images, face_w, face_h, prefix, out_dir, crop_size=None):
     is_save_index = False if face_w > 128 else True
     count = len(face_images)
+    if type(face_images) == list:
+        face_images = dict(zip(range(1, count+1), face_images))
 
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
     # save single
     print('saving single files, count={}'.format(count))
-    for idx, img in enumerate(face_images):
+    for idx, img in face_images.items():
         out_filename = '{}/{}{:04d}.png'.format(out_dir, prefix, idx + 1)
+        if crop_size is not None:
+            img = img.crop(crop_size)
         img.save(out_filename)
         print("... save {}".format(out_filename))
 
@@ -242,11 +269,45 @@ def save_faces(face_images, face_w, face_h, prefix, out_dir):
         img_h = face_h * math.ceil(count / 16)
         index_image = Image.new('RGB', (img_w, img_h), color=(55, 55, 55))
         out_filename = '{}/{}00-INDEX.png'.format(out_dir, prefix)
-        for idx, img in enumerate(face_images):
+        for idx, img in face_images.items():
             pos_x = (idx % 16) * face_w
             pos_y = (idx // 16) * face_h
-            index_image.paste(img, (pos_x, pos_y))
+            if crop_size is not None:
+                index_image.paste(img.crop(crop_size), (pos_x, pos_y))
+            else:
+                index_image.paste(img, (pos_x, pos_y))
         index_image.save(out_filename)
+
+
+def san12_decode_group(f, start_pos: int, data_size: int, crop_w, crop_h, face_w, face_h):
+    print(start_pos, data_size)
+    f.seek(start_pos)
+    group_header = f.read(4)  # "LINK"
+    group_count = int.from_bytes(f.read(4), 'little')
+    group_u1 = f.read(8)  # (face:2000) 20000000 d0070000, (item:179) 20000000 b3000000
+    group_u2 = f.read(16)  # A03E0000 00000000 00000000 00000000
+    block_infos = []
+    for _ in range(group_count):
+        block_start_pos = int.from_bytes(f.read(4), 'little')
+        block_data_size = int.from_bytes(f.read(4), 'little')
+        block_infos.append((block_start_pos, block_data_size))
+    face_images = {}
+    crop_size = crop_w * crop_h * 4
+    for idx, block_info in enumerate(block_infos):
+        block_start_pos, block_data_size = block_info
+        f.seek(start_pos + block_start_pos)
+        header = f.read(8)  # header, "GT1G0500" or "G1TG0050"
+        endian = 'little' if header == "GT1G0500" else 'big'
+        block_size = int.from_bytes(f.read(4), endian)  # data size
+        if block_size < 32 * 32:
+            print('... [{}] skipped, no data'.format(idx))
+            continue
+        print('... [{}] read'.format(idx))
+        f.read(32)  # unknown
+        px_data = f.read(crop_size)
+        image = san11_load_face(px_data, crop_w, crop_h, 32)
+        face_images[idx] = image
+    return face_images
 
 
 @click.command(help="顏CG解析")
@@ -377,13 +438,54 @@ def san11_face(face_file, tag, prefix, count):
         print('total counting: {}'.format(counting))
 
 
+@click.command(help="顏CG解析")
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('-t', '--tag', 'tag', default='SAN12', help='')
+@click.option('--count', 'count', default=9999, help='')
+@click.option('--prefix', 'prefix', help='')
+def san12_face(face_file, tag, prefix, count):
+    with open(face_file, 'rb') as f:
+        header = f.read(4)
+        count = int.from_bytes(f.read(4), 'little')
+        u = f.read(8)  # 01000000 00000000, unknown
+        print(' '.join(['%02x' % b for b in u]))
+        group_infos = []
+        for _ in range(count):
+            start_pos = int.from_bytes(f.read(4), 'little')
+            data_size = int.from_bytes(f.read(4), 'little')
+            group_infos.append((start_pos, data_size))
+        for idx, group_info in enumerate(group_infos):
+            start_pos, datasize = group_info
+            f.seek(start_pos)
+            group_header = f.read(4)
+            group_count = int.from_bytes(f.read(4), 'little')
+            group_u = f.read(8)  # (face:2000) 20000000 d0070000, (item:179) 20000000 b3000000
+            group_u2 = f.read(16)  # A03E0000 00000000 00000000 00000000
+            print('[{}{}] {:5d}: {}'.format(group_header, idx, group_count, ' '.join(['%02x' % b for b in group_u])))
+            # groups
+            # [0] FACE 64x64x32bpp, 2000 (48x60)
+            # [1] FACE 32x32x32bpp, 2000
+            # [2] BUST 512x512x32bpp, 2000 (360x512)
+            # [3] BUST 128x128x32bpp, 2000 (90x128)
+            # [4] ITEM, 179
+            # [5] 'LZP2' --17bytes-> 'LINK'
+        # start_pos, data_size = group_infos[0]
+        # face_images = san12_decode_group(f, start_pos, data_size, 64, 64, 48, 60)
+        # save_faces(face_images, 48, 60, prefix, tag, crop_size=(0, 0, 48, 60))
+        start_pos, data_size = group_infos[2]
+        face_images = san12_decode_group(f, start_pos, data_size, 512, 512, 360, 512)
+        save_faces(face_images, 360, 512, prefix, tag, crop_size=(0, 0, 360, 512))
+
+
 san9.add_command(san9_face, "face")
 san9.add_command(san9_person, "person")
 san10.add_command(san10_face, "face")
 san11.add_command(san11_face, "face")
+san12.add_command(san12_face, "face")
 dekoei.add_command(san9)
 dekoei.add_command(san10)
 dekoei.add_command(san11)
+dekoei.add_command(san12)
 
 
 if __name__ == '__main__':
