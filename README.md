@@ -37,6 +37,9 @@ Early KOEI Games Data Research
 
 ## Fonts 字庫
 
+## 遊戲代號參考
+
+```
 VOL 1：信長野望全國版/維新之嵐/伊忍道 (NOBUNAGA/ISHIN/ININDO)
 VOL 2：三國誌/ROYAL/歐陸戰線 (SANGOKU/ROYAL/EUROPE)
 VOL 3：蒼狼與白鹿/大航海時代/拿破侖 (GENGHIS/DAIKOKAI/LEMPE)
@@ -44,3 +47,4 @@ VOL 4：信長野望戰國群雄轉/源平合戰/三國英傑傳 (SENGOKU/GENPEI
 VOL 5：三國誌2/太閣立志傳/項劉記 (SANGOKU2/TAIKOH/KOHRYUKI)
 VOL 6：光榮賽馬/水滸傳天命之誓/蒼狼與白鹿之元朝密史 (WINNING/SUIKODEN/GENCHOH)
 VOL 7 :信長野望武將風雲錄/大航海時代2/航空霸業2 (BUSHOH/DAIKOH2/AIR2)
+```
