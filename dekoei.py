@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
+import zlib
 import click
 from PIL import Image
 import os
 import os.path
 import math
 from bitstream import BitStream
+import io
 
 
 def grouped(iterable, n):
@@ -56,7 +58,7 @@ def san10():
 
 @click.group()
 def san11():
-    """三國志XI
+    """三國志11
 
     \b
     File List:
@@ -71,7 +73,7 @@ def san11():
 
 @click.group()
 def san12():
-    """三國志XII
+    """三國志12
 
     \b
     File List:
@@ -90,6 +92,32 @@ def san12():
         ./dekoei.py san12 face -f KAO/SAN12_ADD20_KAO_F_M.S12  --index KAO/SAN12_ADD20.dat --tag SAN12SMALLA20 --prefix "SAN12_WIN_FM"
         ./dekoei.py san12 face -f KAO/SAN12_ADD21_KAO_F_M.S12  --index KAO/SAN12_ADD21.dat --tag SAN12SMALLA21 --prefix "SAN12_WIN_FM"
         ./dekoei.py san12 face -f KAO/SAN12_SP0_KAO_F_M.S12  --index KAO/SAN12_SP0.dat --tag SAN12SMALLSP --prefix "SAN12_WIN_FM"
+    """
+    pass
+
+
+@click.group()
+def san13():
+    """三國志13
+
+    \b
+    File List:
+        <placeholder>
+
+    Example:
+    """
+    pass
+
+
+@click.group()
+def san14():
+    """三國志14
+
+    \b
+    File List:
+        <placeholder>
+
+    Example:
     """
     pass
 
@@ -324,6 +352,183 @@ def san12_decode_group(f, start_pos: int, data_size: int, crop_w, crop_h, face_w
     return face_images
 
 
+def decode_raw(data, face_w, face_h, out_dir='.', prefix='TEST_F'):
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+    f = io.BytesIO(data)
+    cnt = int.from_bytes(f.read(4), 'little')
+    block_infos = []
+    for _ in range(cnt):
+        start_pos = int.from_bytes(f.read(4), 'little')
+        data_size = int.from_bytes(f.read(4), 'little')
+        block_infos.append((start_pos, data_size))
+    for i in range(cnt):
+        start_pos, data_size = block_infos[i]
+        f.seek(start_pos)
+        block_data = f.read(data_size)
+        # print(block_data[:3])
+        if block_data[:3] == b'zp1':  # zp1
+            # print('decode zp1')
+            decode_zp1(block_data, face_w, face_h, i, out_dir, prefix)
+        else:
+            print('unknown how to decode')
+
+
+def decode_zp1(data, face_w, face_h, idx=0, out_dir='.', prefix='TEST_F'):
+    f = io.BytesIO(data)
+    f.read(4)  # header 'zp1 '
+    sz = int.from_bytes(f.read(4), 'little')
+    f.read(4)  # unknown
+    cnt = int.from_bytes(f.read(4), 'little')
+    block_sizes = []
+    for _ in range(cnt):
+        block_sizes.append(int.from_bytes(f.read(4), 'little'))
+    f.seek(2048)
+    crop_size = (0, 0, face_w, face_h)
+    for i in range(cnt):
+        bsz_intable = block_sizes[i]
+        bsz_inblock = int.from_bytes(f.read(4), 'little')
+        print(bsz_intable, bsz_inblock)
+        zipped = f.read(bsz_inblock)
+        new_file = zlib.decompress(zipped)
+        images = decode_gt1g(new_file)
+        if images is None:
+            continue
+        elif len(images) == 1:
+            out_filename = '{}/{}{:04d}.png'.format(out_dir, prefix, idx)
+            images[0].crop(crop_size).save(out_filename)
+        else:
+            for frame_idx, img in enumerate(images):
+                out_filename = '{}/{}{:04d}_{:02d}.png'.format(out_dir, prefix, idx, frame_idx)
+                img.crop(crop_size).save(out_filename)
+
+
+def decode_gt1g(data, idx=0):
+    """
+    return dds image
+    """
+    f = io.BytesIO(data)
+    g1t_size = len(data)
+
+    # g1t_header (28 or 32 bytes)
+    header = f.read(4)  # header, "GT1G"
+    endian = 'little' if header == b"GT1G" else 'big'
+    version = f.read(4)  # version, "0600"
+    total_size = int.from_bytes(f.read(4), endian)  # data size
+    if total_size < 32 * 32:
+        print('... [{}] skipped, no data'.format(idx))
+        return
+    header_size = int.from_bytes(f.read(4), endian)  # header size
+    nb_textures = int.from_bytes(f.read(4), endian)
+    platform = int.from_bytes(f.read(4), endian)  # platform
+    extra_size = int.from_bytes(f.read(4), endian)
+    print('... [{}][{}] read, block_size: {}, {}, {}, {}, {}'.format(
+        idx, header, total_size, header_size, nb_textures, platform, extra_size))
+
+    # offset table (4 * nb_textures)
+    f.seek(header_size)
+    offset_tables = []
+    for i in range(nb_textures):
+        offset_tables.append(int.from_bytes(f.read(4), 'little'))
+    # print('offset_table', offset_tables)
+
+    print('TYPE OFFSET     SIZE       NAME           DIMENSIONS MIPMAPS PROPS')
+    images = []
+    for i in range(nb_textures):
+        f.seek(header_size+offset_tables[i])
+        mm = int.from_bytes(f.read(1), 'little')  # z_mipmaps, mipmaps
+        tex_mipmaps = (mm >> 4) & 0x0F
+        tex_z_mipmaps = mm & 0x0F
+        tex_type = f.read(1)  # DDS_FORMAT_DXT5 0x08
+        dx_dy = int.from_bytes(f.read(1), 'little')
+        tex_dx = (dx_dy >> 4) & 0x0F
+        tex_dy = dx_dy & 0x0F
+        flags = f.read(5)
+        data_size = int.from_bytes(f.read(4), 'little')  # should only 0 or 0x0c or 0x10 or 0x14, extra flag size
+        if data_size >= 0x0c:
+            flag_depth = f.read(4)
+            flag1 = f.read(4)  # number of frames
+        texture_size = 0
+        if i + 1 == nb_textures:  # last one
+            texture_size = g1t_size - header_size
+            texture_size -= data_size
+            texture_size -= len(offset_tables) * 4
+        else:
+            texture_size = offset_tables[i+1] - offset_tables[i]
+        dims = '{}x{}'.format(1 << tex_dx, 1 << tex_dy)
+        texture_size -= 8  # sizeof g1t_tex_header
+        print('{} {} {} {} {}'.format(tex_type,
+                                      header_size+extra_size+offset_tables[i],
+                                      texture_size,
+                                      dims,
+                                      tex_mipmaps
+                                      ))
+        # TYPE OFFSET     SIZE       NAME                   DIMENSIONS MIPMAPS PROPS
+        # 0x08 0x00000024 0x00004000 test_new_file0\000.dds 128x128    1       -
+        # expected SIZE: 16384, actual 16384 g1t_size: 16440, header_size: 32
+        print()
+        fout = io.BytesIO(b'')
+        fout.write(b'DDS ')
+        # write dds header
+        dds_header_size = 124
+        dds_header_flags = 0x00001007 | 0x00080000  # DDS_HEADER_FLAGS_TEXTURE | DDS_HEADER_FLAGS_LINEARSIZE;
+        dds_header_height = 1 << tex_dy
+        dds_header_width = 1 << tex_dx
+        dds_header_pitch_or_linear_size = ((dds_header_width + 3) // 4) * \
+            ((dds_header_height + 3) // 4) * 16  # 16: bpb, bytes per pixel block
+        dds_header_depth = 0
+        dds_header_mipmap_count = tex_mipmaps  # 0 in this case
+        dds_header_reserved = 0  # all 0
+        dds_header_caps = 4096  # 0x00001000  // DDSCAPS_TEXTURE
+        if dds_header_mipmap_count != 0:
+            dds_header_flags |= 0x00020000  # // DDSD_MIPMAPCOUNT
+            dds_header_caps |= 262152  # DDS_SURFACE_FLAGS_MIPMAP 0x00400008  // DDSCAPS_COMPLEX | DDSCAPS_MIPMAP
+        dds_header_caps2 = 0
+        dds_header_caps3 = 0  # 0
+        dds_header_caps4 = 0  # 0
+        dds_header_reserved2 = 0  # 0
+        fout.write(dds_header_size.to_bytes(4, 'little'))
+        fout.write(dds_header_flags.to_bytes(4, 'little'))
+        fout.write(dds_header_height.to_bytes(4, 'little'))
+        fout.write(dds_header_width.to_bytes(4, 'little'))
+        fout.write(dds_header_pitch_or_linear_size.to_bytes(4, 'little'))
+        fout.write(dds_header_depth.to_bytes(4, 'little'))
+        fout.write(dds_header_mipmap_count.to_bytes(4, 'little'))
+        for i in range(11):
+            fout.write(dds_header_reserved.to_bytes(4, 'little'))
+        # ddspf
+        ddspf_size = 32
+        ddspf_flags = 4  # DDS_FOURCC 0x00000004  // DDPF_FOURCC
+        ddspf_four_cc = b'DXT5'  # "DXT5"
+        ddspf_rgb_bit_count = 0
+        ddspf_r_bit_mask = 0
+        ddspf_g_bit_mask = 0
+        ddspf_b_bit_mask = 0
+        ddspf_a_bit_mask = 0
+        fout.write(ddspf_size.to_bytes(4, 'little'))
+        fout.write(ddspf_flags.to_bytes(4, 'little'))
+        fout.write(ddspf_four_cc)
+        fout.write(ddspf_rgb_bit_count.to_bytes(4, 'little'))
+        fout.write(ddspf_r_bit_mask.to_bytes(4, 'little'))
+        fout.write(ddspf_g_bit_mask.to_bytes(4, 'little'))
+        fout.write(ddspf_b_bit_mask.to_bytes(4, 'little'))
+        fout.write(ddspf_a_bit_mask.to_bytes(4, 'little'))
+
+        fout.write(dds_header_caps.to_bytes(4, 'little'))
+        fout.write(dds_header_caps2.to_bytes(4, 'little'))
+        fout.write(dds_header_caps3.to_bytes(4, 'little'))
+        fout.write(dds_header_caps4.to_bytes(4, 'little'))
+        fout.write(dds_header_reserved2.to_bytes(4, 'little'))
+
+        # data
+        f.seek(len(data) - texture_size)
+        fout.write(f.read(texture_size))
+
+        images.append(Image.open(fout))
+    return images
+
+
 @click.command(help="顏CG解析")
 @click.option('-p', '--palette', 'palette_file', help="色盤", required=True)
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
@@ -520,15 +725,55 @@ def san12_face(face_file, index_file, tag, prefix, count):
         save_faces(face_images, 360, 512, prefix, tag, crop_size=(0, 0, 360, 512))
 
 
+@click.command(help="顏CG解析")
+@click.option('-d', '--data', 'data_file', help="資料檔案", required=True)
+@click.option('-t', '--tag', 'tag', default='SAN13', help='')
+@click.option('--count', 'count', default=9999, help='')
+@click.option('--prefix', 'prefix', help='')
+def san13_face(data_file, tag, prefix, count):
+    data0 = data_file
+    data1 = data_file.replace('0', '1')
+    # print(data0, ':', data1)
+    data_groups = []
+    with open(data0, 'rb') as f:
+        idx = 0
+        while dd1 := f.read(8):
+            start_pos = int.from_bytes(dd1, 'little')
+            u1 = int.from_bytes(f.read(8), 'little')  # unzip size?
+            size = int.from_bytes(f.read(8), 'little')
+            u3 = int.from_bytes(f.read(8), 'little')  # zip or not
+            # print('[{}] {}, {}'.format(idx, start_pos, size))
+            data_groups.append((start_pos, u1, size, u3))
+            idx += 1
+    group_idx = 20
+    start_pos, _, size, _ = data_groups[group_idx]
+    face_w, face_h = 72, 72
+    img_infos = []
+    with open(data1, 'rb') as f:
+        f.seek(start_pos)
+        data = f.read(size)
+        decode_raw(data, face_w, face_h, out_dir=tag, prefix=prefix)
+        # img_count = int.from_bytes(f.read(4), 'little')
+        # print(start_pos, img_count)
+        # for idx in range(img_count):
+        #     img_sp = int.from_bytes(f.read(4), 'little')
+        #     img_sz = int.from_bytes(f.read(4), 'little')
+        #     img_infos.append((img_sp, img_sz))
+        #     print(idx, img_sp, img_sz, start_pos+img_sp)
+
+
 san9.add_command(san9_face, "face")
 san9.add_command(san9_person, "person")
 san10.add_command(san10_face, "face")
 san11.add_command(san11_face, "face")
 san12.add_command(san12_face, "face")
+san13.add_command(san13_face, "face")
 dekoei.add_command(san9)
 dekoei.add_command(san10)
 dekoei.add_command(san11)
 dekoei.add_command(san12)
+dekoei.add_command(san13)
+dekoei.add_command(san14)
 
 
 if __name__ == '__main__':
