@@ -352,9 +352,13 @@ def san12_decode_group(f, start_pos: int, data_size: int, crop_w, crop_h, face_w
     return face_images
 
 
-def decode_raw(data, face_w, face_h, out_dir='.', prefix='TEST_F'):
+def decode_raw(data, alpha=True, crop=None, out_dir='.', prefix='TEST_F'):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
+        os.makedirs(out_dir + '/gt1g')
+        os.makedirs(out_dir + '/dds')
+        os.makedirs(out_dir + '/alpha')
+        os.makedirs(out_dir + '/rgb')
 
     f = io.BytesIO(data)
     cnt = int.from_bytes(f.read(4), 'little')
@@ -363,6 +367,7 @@ def decode_raw(data, face_w, face_h, out_dir='.', prefix='TEST_F'):
         start_pos = int.from_bytes(f.read(4), 'little')
         data_size = int.from_bytes(f.read(4), 'little')
         block_infos.append((start_pos, data_size))
+    # cnt = 1  # breaker
     for i in range(cnt):
         start_pos, data_size = block_infos[i]
         f.seek(start_pos)
@@ -370,12 +375,12 @@ def decode_raw(data, face_w, face_h, out_dir='.', prefix='TEST_F'):
         # print(block_data[:3])
         if block_data[:3] == b'zp1':  # zp1
             # print('decode zp1')
-            decode_zp1(block_data, face_w, face_h, i, out_dir, prefix)
+            decode_zp1(block_data, alpha, crop, i, out_dir, prefix)
         else:
             print('unknown how to decode')
 
 
-def decode_zp1(data, face_w, face_h, idx=0, out_dir='.', prefix='TEST_F'):
+def decode_zp1(data, alpha=True, crop_size=None, idx=0, out_dir='.', prefix='TEST_F'):
     f = io.BytesIO(data)
     f.read(4)  # header 'zp1 '
     sz = int.from_bytes(f.read(4), 'little')
@@ -384,24 +389,61 @@ def decode_zp1(data, face_w, face_h, idx=0, out_dir='.', prefix='TEST_F'):
     block_sizes = []
     for _ in range(cnt):
         block_sizes.append(int.from_bytes(f.read(4), 'little'))
+    gt1g_file = bytearray()
     f.seek(2048)
-    crop_size = (0, 0, face_w, face_h)
     for i in range(cnt):
         bsz_intable = block_sizes[i]
+        start_pos = f.tell()
         bsz_inblock = int.from_bytes(f.read(4), 'little')
-        print(bsz_intable, bsz_inblock)
-        zipped = f.read(bsz_inblock)
+        read_size = math.ceil(bsz_intable/128) * 128 - 4
+        print('[{}] zlib block: start_pos: {}, size: {}'.format(i, start_pos, read_size))
+        zipped = f.read(read_size)
         new_file = zlib.decompress(zipped)
-        images = decode_gt1g(new_file)
-        if images is None:
-            continue
-        elif len(images) == 1:
-            out_filename = '{}/{}{:04d}.png'.format(out_dir, prefix, idx)
-            images[0].crop(crop_size).save(out_filename)
-        else:
-            for frame_idx, img in enumerate(images):
-                out_filename = '{}/{}{:04d}_{:02d}.png'.format(out_dir, prefix, idx, frame_idx)
-                img.crop(crop_size).save(out_filename)
+        print('[{}-{}] new_file size: {} ({})'.format(idx, i, len(new_file), hex(len(new_file))))
+        gt1g_file.extend(new_file)
+
+        # ## to images
+        # images = decode_gt1g(new_file)
+        # if images is None:
+        #     continue
+        # elif len(images) == 1:
+        #     out_filename = '{}/{}{:04d}.png'.format(out_dir, prefix, idx)
+        #     img = images[0].crop(crop_size) if alpha else images[0].crop(crop_size).convert('RGB')
+        #     img.save(out_filename)
+        # else:
+        #     for frame_idx, img in enumerate(images):
+        #         out_filename = '{}/{}{:04d}_{:02d}.png'.format(out_dir, prefix, idx, frame_idx)
+        #         aimg = img.crop(crop_size) if alpha else img.crop(crop_size).convert('RGB')
+        #         aimg.save(out_filename)
+        # ## to decompressed files
+        # out_filename = '{}/TEST{}-{:04d}.dat'.format(out_dir, idx, i)
+        # with open(out_filename, 'xb') as fout:
+        #     fout.write(new_file)
+    # TODOS
+    # - save gt1g file for check
+    # - save DDS files for check
+    gt1g_out_filename = '{}/gt1g/{}{:04d}.gt1g'.format(out_dir, prefix, idx)
+    with open(gt1g_out_filename, 'xb') as fout:
+        fout.write(gt1g_file)
+    images = decode_gt1g(gt1g_file)
+    if images is None:
+        print('decode gt1g error')
+        return
+    elif len(images) == 1:
+        out_filename = '{}/{}{:04d}.png'.format(out_dir, prefix, idx)
+        img = images[0].crop(crop_size) if alpha else images[0].crop(crop_size).convert('RGB')
+        img.save(out_filename)
+    else:
+        for frame_idx, img in enumerate(images):
+            out_filename = '{}/dds/{}{:04d}_{:02d}.dds'.format(out_dir, prefix, idx, frame_idx)
+            img.save(out_filename)
+            if frame_idx == 2:
+                out_filename_alpha = '{}/alpha/{}{:04d}.png'.format(out_dir, prefix, idx, frame_idx)
+                out_filename_rgb = '{}/rgb/{}{:04d}.png'.format(out_dir, prefix, idx, frame_idx)
+                aimg = img.crop(crop_size)
+                aimg.save(out_filename_alpha)
+                aimg = aimg.convert('RGB')
+                aimg.save(out_filename_rgb)
 
 
 def decode_gt1g(data, idx=0):
@@ -745,14 +787,21 @@ def san13_face(data_file, tag, prefix, count):
             # print('[{}] {}, {}'.format(idx, start_pos, size))
             data_groups.append((start_pos, u1, size, u3))
             idx += 1
-    group_idx = 20
+    # [XSMALL]
+    # group_idx = 20
+    # crops = (0, 0, 72, 72)
+    # alpha = False
+    # [LARGE]
+    group_idx = 8
+    crops = (0, 0, 633, 900)
+    alpha = True
+
     start_pos, _, size, _ = data_groups[group_idx]
-    face_w, face_h = 72, 72
     img_infos = []
     with open(data1, 'rb') as f:
         f.seek(start_pos)
         data = f.read(size)
-        decode_raw(data, face_w, face_h, out_dir=tag, prefix=prefix)
+        decode_raw(data, alpha, crops,  out_dir=tag, prefix=prefix)
         # img_count = int.from_bytes(f.read(4), 'little')
         # print(start_pos, img_count)
         # for idx in range(img_count):
