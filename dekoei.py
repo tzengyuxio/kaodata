@@ -426,16 +426,19 @@ def decode_zp1(data, alpha=True, crop_size=None, idx=0, out_dir='.', prefix='TES
         print('decode gt1g error')
         return
     elif len(images) == 1:
-        out_filename = '{}/{}{:04d}.png'.format(out_dir, prefix, idx)
-        img = images[0].crop(crop_size) if alpha else images[0].crop(crop_size).convert('RGB')
-        img.save(out_filename)
+        out_filename_alpha = '{}/alpha/{}{:04d}.png'.format(out_dir, prefix, idx)
+        out_filename_rgb = '{}/rgb/{}{:04d}.png'.format(out_dir, prefix, idx)
+        aimg = images[0].crop(crop_size)
+        aimg.save(out_filename_alpha)
+        aimg = aimg.convert('RGB')
+        aimg.save(out_filename_rgb)
     else:
         for frame_idx, img in enumerate(images):
             out_filename = '{}/dds/{}{:04d}_{:02d}.dds'.format(out_dir, prefix, idx, frame_idx)
             img.save(out_filename)
             if frame_idx == 2:
-                out_filename_alpha = '{}/alpha/{}{:04d}.png'.format(out_dir, prefix, idx, frame_idx)
-                out_filename_rgb = '{}/rgb/{}{:04d}.png'.format(out_dir, prefix, idx, frame_idx)
+                out_filename_alpha = '{}/alpha/{}{:04d}.png'.format(out_dir, prefix, idx)
+                out_filename_rgb = '{}/rgb/{}{:04d}.png'.format(out_dir, prefix, idx)
                 aimg = img.crop(crop_size)
                 aimg.save(out_filename_alpha)
                 aimg = aimg.convert('RGB')
