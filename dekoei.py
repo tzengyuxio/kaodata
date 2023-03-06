@@ -788,8 +788,12 @@ def san13_face(data_file, tag, prefix, count):
     # crops = (0, 0, 72, 72)
     # alpha = False
     # [LARGE]
-    group_idx = 8
-    crops = (0, 0, 633, 900)
+    # group_idx = 8
+    # crops = (0, 0, 633, 900)
+    # alpha = True
+    # [XLARGE]
+    group_idx = 13
+    crops = None
     alpha = True
 
     start_pos, _, size, _ = data_groups[group_idx]
