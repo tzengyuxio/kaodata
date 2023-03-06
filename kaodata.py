@@ -1,4 +1,3 @@
-import itertools
 import os.path
 import math
 from functools import reduce
@@ -7,34 +6,13 @@ from PIL import Image
 from game_infos import GAME_INFOS
 from numpy import *
 from bitstream import *
+from utils import *
 
 
 # 成吉思汗
 KHAN_KAODATA = "/Users/tzengyuxio/DOSBox/KHAN/KAODATA.DAT"
 KHAN_PALETTE = ['#302000', '#417120', '#D33030', '#D3B282', '#204182', '#418292', '#C38251',
                 '#D3D3B2']  # 黑 綠 紅 粉 藍 青 橙 白
-
-
-def convert_to_array_4color(data_bytes):
-    array = []
-    it = iter(data_bytes)
-    for b1 in it:
-        b2 = next(it)
-        for i in range(7, -1, -1):
-            n = ((b1 >> i) & 1) * 2 + ((b2 >> i) & 1)
-            array.append(n)
-    return array
-
-
-def convert_to_array_8color(data_bytes):
-    array = []
-    it = iter(data_bytes)
-    for b1 in it:
-        b2, b3 = next(it), next(it)
-        for i in range(7, -1, -1):
-            n = ((b1 >> i) & 1) * 4 + ((b2 >> i) & 1) * 2 + ((b3 >> i) & 1)
-            array.append(n)
-    return array
 
 
 def convert_to_array_16color(data_bytes):
@@ -50,35 +28,11 @@ def convert_to_array_16color(data_bytes):
 
 def convert_to_array(data_bytes, color_table):
     if len(color_table) == 4:
-        return convert_to_array_4color(data_bytes)
+        return to_2bpp_indexes(data_bytes)
     elif len(color_table) == 16:
         return convert_to_array_16color(data_bytes)
     else:
-        return convert_to_array_8color(data_bytes)
-
-
-def bytes_to_image(data, w, h, color_table, dh=False):
-    """
-    Convert binary bytes to image.
-
-    :param data:        binary bytes
-    :param w:           width
-    :param h:           height
-    :param color_table: color table
-    :param dh:          double height
-    :return:            PIL.Image
-    """
-    img = Image.new('RGB', (w, h))
-    color_indexes = convert_to_array(data, color_table)
-    for idx, color_index in enumerate(color_indexes):
-        x, y = idx % w, idx // w
-        c = color_table[color_index]
-        if dh:
-            img.putpixel((x, 2 * y), c)
-            img.putpixel((x, 2 * y + 1), c)
-        else:
-            img.putpixel((x, y), c)
-    return img
+        return to_3bpp_indexes(data_bytes)
 
 
 def bytes_to_images(data, size_per_image, w, h, color_table, dh=False):
@@ -89,7 +43,7 @@ def bytes_to_images(data, size_per_image, w, h, color_table, dh=False):
     num_images = math.floor(len(data) / size_per_image)
     for i in range(num_images):
         data_bytes = data[size_per_image*i: size_per_image * (i+1)]
-        images.append(bytes_to_image(data_bytes, w, h, color_table, dh))
+        images.append(data_to_image(data_bytes, w, h, color_table, dh))
     return images
 
 
@@ -154,7 +108,7 @@ def export_faces(tag, path, prefix, with_single=False):
     if True:
         img_w = face_w * 16
         img_h = face_h * math.ceil(num_face / 16)
-        back_image = Image.new('RGB', (img_w, img_h), color=(55, 55, 55))
+        back_image = Image.new('RGB', (img_w, img_h), color=BGCOLOR)
         # back_image = Image.new('RGB', (img_w, img_h), color='black')
         for idx, img in enumerate(images):
             pos_x = (idx % 16) * face_w
@@ -269,10 +223,6 @@ def ls11_decode(in_filename, out_filename):
         fout.write(bytes(original_bytes))
 
 
-def grouper(iterable, n):
-    return itertools.zip_longest(*[iter(iterable)] * n)
-
-
 def revert(array):
     groups = grouper(array, 8)
     bytes_array = []
@@ -290,9 +240,6 @@ def revert(array):
 # export_kaodata('KHAN', KHAN_KAODATA, KHAN_PALETTE)
 
 # ----------------------------------------------------------------------
-
-# 三國志 1~5
-# export_faces('SAN1S', '/Users/tzengyuxio/DOSBox/SteamSAN1', all_in_one=True)
 
 # 大航海時代
 # export_faces('KOUKAI2', '/Users/tzengyuxio/DOSBox/DAIKOH2')

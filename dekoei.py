@@ -7,11 +7,7 @@ import os.path
 import math
 from bitstream import BitStream
 import io
-
-
-def grouped(iterable, n):
-    "s -> (s0,s1,s2,...sn-1), (sn,sn+1,sn+2,...s2n-1), (s2n,s2n+1,s2n+2,...s3n-1), ..."
-    return zip(*[iter(iterable)]*n)
+from utils import grouper
 
 
 @click.group()
@@ -686,7 +682,7 @@ def san11_face(face_file, tag, prefix, count):
         index_image2 = Image.new('RGB', (img_w, img_h), color=(55, 55, 55))
         out_filename1 = '{}/{}S00-INDEX1.png'.format(tag, prefix)
         out_filename2 = '{}/{}S00-INDEX2.png'.format(tag, prefix)
-        for idx, img_pair in enumerate(grouped(small_images, 2)):
+        for idx, img_pair in enumerate(grouper(small_images, 2, incomplete='ignore')):
             pos_x = (idx % 16) * small_face_w
             pos_y = (idx // 16) * small_face_h
             index_image1.paste(img_pair[0], (pos_x, pos_y))
