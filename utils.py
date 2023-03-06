@@ -2,6 +2,10 @@ from itertools import zip_longest
 from PIL import Image
 BGCOLOR = (55, 55, 55)
 
+BIG_ENDIAN = 'big'
+LITTLE_ENDIAN = 'little'
+DEFAULT_ENDIAN = LITTLE_ENDIAN
+
 
 def grouper(iterable, n, incomplete='fill', fillvalue=None):
     "Collect data into non-overlapping fixed-length chunks or blocks"
