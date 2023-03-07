@@ -257,7 +257,7 @@ Steam 版存檔位置：`Users\系統使用者名稱\Documents\KOEI\35th\San12WP
 - zero: 零字節空白文件
 - not: 非圖片或尚未支持的圖片格式
 
-| no. | count |  memo   |               subs                |
+| no. | count | memo    | subs                              |
 | --- | ----- | ------- | --------------------------------- |
 | 1   |       | zero    |                                   |
 | 2   |       | not     | zp1:1                             |
@@ -267,7 +267,7 @@ Steam 版存檔位置：`Users\系統使用者名稱\Documents\KOEI\35th\San12WP
 | 6   | 7936  |         | size:7936,(sizex8),zp1_block*size |
 | 7   |       | zero    |                                   |
 | 8   |       | zero    |                                   |
-| 9   | 1467  | face L  | size:1467,(sizex8)                                  |
+| 9   | 1467  | face L  | size:1467,(sizex8)                |
 | 10  |       | zero    |                                   |
 | 11  |       | zero    |                                   |
 | 12  |       | zero    |                                   |
@@ -277,11 +277,11 @@ Steam 版存檔位置：`Users\系統使用者名稱\Documents\KOEI\35th\San12WP
 | 16  |       | zero    |                                   |
 | 17  |       | zero    |                                   |
 | 18  |       | zero    |                                   |
-| 19  | 1467  | face M |                                   |
+| 19  | 1467  | face M  |                                   |
 | 20  |       | zero    |                                   |
 | 21  | 1467  | face XS |                                   |
 | 22  |       | zero    |                                   |
-| 23  | 8 | face S |                                   |
+| 23  | 8     | face S  |                                   |
 
 ### zp1 分析
 
@@ -317,7 +317,19 @@ Another tree:
       - [12]
     - [1] zp1 (pos: 32,835,452)
     - ...
+  - [13] raw data (pos:1118728064)
+    - ...
+    - [203] zp1 (pos: 1,212,295,132; 1118728064+93567068)
+      - header: 16 bytes
+      - zlib sizes: [84430, 115532, 118928, 155103, 56]
+      - [0] size(84426) and zlib data
+      - [1] size(115528) and zlib data
+      - [2] size(118924) and zlib data
+      - [3] size(155099) and zlib data
+      - [4] size() and zlib data
     - [1466]
+
+zp1 下的壓縮資料按 `0x40000` 的大小切割，分別各自壓縮。通常會切成四塊加上最後一塊 56 bytes (`0x38`) 大小。最後一塊有時有壓縮有時沒壓縮。
 
 ## SAN14
 

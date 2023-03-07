@@ -2,12 +2,14 @@
 import zlib
 import click
 from PIL import Image
+from PIL import ImageFile
 import os
 import os.path
 import math
 from bitstream import BitStream
 import io
 from utils import grouper
+from g1t import *
 
 
 @click.group()
@@ -369,14 +371,25 @@ def decode_raw(data, alpha=True, crop=None, out_dir='.', prefix='TEST_F'):
         f.seek(start_pos)
         block_data = f.read(data_size)
         # print(block_data[:3])
+        print('[*-zp:{:04d}]          start_pos:{}, data_size:{}'.format(i, start_pos, data_size))
+        # if i < 200:  # breaker
+        #     continue
         if block_data[:3] == b'zp1':  # zp1
             # print('decode zp1')
             decode_zp1(block_data, alpha, crop, i, out_dir, prefix)
         else:
             print('unknown how to decode')
 
+# all_block_size = []
 
-def decode_zp1(data, alpha=True, crop_size=None, idx=0, out_dir='.', prefix='TEST_F'):
+
+def decode_zp1(data, alpha=True, crop_size=None, idx=0, out_dir='.', prefix='TEST_F', output_all=False):
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+        os.makedirs(out_dir + '/gt1g')
+        os.makedirs(out_dir + '/dds')
+        os.makedirs(out_dir + '/alpha')
+        os.makedirs(out_dir + '/rgb')
     f = io.BytesIO(data)
     f.read(4)  # header 'zp1 '
     sz = int.from_bytes(f.read(4), 'little')
@@ -385,18 +398,29 @@ def decode_zp1(data, alpha=True, crop_size=None, idx=0, out_dir='.', prefix='TES
     block_sizes = []
     for _ in range(cnt):
         block_sizes.append(int.from_bytes(f.read(4), 'little'))
+    # all_block_size.extend(block_sizes)
+    # sorted(all_block_size)
+    # print('[*-zp:{:04d}]          min,max:({}, {})'.format(idx, all_block_size[0], all_block_size[-1]))
     gt1g_file = bytearray()
     f.seek(2048)
+    print('[*-zp:{:04d}]          count:{}'.format(idx, cnt))
     for i in range(cnt):
         bsz_intable = block_sizes[i]
         start_pos = f.tell()
-        bsz_inblock = int.from_bytes(f.read(4), 'little')
+        raw_size = f.read(4)
+        bsz_inblock = int.from_bytes(raw_size, 'little')
         read_size = math.ceil(bsz_intable/128) * 128 - 4
-        print('[{}] zlib block: start_pos: {}, size: {}'.format(i, start_pos, read_size))
         zipped = f.read(read_size)
-        new_file = zlib.decompress(zipped)
-        print('[{}-{}] new_file size: {} ({})'.format(idx, i, len(new_file), hex(len(new_file))))
-        gt1g_file.extend(new_file)
+        if abs(bsz_inblock - bsz_intable) > 8:
+            gt1g_file.extend(raw_size)
+            gt1g_file.extend(zipped)
+            print('          [-zlib:{:02d}] start_pos:{}, read_size:{}, RAWDATA: {}'.format(i,
+                  start_pos, read_size, bsz_intable))
+        else:
+            new_file = zlib.decompress(zipped)
+            print('          [-zlib:{:02d}] start_pos:{}, read_size:{}, new_file size: {} ({})'.format(i,
+                  start_pos, read_size, len(new_file), hex(len(new_file))))
+            gt1g_file.extend(new_file)
 
         # ## to images
         # images = decode_gt1g(new_file)
@@ -426,20 +450,31 @@ def decode_zp1(data, alpha=True, crop_size=None, idx=0, out_dir='.', prefix='TES
         print('decode gt1g error')
         return
     elif len(images) == 1:
+        aimg = Image.open(images[0])
         out_filename_alpha = '{}/alpha/{}{:04d}.png'.format(out_dir, prefix, idx)
         out_filename_rgb = '{}/rgb/{}{:04d}.png'.format(out_dir, prefix, idx)
-        aimg = images[0].crop(crop_size)
+        aimg = aimg.crop(crop_size)
         aimg.save(out_filename_alpha)
         aimg = aimg.convert('RGB')
         aimg.save(out_filename_rgb)
     else:
         for frame_idx, img in enumerate(images):
+            # images.append(Image.open(fout))
             out_filename = '{}/dds/{}{:04d}_{:02d}.dds'.format(out_dir, prefix, idx, frame_idx)
-            img.save(out_filename)
-            if frame_idx == 2:
+            # print('frame_idx:{}, size:{}'.format(frame_idx, img.size))
+            with open(out_filename, 'wb') as f:
+                img.seek(0)
+                f.write(img.read())
+                img.seek(0)
+                # img.save(out_filename)
+            if frame_idx == 2 or output_all:
                 out_filename_alpha = '{}/alpha/{}{:04d}.png'.format(out_dir, prefix, idx)
                 out_filename_rgb = '{}/rgb/{}{:04d}.png'.format(out_dir, prefix, idx)
-                aimg = img.crop(crop_size)
+                if output_all:
+                    out_filename_alpha = '{}/alpha/{}{:04d}_{}.png'.format(out_dir, prefix, idx, frame_idx)
+                    out_filename_rgb = '{}/rgb/{}{:04d}_{}.png'.format(out_dir, prefix, idx, frame_idx)
+                aimg = Image.open(img)
+                aimg = aimg.crop(crop_size)
                 aimg.save(out_filename_alpha)
                 aimg = aimg.convert('RGB')
                 aimg.save(out_filename_rgb)
@@ -482,9 +517,12 @@ def decode_gt1g(data, idx=0):
         tex_mipmaps = (mm >> 4) & 0x0F
         tex_z_mipmaps = mm & 0x0F
         tex_type = f.read(1)  # DDS_FORMAT_DXT5 0x08
+        texture_format = DDS_FORMAT.DXT5
+        if tex_type == b'\x06':
+            texture_format = DDS_FORMAT.DXT1
         dx_dy = int.from_bytes(f.read(1), 'little')
-        tex_dx = (dx_dy >> 4) & 0x0F
-        tex_dy = dx_dy & 0x0F
+        tex_dy = (dx_dy >> 4) & 0x0F
+        tex_dx = dx_dy & 0x0F
         flags = f.read(5)
         data_size = int.from_bytes(f.read(4), 'little')  # should only 0 or 0x0c or 0x10 or 0x14, extra flag size
         if data_size >= 0x0c:
@@ -499,7 +537,7 @@ def decode_gt1g(data, idx=0):
             texture_size = offset_tables[i+1] - offset_tables[i]
         dims = '{}x{}'.format(1 << tex_dx, 1 << tex_dy)
         texture_size -= 8  # sizeof g1t_tex_header
-        print('{} {} {} {} {}'.format(tex_type,
+        print('{} {} {} {} {}'.format(texture_format,
                                       header_size+extra_size+offset_tables[i],
                                       texture_size,
                                       dims,
@@ -509,64 +547,20 @@ def decode_gt1g(data, idx=0):
         # 0x08 0x00000024 0x00004000 test_new_file0\000.dds 128x128    1       -
         # expected SIZE: 16384, actual 16384 g1t_size: 16440, header_size: 32
         print()
+        print('format:{}(tex_type: {}), dx:{}, dy:{}, mipmap:{}, flags:{}'.format(texture_format, tex_type, tex_dx, tex_dy, tex_mipmaps, flags))
+        dds_header = write_dds_header(texture_format, 1 << tex_dx, 1 << tex_dy, tex_mipmaps, flags)
         fout = io.BytesIO(b'')
-        fout.write(b'DDS ')
-        # write dds header
-        dds_header_size = 124
-        dds_header_flags = 0x00001007 | 0x00080000  # DDS_HEADER_FLAGS_TEXTURE | DDS_HEADER_FLAGS_LINEARSIZE;
-        dds_header_height = 1 << tex_dy
-        dds_header_width = 1 << tex_dx
-        dds_header_pitch_or_linear_size = ((dds_header_width + 3) // 4) * \
-            ((dds_header_height + 3) // 4) * 16  # 16: bpb, bytes per pixel block
-        dds_header_depth = 0
-        dds_header_mipmap_count = tex_mipmaps  # 0 in this case
-        dds_header_reserved = 0  # all 0
-        dds_header_caps = 4096  # 0x00001000  // DDSCAPS_TEXTURE
-        if dds_header_mipmap_count != 0:
-            dds_header_flags |= 0x00020000  # // DDSD_MIPMAPCOUNT
-            dds_header_caps |= 262152  # DDS_SURFACE_FLAGS_MIPMAP 0x00400008  // DDSCAPS_COMPLEX | DDSCAPS_MIPMAP
-        dds_header_caps2 = 0
-        dds_header_caps3 = 0  # 0
-        dds_header_caps4 = 0  # 0
-        dds_header_reserved2 = 0  # 0
-        fout.write(dds_header_size.to_bytes(4, 'little'))
-        fout.write(dds_header_flags.to_bytes(4, 'little'))
-        fout.write(dds_header_height.to_bytes(4, 'little'))
-        fout.write(dds_header_width.to_bytes(4, 'little'))
-        fout.write(dds_header_pitch_or_linear_size.to_bytes(4, 'little'))
-        fout.write(dds_header_depth.to_bytes(4, 'little'))
-        fout.write(dds_header_mipmap_count.to_bytes(4, 'little'))
-        for i in range(11):
-            fout.write(dds_header_reserved.to_bytes(4, 'little'))
-        # ddspf
-        ddspf_size = 32
-        ddspf_flags = 4  # DDS_FOURCC 0x00000004  // DDPF_FOURCC
-        ddspf_four_cc = b'DXT5'  # "DXT5"
-        ddspf_rgb_bit_count = 0
-        ddspf_r_bit_mask = 0
-        ddspf_g_bit_mask = 0
-        ddspf_b_bit_mask = 0
-        ddspf_a_bit_mask = 0
-        fout.write(ddspf_size.to_bytes(4, 'little'))
-        fout.write(ddspf_flags.to_bytes(4, 'little'))
-        fout.write(ddspf_four_cc)
-        fout.write(ddspf_rgb_bit_count.to_bytes(4, 'little'))
-        fout.write(ddspf_r_bit_mask.to_bytes(4, 'little'))
-        fout.write(ddspf_g_bit_mask.to_bytes(4, 'little'))
-        fout.write(ddspf_b_bit_mask.to_bytes(4, 'little'))
-        fout.write(ddspf_a_bit_mask.to_bytes(4, 'little'))
-
-        fout.write(dds_header_caps.to_bytes(4, 'little'))
-        fout.write(dds_header_caps2.to_bytes(4, 'little'))
-        fout.write(dds_header_caps3.to_bytes(4, 'little'))
-        fout.write(dds_header_caps4.to_bytes(4, 'little'))
-        fout.write(dds_header_reserved2.to_bytes(4, 'little'))
+        fout.write(dds_header)
+        # with open('dds_header.dat','wb') as ffout:
+        #     fout.seek(0)
+        #     ffout.write(fout.read())
 
         # data
         f.seek(len(data) - texture_size)
         fout.write(f.read(texture_size))
 
-        images.append(Image.open(fout))
+        images.append(fout)
+        # images.append(Image.open(fout))
     return images
 
 
@@ -795,16 +789,23 @@ def san13_face(data_file, tag, prefix, count):
     # crops = (0, 0, 633, 900)
     # alpha = True
     # [XLARGE]
-    group_idx = 13
+    # group_idx = 13
+    # crops = None
+    # alpha = True
+    # [SMALL]
+    group_idx = 22
     crops = None
     alpha = True
+    ImageFile.LOAD_TRUNCATED_IMAGES = True
 
     start_pos, _, size, _ = data_groups[group_idx]
     img_infos = []
     with open(data1, 'rb') as f:
         f.seek(start_pos)
         data = f.read(size)
-        decode_raw(data, alpha, crops,  out_dir=tag, prefix=prefix)
+        print('[*]          start_pos:{}, read_size:{}'.format(start_pos, size))
+        # decode_raw(data, alpha, crops,  out_dir=tag, prefix=prefix)
+        decode_zp1(data, alpha, crops, 0, out_dir=tag, prefix=prefix, output_all=True)
         # img_count = int.from_bytes(f.read(4), 'little')
         # print(start_pos, img_count)
         # for idx in range(img_count):
