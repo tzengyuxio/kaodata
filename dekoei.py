@@ -556,7 +556,14 @@ def decode_gt1g(data, idx=0):
         #     ffout.write(fout.read())
 
         # data
-        f.seek(len(data) - texture_size)
+        dds_data_start_pos = header_size + offset_tables[i] + 20
+        dds_data_size = 0
+        if i != nb_textures - 1: # not last one
+            dds_data_size = offset_tables[i+1] - offset_tables[i]
+        else:
+            dds_data_size = g1t_size - offset_tables[i]
+        dds_data_size -=20
+        f.seek(dds_data_start_pos)
         fout.write(f.read(texture_size))
 
         images.append(fout)
