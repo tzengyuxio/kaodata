@@ -15,26 +15,6 @@ KHAN_PALETTE = ['#302000', '#417120', '#D33030', '#D3B282', '#204182', '#418292'
                 '#D3D3B2']  # 黑 綠 紅 粉 藍 青 橙 白
 
 
-def convert_to_array_16color(data_bytes):
-    array = []
-    it = iter(data_bytes)
-    for b1 in it:
-        b2, b3, b4 = next(it), next(it), next(it)
-        for i in range(7, -1, -1):
-            n = ((b1 >> i) & 1) * 8 + ((b2 >> i) & 1) * 4 + ((b3 >> i) & 1) * 2 + ((b4 >> i) & 1)
-            array.append(n)
-    return array
-
-
-def convert_to_array(data_bytes, color_table):
-    if len(color_table) == 4:
-        return to_2bpp_indexes(data_bytes)
-    elif len(color_table) == 16:
-        return convert_to_array_16color(data_bytes)
-    else:
-        return to_3bpp_indexes(data_bytes)
-
-
 def bytes_to_images(data, size_per_image, w, h, color_table, dh=False):
     """
     Convert binary bytes to image list.
@@ -151,20 +131,6 @@ def get_codes(data):
     return codes
 
 
-def size_of_codes(codes):
-    cnt = 0
-    do_copy = False
-    for c in codes:
-        if do_copy:
-            cnt += (3 + c)
-            do_copy = False
-        elif c > 256:
-            do_copy = True
-        else:
-            cnt += 1
-    return cnt
-
-
 def ls11_decode(in_filename, out_filename):
     with open(in_filename, 'rb') as f, open(out_filename, 'wb') as fout:
         header = f.read(16)
@@ -222,19 +188,6 @@ def ls11_decode(in_filename, out_filename):
         print('original bytes len: {}'.format(len(original_bytes)))
         fout.write(bytes(original_bytes))
 
-
-def revert(array):
-    groups = grouper(array, 8)
-    bytes_array = []
-    for group in groups:
-        hi = [x // 2 for x in group]
-        lo = [x % 2 for x in group]
-        hi_byte = reduce(lambda x, y: (x << 1) + y, hi)
-        lo_byte = reduce(lambda x, y: (x << 1) + y, lo)
-        print('{:02x} {:02x} '.format(hi_byte, lo_byte), end='')
-
-
-# revert([0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 3, 0, 3, 2, 3, 2, 2])
 
 # 成吉思涵 (色盤未確定)
 # export_kaodata('KHAN', KHAN_KAODATA, KHAN_PALETTE)

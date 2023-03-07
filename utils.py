@@ -1,5 +1,6 @@
 from itertools import zip_longest
 from PIL import Image
+
 BGCOLOR = (55, 55, 55)
 
 BIG_ENDIAN = 'big'

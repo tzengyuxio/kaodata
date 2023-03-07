@@ -10,6 +10,9 @@ from bitstream import BitStream
 import io
 from utils import grouper
 from g1t import *
+from sango import *
+from nobu import *
+from koei_games import *
 
 
 @click.group()
@@ -828,6 +831,8 @@ san10.add_command(san10_face, "face")
 san11.add_command(san11_face, "face")
 san12.add_command(san12_face, "face")
 san13.add_command(san13_face, "face")
+dekoei.add_command(san1)
+dekoei.add_command(san2)
 dekoei.add_command(san9)
 dekoei.add_command(san10)
 dekoei.add_command(san11)
