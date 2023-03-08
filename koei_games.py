@@ -1,4 +1,3 @@
-import math
 import os
 import click
 from utils import *
@@ -40,10 +39,14 @@ def koukai2_face(face_file, out_dir, prefix):
     one_face_data_size = int(face_w*face_h*bpp/8)
     num_face = 128
 
+    # TODO(yuxioz): start_pos(in single value or in list) and face_count(num_face)
+
+    # get face data (binary)
     face_data: bytes
     with open(face_file, 'rb') as f:
         face_data = ls11_decode(f.read())
 
+    # get face images
     face_images = []
     for i in range(num_face):
         pos = i*one_face_data_size
@@ -59,6 +62,10 @@ def koukai2_face(face_file, out_dir, prefix):
     print('...save {}'.format(out_filename))
 
     # single images
+    for idx, img in enumerate(face_images):
+        out_filename = '{}/{}{:04d}.png'.format(out_dir, prefix, idx)
+        img.save(out_filename)
+        print('...save {}'.format(out_filename))
 
 
 koukai2.add_command(koukai2_face, 'face')
