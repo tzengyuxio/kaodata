@@ -190,7 +190,7 @@ Steam 版存檔位置：`Users\系統使用者名稱\Documents\KOEI\35th\San12WP
 
 ## SAN13
 
-推測數量：1467
+推測數量：1467 -> 結果與推測相同
 
 以下取自「『三國志13』武將ＣＧ追加工具」的 README file (英文取自英文版 README)
 
@@ -334,6 +334,23 @@ zp1 下的壓縮資料按 `0x40000` 的大小切割，分別各自壓縮。通�
 ## SAN14
 
 推測數量：1446, 全14代總計推測 10450
+從圖片大小粗估 1466, 索引檔應該要有 17K 以上
+
+- 主要的頭像放在 ScreenLayout
+- 但順序不規則，中間也砸有其他圖片
+- 從武將表可以拿到武將容貌編號，目前還不知道怎麼對應 ScreenLayout
+- RDB 檔案或許可參考 KOEI Swiss Knife (還沒細看)
+  - <https://forum.xentax.com/viewtopic.php?t=21679>
+  - <https://github.com/yretenai/Cethleann>
+- 三種圖檔大小
+  - 大 1024x1024, 去背 32bit
+  - 中 2048x1024, 有背景 三張連續（可能是呼吸效果）
+  - 小 512x512, 有背景 32bit, 右邊有沒用到的黑邊
+- nobuwiki 的編號與 RPGViewer 的不一致，看不出來源
+- 夏侯惇
+  - 大:4379 中:2800; 小:1129  0
+- 袁紹
+  - (5766,,)
 
 以下取自「『三國志14』武將ＣＧ追加工具」的 README file (英文取自英文版 README)
 
