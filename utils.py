@@ -1,4 +1,5 @@
 from itertools import zip_longest
+import math
 from PIL import Image
 
 BGCOLOR = (55, 55, 55)
@@ -6,6 +7,11 @@ BGCOLOR = (55, 55, 55)
 BIG_ENDIAN = 'big'
 LITTLE_ENDIAN = 'little'
 DEFAULT_ENDIAN = LITTLE_ENDIAN
+
+
+def color_codes_to_palette(color_codes):
+    # ['#FF0000', '#00FF00', '#0000FF'] --> ((255, 0, 0), (0, 255, 0), (0, 0, 255))
+    return [(int(x[1:3], base=16), int(x[3:5], base=16), int(x[5:7], base=16)) for x in color_codes]
 
 
 def grouper(iterable, n, incomplete='fill', fillvalue=None):
@@ -87,3 +93,16 @@ def data_to_image(data: bytes, w: int, h: int, colors: list, hh=False) -> Image.
         else:
             img.putpixel((x, y), c)
     return img
+
+
+def save_index_image(images: list[Image.Image], w: int, h: int, num_col: int, filename: str) -> None:
+    # index image
+    # TODO(yuxioz): return when too large in width or too many in num_col
+    img_w = w * num_col
+    img_h = h * math.ceil(len(images) / num_col)
+    index_image = Image.new('RGB', (img_w, img_h), color=BGCOLOR)
+    for idx, img in enumerate(images):
+        pos_x = (idx % num_col) * w
+        pos_y = (idx // num_col) * h
+        index_image.paste(img, (pos_x, pos_y))
+    index_image.save(filename)

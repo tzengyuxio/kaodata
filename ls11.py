@@ -34,7 +34,7 @@ def recover(codes: list[int], dictionary: bytes) -> bytes:
             nc = 3 + code  # number of copy
             for _ in range(nc):
                 pos = len(recover_data) - delta
-                recover_data.append(pos)
+                recover_data.append(recover_data[pos])
             delta = 0
         elif code < 256:  # replace code with dictionary
             recover_data.append(dictionary[code])

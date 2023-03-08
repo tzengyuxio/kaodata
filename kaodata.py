@@ -1,11 +1,9 @@
 import os.path
 import math
-from functools import reduce
 import sys
 from PIL import Image
 from game_infos import GAME_INFOS
 from numpy import *
-from bitstream import *
 from utils import *
 
 
@@ -105,88 +103,8 @@ def export_faces(tag, path, prefix, with_single=False):
         print('{} images of face saved in [{}]'.format(num_face, tag))
 
 
-def get_codes(data):
-    codes = []
-    stream = BitStream(data, bytes)
-    c1, c2 = 0, 0
-    cursor = 0
-    pos_end = len(data)*8
-    l = 0
-    while True:
-        bit = stream.read(bool)
-        cursor += 1
-        # print('bit: {}'.format(bit))
-        c1 = (c1 << 1) | bit
-        l += 1
-        if not bit:
-            # print('l: {}'.format(l))
-            for i in range(l):
-                c2 = (c2 << 1) | stream.read(bool)
-                cursor += 1
-            codes.append(c1+c2)
-            c1, c2 = 0, 0
-            l = 0
-        if cursor >= pos_end:
-            break
-    return codes
 
 
-def ls11_decode(in_filename, out_filename):
-    with open(in_filename, 'rb') as f, open(out_filename, 'wb') as fout:
-        header = f.read(16)
-        dictionary = f.read(256)
-        encode_infos = []
-        b1 = f.read(4)
-        while b1 != b'\x00\x00\x00\x00':
-            b2 = f.read(4)
-            b3 = f.read(4)
-            compressed_size = int.from_bytes(b1, 'big')
-            original_size = int.from_bytes(b2, 'big')
-            start_pos = int.from_bytes(b3, 'big')
-            encode_infos.append((compressed_size, original_size, start_pos))
-            b1 = f.read(4)
-        n = len(encode_infos)
-        print('N: {}'.format(n))
-        for i in range(n):
-            print('  {} {} {}'.format(*encode_infos[i]))
-
-        original_size = reduce(lambda x, y: x+y, [x[1] for x in encode_infos])
-        print('original size: {}'.format(original_size))
-
-        original_bytes = bytearray(original_size)
-        pos = 0
-        for i in range(n):
-            # encode_info = encode_infos[i]
-            compressed_size, original_size, start_pos = encode_infos[i]
-            f.seek(start_pos)
-            data = f.read(compressed_size)
-            codes = get_codes(data)
-            # print('[{}] {}'.format(i, codes))
-            # print('{:03d}: [{}]: ({}, {}, {}) ({}, {})'.format(i, pos, *encode_infos[i], len(data), size_of_codes(codes)))
-            offset = 0
-            count_in_block = 0
-            for code in codes:
-                # if pos >= original_size:
-                #     break
-                if count_in_block >= original_size:
-                    continue
-                if offset > 0:
-                    length = 3 + code
-                    for _ in range(length):
-                        original_bytes[pos] = original_bytes[pos-offset]
-                        pos += 1
-                        count_in_block += 1
-                        if count_in_block >= original_size:
-                            break
-                    offset = 0
-                elif code < 256:
-                    original_bytes[pos] = dictionary[code]
-                    pos += 1
-                    count_in_block += 1
-                else:
-                    offset = code - 256
-        print('original bytes len: {}'.format(len(original_bytes)))
-        fout.write(bytes(original_bytes))
 
 
 # 成吉思涵 (色盤未確定)

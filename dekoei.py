@@ -840,6 +840,8 @@ dekoei.add_command(san12)
 dekoei.add_command(san13)
 dekoei.add_command(san14)
 
+dekoei.add_command(koukai)
+dekoei.add_command(koukai2)
 
 if __name__ == '__main__':
     dekoei()
