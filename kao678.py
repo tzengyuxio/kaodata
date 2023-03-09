@@ -8,20 +8,15 @@ endian = 'little'
 color_tab = set()
 
 
-def load_pallete(filename, start_pos=0, reverse_rgb=False):
+def load_pallete(filename):
     with open(filename, 'rb') as f:
-        if start_pos == 0:
-            _ = f.read(4)
-        else:
-            _ = f.read(start_pos)
+        _ = f.read(4)
         data = f.read(1024)
         bytes_list = [data[i:i+4] for i in range(0, 1024, 4)]
-        if reverse_rgb:
-            return [tuple([x[i] for i in range(3, -1, -1)]) for x in bytes_list]
         return [tuple([x[i] for i in range(4)]) for x in bytes_list]
 
 
-def load_san8_pallete(filename, start_pos=0, reverse_rgb=False):
+def load_san8_pallete(filename, start_pos=0):
     with open(filename, 'rb') as f:
         if start_pos == 0:
             _ = f.read(4)
@@ -29,8 +24,6 @@ def load_san8_pallete(filename, start_pos=0, reverse_rgb=False):
             _ = f.read(start_pos)
         data = f.read(1024)
         bytes_list = [data[i:i+4] for i in range(0, 1024, 4)]
-        if reverse_rgb:
-            return [tuple([x[i] for i in range(3, -1, -1)]) for x in bytes_list]
         return [tuple([x[i] for i in range(4)]) for x in bytes_list]
 
 
