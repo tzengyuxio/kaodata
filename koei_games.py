@@ -144,6 +144,60 @@ koukai3.add_command(koukai3_face, 'face')
 
 
 @click.group()
+def lempe():
+    """拿破崙
+
+    KAODATA.DAT
+    """
+    pass
+
+
+@click.command(help='顏 CG 解析')
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+def lempe_face(face_file, out_dir, prefix):
+    palette = color_codes_to_palette(
+        ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
+    )
+    face_w, face_h = 64, 80
+
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix, hh=True)
+
+
+lempe.add_command(lempe_face, 'face')
+
+##############################################################################
+
+
+@click.group()
+def tk2():
+    """提督之決斷II
+
+    KAO.TK2
+    """
+    pass
+
+
+@click.command(help='顏 CG 解析')
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+def tk2_face(face_file, out_dir, prefix):
+    palette = color_codes_to_palette(
+        ['#000000', '#417100', '#D32000', '#E3A261', '#0030A2', '#7192B2', '#C36161', '#F3F3F3']
+    )
+    face_w, face_h = 48, 64
+
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix)
+
+
+tk2.add_command(tk2_face, 'face')
+
+##############################################################################
+
+
+@click.group()
 def winning():
     """光榮賽馬, 賽馬大亨
 

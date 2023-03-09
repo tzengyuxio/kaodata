@@ -1,10 +1,4 @@
 GAME_INFOS = {
-    "EUROPE": {
-        "name": "歐陸戰線",
-        "face_file": "FACE.DAT",
-        "face_size": (64, 80),
-        "palette": ['#000000', '#419241', '#B24120', '#F3C361', '#104192', '#6FAEAE', '#D371B2', '#F3F3F3']
-    },
     "GENGHIS": {
         "name": "蒼狼與白鹿 成吉思汗",  # 蒼狼與白鹿 成吉思汗, 系列第二作
         "face_file": "KAO.DAT",  # 中英文版相同
@@ -26,12 +20,6 @@ GAME_INFOS = {
         "double_height": True,
         "start_pos": 582656,
         "palette": ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
-    },
-    "KOHRYUKI": {
-        "name": "項劉記",
-        "face_file": "KAO.KR1",
-        "face_size": (64, 80),
-        "palette": ['#000000', '#418200', '#C34100', '#E3A251', '#0030A2', '#71A2B2', '#B27171', '#F3E3D3']
     },
     "KOUKAI": {
         "name": "大航海時代",
@@ -61,9 +49,6 @@ GAME_INFOS = {
     },
     "LEMPE": {
         "name": "拿破崙",
-        "face_file": "KAODATA.DAT",  # 中英文版相同
-        "face_size": (64, 80),
-        "double_height": True,
         "persons": {
             "start_pos": [8934, 13274],
             "data_size": [17, 15],
@@ -179,12 +164,6 @@ GAME_INFOS = {
         "face_file": "KAO.PUT",
         "face_size": (64, 80),
         "palette": ['#000000', '#41C341', '#F35100', '#F3D300', '#2061A2', '#00C3F3', '#F361B2', '#F3F3F3']
-    },
-    "TK2": {
-        "name": "提督之決斷II",
-        "face_file": "KAO.TK2",
-        "face_size": (48, 64),
-        "palette": ['#000000', '#417100', '#D32000', '#E3A261', '#0030A2', '#7192B2', '#C36161', '#F3F3F3']
     },
     "AIR2": {
         "name": "航空霸業II",  # NOT READY

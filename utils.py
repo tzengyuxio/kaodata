@@ -100,11 +100,11 @@ def data_to_image(data: bytes, w: int, h: int, palette: list, hh=False) -> Image
     return image
 
 
-def load_images(data: bytes, w: int, h: int, palette: list, part_size: int, num_part: int) -> list[Image.Image]:
+def load_images(data: bytes, w: int, h: int, palette: list, hh: bool, part_size: int, num_part: int) -> list[Image.Image]:
     images = []
     for i in track(range(num_part), description="Loding...   "):
         pos = i*part_size
-        img = data_to_image(data[pos:pos+part_size], w, h, palette)
+        img = data_to_image(data[pos:pos+part_size], w, h, palette, hh)
         images.append(img)
     return images
 
@@ -115,7 +115,7 @@ def save_index_image(images: list[Image.Image], w: int, h: int, num_col: int, fi
     img_w = w * num_col
     img_h = h * math.ceil(len(images) / num_col)
     index_image = Image.new('RGB', (img_w, img_h), color=BGCOLOR)
-    for idx, img in track(enumerate(images), description="Saving index"):
+    for idx, img in track(enumerate(images), description="Saving index", total=len(images)):
         pos_x = (idx % num_col) * w
         pos_y = (idx // num_col) * h
         index_image.paste(img, (pos_x, pos_y))
@@ -123,7 +123,7 @@ def save_index_image(images: list[Image.Image], w: int, h: int, num_col: int, fi
 
 
 def save_single_images(images: list[Image.Image], out_dir: str, prefix: str) -> None:
-    for idx, img in track(enumerate(images), description='Saving...   '):
+    for idx, img in track(enumerate(images), description='Saving...   ', total=len(images)):
         out_filename = '{}/{}{:04d}.png'.format(out_dir, prefix, idx)
         img.save(out_filename)
 
@@ -172,7 +172,7 @@ def extract_images(filename: str, w: int, h: int, palette: list, out_dir: str, p
         num_part = len(raw_data) // part_size
 
     # load each single images from raw data
-    images = load_images(raw_data, w, h, palette, part_size, num_part)
+    images = load_images(raw_data, w, h, palette, hh, part_size, num_part)
 
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)

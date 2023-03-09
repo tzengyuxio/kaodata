@@ -847,6 +847,8 @@ dekoei.add_command(kohryuki)
 dekoei.add_command(koukai)
 dekoei.add_command(koukai2)
 dekoei.add_command(koukai3)
+dekoei.add_command(lempe)
+dekoei.add_command(tk2)
 dekoei.add_command(winning)
 
 if __name__ == '__main__':
