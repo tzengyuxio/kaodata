@@ -128,7 +128,26 @@ def save_single_images(images: list[Image.Image], out_dir: str, prefix: str) -> 
         img.save(out_filename)
 
 
-def extract_images(filename: str, w: int, h: int, palette: list, out_dir: str, prefix: str, part_size=-1, num_part=-1, data_loader=None) -> None:
+def calc_part_size(w: int, h: int, num_colors: int, hh=False) -> int:
+    """
+    計算單一張頭像所佔用的 raw data 大小
+    """
+    bpp: int  # bits per pixel
+    if num_colors == 4:
+        bpp = 2
+    elif num_colors == 8:
+        bpp = 3
+    elif num_colors == 16:
+        bpp = 4
+    else:
+        # default 1 byte per color in palette mode (indexed-color)
+        # when color-used more than 256, true-color mode instead (3 or 4 bytes per pixel)
+        bpp = 8
+
+    return int(w * h * bpp / 8 / 2) if hh else int(w * h * bpp / 8)
+
+
+def extract_images(filename: str, w: int, h: int, palette: list, out_dir: str, prefix: str, part_size=-1, num_part=-1, hh=False, data_loader=None) -> None:
     """
     A basic scaffold of loading file, save index and save single images.
     """
@@ -145,6 +164,9 @@ def extract_images(filename: str, w: int, h: int, palette: list, out_dir: str, p
                 raw_data = ls11_decode(f.read())
             else:
                 raw_data = f.read()
+
+    if part_size == -1:
+        part_size = calc_part_size(w, h, len(palette), hh)
 
     if num_part == -1:
         num_part = len(raw_data) // part_size

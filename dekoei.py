@@ -842,6 +842,8 @@ dekoei.add_command(san12)
 dekoei.add_command(san13)
 dekoei.add_command(san14)
 
+dekoei.add_command(europe)
+dekoei.add_command(kohryuki)
 dekoei.add_command(koukai)
 dekoei.add_command(koukai2)
 dekoei.add_command(koukai3)

@@ -69,7 +69,6 @@ def san6_face(game_dir, palette_file, out_dir, prefix):
         palette = list(grouper(raw_data, 4))
 
     face_w, face_h = 96, 120
-    one_face_data_size = face_w*face_h
 
     def loader() -> bytes:
         with open('KAO/SAN6_KAODATA.S6', 'rb') as f:
@@ -89,7 +88,7 @@ def san6_face(game_dir, palette_file, out_dir, prefix):
             f.seek(offset)
             return f.read()
 
-    extract_images('', face_w, face_h, palette, out_dir, prefix, one_face_data_size, data_loader=loader)
+    extract_images('', face_w, face_h, palette, out_dir, prefix, data_loader=loader)
 
 
 san6.add_command(san6_face, 'face')

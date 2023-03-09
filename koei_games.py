@@ -1,10 +1,63 @@
-import os
 import click
 from utils import *
 from ls11 import *
 from rich.progress import track
 from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+
+@click.group()
+def europe():
+    """歐陸戰線
+
+    FACE.DAT
+    """
+    pass
+
+
+@click.command(help='顏 CG 解析')
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+def europe_face(face_file, out_dir, prefix):
+    palette = color_codes_to_palette(
+        ['#000000', '#419241', '#B24120', '#F3C361', '#104192', '#6FAEAE', '#D371B2', '#F3F3F3']
+    )
+    face_w, face_h = 64, 80
+
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix)
+
+
+europe.add_command(europe_face, 'face')
+
+##############################################################################
+
+
+@click.group()
+def kohryuki():
+    """項劉記
+
+    KAO.KR1
+    """
+    pass
+
+
+@click.command(help='顏 CG 解析')
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+def kohryuki_face(face_file, out_dir, prefix):
+    palette = color_codes_to_palette(
+        ['#000000', '#418200', '#C34100', '#E3A251', '#0030A2', '#71A2B2', '#B27171', '#F3E3D3']
+    )
+    face_w, face_h = 64, 80
+
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix)
+
+
+kohryuki.add_command(kohryuki_face, 'face')
+
+##############################################################################
 
 
 @click.group()
@@ -41,12 +94,11 @@ def koukai2_face(face_file, out_dir, prefix):
     palette = color_codes_to_palette(
         ['#000000', '#00A261', '#D34100', '#F3A261', '#0041D3', '#00A2F3', '#D361A2', '#F3E3D3']
     )
-    face_w, face_h, bpp = 64, 80, 3
-    one_face_data_size = int(face_w*face_h*bpp/8)
+    face_w, face_h = 64, 80
 
     # TODO(yuxioz): start_pos(in single value or in list) and face_count(num_face)
 
-    extract_images(face_file, face_w, face_h, palette, out_dir, prefix, one_face_data_size, num_part=128)
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix, num_part=128)
 
 
 koukai2.add_command(koukai2_face, 'face')
@@ -82,9 +134,8 @@ def koukai3_face(face_file, palette_file, out_dir, prefix):
     palette = list(grouper(palette_img.getpalette(rawmode='RGB'), 3))
 
     face_w, face_h = 80, 96
-    one_face_data_size = int(face_w*face_h)
 
-    extract_images(face_file, face_w, face_h, palette, out_dir, prefix, one_face_data_size)
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix)
 
 
 koukai3.add_command(koukai3_face, 'face')
@@ -114,17 +165,18 @@ def winning_face(game_dir, out_dir, prefix):
         ['#000000', '#20D320', '#F30000', '#F3D300', '#0061C3', '#00B2F3', '#F351F3', '#F3F3F3']
     )
     face_w, face_h, bpp = 64, 80, 3
-    one_face_data_size = int(face_w*face_h*bpp/8)
+    part_size = int(face_w*face_h*bpp/8)
 
     def loader() -> bytes:
         raw_data = bytearray()
         with open(game_dir+'/KAO.DAT', 'rb') as f:
             raw_data.extend(f.read())
         with open(game_dir+'/TEXTGRP.DAT', 'rb') as f:
-            raw_data.extend(f.read(one_face_data_size))
+            # 有馬桜子
+            raw_data.extend(f.read(part_size))
         return bytes(raw_data)
 
-    extract_images('', face_w, face_h, palette, out_dir, prefix, one_face_data_size, data_loader=loader)
+    extract_images('', face_w, face_h, palette, out_dir, prefix, data_loader=loader)
 
 
 winning.add_command(winning_face, 'face')
