@@ -76,13 +76,13 @@ def san6_face(game_dir, palette_file, out_dir, prefix):
             """
             KAODATA.S6
 
-            count           4        bytes
-            offset ifno     16*count bytes
-                pos             4    bytes
-                size            4    bytes
-                w               4    bytes
-                h               4    bytes
-            images          ...
+            CNT             4       bytes
+            OFFSET INFO     16*CNT  bytes
+                POS             4   bytes
+                SZ              4   bytes
+                W               4   bytes
+                H               4   bytes
+            IMAGES          ...
             """
             count = int.from_bytes(f.read(4), LITTLE_ENDIAN)
             offset = 4 + 16 * count  # 4: header size; 16: info size(pos, len, w, h)
