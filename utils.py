@@ -1,6 +1,7 @@
 from itertools import zip_longest
 import math
 from PIL import Image
+from rich.progress import track
 
 BGCOLOR = (55, 55, 55)
 
@@ -63,36 +64,47 @@ def to_4bpp_indexes(data: bytes):
 def to_color_indexes(data: bytes, num_colors: int):
     if num_colors == 4:
         return to_2bpp_indexes(data)
-    elif num_colors == 8:
+    if num_colors == 8:
         return to_3bpp_indexes(data)
-    elif num_colors == 16:
+    if num_colors == 16:
         return to_4bpp_indexes(data)
-    else:
-        raise ValueError('Expected 4, 8, or 16 colors')
+    if num_colors == 64 or num_colors == 256:
+        # do nothing, origin raw data is just the color indexes
+        return data
+    raise ValueError('Expected 4, 8, 16, 64 or 256 colors in palette.')
 
 
-def data_to_image(data: bytes, w: int, h: int, colors: list, hh=False) -> Image.Image:
+def data_to_image(data: bytes, w: int, h: int, palette: list, hh=False) -> Image.Image:
     """
     Convert binary bytes to image.
 
-    :param data:    binary bytes
-    :param w:       width
-    :param h:       height
-    :param colors:  color table
-    :param hh:      data contains only half height of size
-    :return:        PIL.Image
+    :param data:        binary bytes
+    :param w:           width
+    :param h:           height
+    :param palette:     color table
+    :param hh:          data contains only half height of size
+    :return:            PIL.Image
     """
-    img = Image.new('RGB', (w, h), BGCOLOR)
-    color_indexes = to_color_indexes(data, len(colors))
+    image = Image.new('RGB', (w, h), BGCOLOR)
+    color_indexes = to_color_indexes(data, len(palette))
     for px_index, color_index in enumerate(color_indexes):
         x, y = px_index % w, px_index // w
-        c = colors[color_index]
+        c = palette[color_index]
         if hh:
-            img.putpixel((x, 2*y), c)
-            img.putpixel((x, 2*y+1), c)
+            image.putpixel((x, 2*y), c)
+            image.putpixel((x, 2*y+1), c)
         else:
-            img.putpixel((x, y), c)
-    return img
+            image.putpixel((x, y), c)
+    return image
+
+
+def load_images(data: bytes, w: int, h: int, palette: list, part_size: int, num_face: int) -> list[Image.Image]:
+    images = []
+    for i in track(range(num_face), description="Loding...       "):
+        pos = i*part_size
+        img = data_to_image(data[pos:pos+part_size], w, h, palette)
+        images.append(img)
+    return images
 
 
 def save_index_image(images: list[Image.Image], w: int, h: int, num_col: int, filename: str) -> None:

@@ -1,6 +1,7 @@
 from functools import reduce
 from utils import *
 from bitstream import BitStream
+from rich.progress import track
 
 
 def get_codes(data: bytes) -> list[int]:
@@ -44,7 +45,7 @@ def recover(codes: list[int], dictionary: bytes) -> bytes:
 
 
 def ls11_decode(data: bytes) -> bytes:
-    if data[:4] not in [b'LS11', b'LS10', b'LS12']:
+    if data[:4] not in [b'LS11', b'Ls12']:
         # TODO(yuxioz): wrong header, log chars here.
         return bytes()
 
@@ -59,7 +60,7 @@ def ls11_decode(data: bytes) -> bytes:
         pos += 12
 
     decoded_data = bytearray()
-    for i in range(len(infos)):
+    for i in track(range(len(infos)), description="Decoding...     "):
         compressed_size, uncompressed_size, offset = infos[i]
         compressed_data = data[offset:offset+compressed_size]
         codes = get_codes(compressed_data)
