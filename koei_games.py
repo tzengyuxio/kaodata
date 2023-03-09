@@ -43,30 +43,10 @@ def koukai2_face(face_file, out_dir, prefix):
     )
     face_w, face_h, bpp = 64, 80, 3
     one_face_data_size = int(face_w*face_h*bpp/8)
-    num_face = 128
 
     # TODO(yuxioz): start_pos(in single value or in list) and face_count(num_face)
 
-    # get face data (binary)
-    face_data: bytes
-    with open(face_file, 'rb') as f:
-        face_data = ls11_decode(f.read())
-
-    # get face images
-    face_images = load_images(face_data, face_w, face_h, palette, one_face_data_size, num_face)
-
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
-
-    # index image
-    out_filename = '{}/{}00-INDEX.png'.format(out_dir, prefix)
-    save_index_image(face_images, face_w, face_h, 16, out_filename)
-    print('...save {}'.format(out_filename))
-
-    # single images
-    for idx, img in track(enumerate(face_images)):
-        out_filename = '{}/{}{:04d}.png'.format(out_dir, prefix, idx)
-        img.save(out_filename)
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix, one_face_data_size, num_part=128)
 
 
 koukai2.add_command(koukai2_face, 'face')
@@ -82,13 +62,13 @@ def koukai3():
 
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
 @click.option('-p', '--palette', 'palette_file', default='cds95FaceHeader.bmp', help="色盤檔案")
-@click.option('--out_dir', 'out_dir', default='output')
-@click.option('--prefix', 'prefix', default='')
+@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 @click.command(help='顏 CG 解析')
 def koukai3_face(face_file, palette_file, out_dir, prefix):
     """
-    ./dekoei.py koukai3 face --face kao/KOUKAI3_FEMALE.CDS --palette kao/cds95FaceHeader.bmp 
-    ./dekoei.py koukai3 face --face kao/KOUKAI3_MALE.CDS --palette kao/cds95FaceHeader.bmp 
+    ./dekoei.py koukai3 face --face kao/KOUKAI3_FEMALE.CDS --palette kao/cds95FaceHeader.bmp
+    ./dekoei.py koukai3 face --face kao/KOUKAI3_MALE.CDS --palette kao/cds95FaceHeader.bmp
     """
     # load palette
     palette_img = Image.open(palette_file)
@@ -104,28 +84,44 @@ def koukai3_face(face_file, palette_file, out_dir, prefix):
     face_w, face_h = 80, 96
     one_face_data_size = int(face_w*face_h)
 
-    # get face data (binary)
-    face_data: bytes
-    with open(face_file, 'rb') as f:
-        face_data = ls11_decode(f.read())
-    num_face = len(face_data) // one_face_data_size
-    # print("num_face: {}, len(face_data): {}".format(num_face, len(face_data)))
-
-    # get face images
-    face_images = load_images(face_data, face_w, face_h, palette, one_face_data_size, num_face)
-
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
-
-    # index image
-    out_filename = '{}/{}00-INDEX.png'.format(out_dir, prefix)
-    save_index_image(face_images, face_w, face_h, 16, out_filename)
-    print('...save {}'.format(out_filename))
-
-    # single images
-    for idx, img in track(enumerate(face_images), description='Saving...       '):
-        out_filename = '{}/{}{:04d}.png'.format(out_dir, prefix, idx)
-        img.save(out_filename)
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix, one_face_data_size)
 
 
 koukai3.add_command(koukai3_face, 'face')
+
+##############################################################################
+
+
+@click.group()
+def winning():
+    """光榮賽馬, 賽馬大亨"""
+    pass
+
+
+@click.option('-d', '--dir', 'game_dir', help="遊戲目錄", required=True)
+@click.option('--out_dir', 'out_dir', default='output')
+@click.option('--prefix', 'prefix', default='')
+@click.command(help='顏 CG 解析')
+def winning_face(game_dir, out_dir, prefix):
+    """
+
+    /dekoei.py winning face --dir ~/DOSBox/winning
+    """
+    palette = color_codes_to_palette(
+        ['#000000', '#20D320', '#F30000', '#F3D300', '#0061C3', '#00B2F3', '#F351F3', '#F3F3F3']
+    )
+    face_w, face_h, bpp = 64, 80, 3
+    one_face_data_size = int(face_w*face_h*bpp/8)
+
+    def loader() -> bytes:
+        raw_data = bytearray()
+        with open(game_dir+'/KAO.DAT', 'rb') as f:
+            raw_data.extend(f.read())
+        with open(game_dir+'/TEXTGRP.DAT', 'rb') as f:
+            raw_data.extend(f.read(one_face_data_size))
+        return bytes(raw_data)
+
+    extract_images('', face_w, face_h, palette, out_dir, prefix, one_face_data_size, data_loader=loader)
+
+
+winning.add_command(winning_face, 'face')

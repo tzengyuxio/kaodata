@@ -1,7 +1,9 @@
 from itertools import zip_longest
 import math
+import os
 from PIL import Image
 from rich.progress import track
+from ls11 import ls11_decode, LS11_MAGIC
 
 BGCOLOR = (55, 55, 55)
 
@@ -98,9 +100,9 @@ def data_to_image(data: bytes, w: int, h: int, palette: list, hh=False) -> Image
     return image
 
 
-def load_images(data: bytes, w: int, h: int, palette: list, part_size: int, num_face: int) -> list[Image.Image]:
+def load_images(data: bytes, w: int, h: int, palette: list, part_size: int, num_part: int) -> list[Image.Image]:
     images = []
-    for i in track(range(num_face), description="Loding...       "):
+    for i in track(range(num_part), description="Loding...   "):
         pos = i*part_size
         img = data_to_image(data[pos:pos+part_size], w, h, palette)
         images.append(img)
@@ -113,8 +115,49 @@ def save_index_image(images: list[Image.Image], w: int, h: int, num_col: int, fi
     img_w = w * num_col
     img_h = h * math.ceil(len(images) / num_col)
     index_image = Image.new('RGB', (img_w, img_h), color=BGCOLOR)
-    for idx, img in enumerate(images):
+    for idx, img in track(enumerate(images), description="Saving index"):
         pos_x = (idx % num_col) * w
         pos_y = (idx // num_col) * h
         index_image.paste(img, (pos_x, pos_y))
     index_image.save(filename)
+
+
+def save_single_images(images: list[Image.Image], out_dir: str, prefix: str) -> None:
+    for idx, img in track(enumerate(images), description='Saving...   '):
+        out_filename = '{}/{}{:04d}.png'.format(out_dir, prefix, idx)
+        img.save(out_filename)
+
+
+def extract_images(filename: str, w: int, h: int, palette: list, out_dir: str, prefix: str, part_size=-1, num_part=-1, data_loader=None) -> None:
+    """
+    A basic scaffold of loading file, save index and save single images.
+    """
+
+    # get raw data (binary) of images
+    raw_data: bytes
+    if data_loader:
+        raw_data = data_loader()
+    else:
+        with open(filename, 'rb') as f:
+            header = f.read(4)
+            f.seek(0)
+            if header in LS11_MAGIC:
+                raw_data = ls11_decode(f.read())
+            else:
+                raw_data = f.read()
+
+    if num_part == -1:
+        num_part = len(raw_data) // part_size
+
+    # load each single images from raw data
+    images = load_images(raw_data, w, h, palette, part_size, num_part)
+
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+    # index image
+    out_filename = '{}/{}00-INDEX.png'.format(out_dir, prefix)
+    save_index_image(images, w, h, 16, out_filename)
+
+    # single images
+    save_single_images(images, out_dir, prefix)

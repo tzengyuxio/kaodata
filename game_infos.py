@@ -42,14 +42,6 @@ GAME_INFOS = {
         "start_pos": 47616,
         "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
     },
-    "KOUKAI2": {
-        "name": "大航海時代II",
-        "face_file": "KAO2.LZW",  # "KAO.LZW", 465890 bytes (KAO: first 210279 bytes, THEN: 864B x 128)
-        "face_size": (64, 80),
-        "face_count": 128,
-        "ls11_encoded": True,
-        "palette": ['#000000', '#00A261', '#D34100', '#F3A261', '#0041D3', '#00A2F3', '#D361A2', '#F3E3D3']
-    },
     "KOUKAI2M": {
         "name": "大航海時代II",
         "face_file": "KAO.LZW",  # "KAO.LZW", 465890 bytes (LS11: first 292514 bytes, MONTAGE: 173376)
@@ -193,12 +185,6 @@ GAME_INFOS = {
         "face_file": "KAO.TK2",
         "face_size": (48, 64),
         "palette": ['#000000', '#417100', '#D32000', '#E3A261', '#0030A2', '#7192B2', '#C36161', '#F3F3F3']
-    },
-    "WINNING": {
-        "name": "光榮賽馬",
-        "face_file": "",
-        "face_size": (64, 80),
-        "palette": ['#000000', '#20D320', '#F30000', '#F3D300', '#0061C3', '#00B2F3', '#F351F3', '#F3F3F3']
     },
     "AIR2": {
         "name": "航空霸業II",  # NOT READY

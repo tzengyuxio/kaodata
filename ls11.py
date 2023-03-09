@@ -1,7 +1,9 @@
 from functools import reduce
-from utils import *
 from bitstream import BitStream
 from rich.progress import track
+
+LS11_ENDIAN = 'big'
+LS11_MAGIC = [b'LS11', b'Ls12']
 
 
 def get_codes(data: bytes) -> list[int]:
@@ -45,7 +47,7 @@ def recover(codes: list[int], dictionary: bytes) -> bytes:
 
 
 def ls11_decode(data: bytes) -> bytes:
-    if data[:4] not in [b'LS11', b'Ls12']:
+    if data[:4] not in LS11_MAGIC:
         # TODO(yuxioz): wrong header, log chars here.
         return bytes()
 
@@ -53,14 +55,14 @@ def ls11_decode(data: bytes) -> bytes:
     pos = 16+256
     infos = []
     while data[pos:pos+4] != b'\x00\x00\x00\x00':
-        compressed_size = int.from_bytes(data[pos:pos+4], BIG_ENDIAN)
-        uncompressed_size = int.from_bytes(data[pos+4:pos+8], BIG_ENDIAN)
-        offset = int.from_bytes(data[pos+8:pos+12], BIG_ENDIAN)
+        compressed_size = int.from_bytes(data[pos:pos+4], LS11_ENDIAN)
+        uncompressed_size = int.from_bytes(data[pos+4:pos+8], LS11_ENDIAN)
+        offset = int.from_bytes(data[pos+8:pos+12], LS11_ENDIAN)
         infos.append((compressed_size, uncompressed_size, offset))
         pos += 12
 
     decoded_data = bytearray()
-    for i in track(range(len(infos)), description="Decoding...     "):
+    for i in track(range(len(infos)), description="Decoding... "):
         compressed_size, uncompressed_size, offset = infos[i]
         compressed_data = data[offset:offset+compressed_size]
         codes = get_codes(compressed_data)
