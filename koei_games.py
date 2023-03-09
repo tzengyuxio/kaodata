@@ -94,7 +94,10 @@ koukai3.add_command(koukai3_face, 'face')
 
 @click.group()
 def winning():
-    """光榮賽馬, 賽馬大亨"""
+    """光榮賽馬, 賽馬大亨
+
+    (有大眾臉)
+    """
     pass
 
 

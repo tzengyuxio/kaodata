@@ -88,33 +88,6 @@ def export_all_face(filename, palette_file, tag, prefix):
         back_image.save(out_filename)
 
 
-def export_face(filename, idx):
-    img_data = None
-    with open(filename, 'rb') as f:
-        count = int.from_bytes(f.read(4), endian)
-        print('count: {}'.format(count))
-        offset = 4 + 16 * count
-        f.seek(4 + idx * 16)
-        pos = int.from_bytes(f.read(4), endian)
-        size = int.from_bytes(f.read(4), endian)
-        w = int.from_bytes(f.read(4), endian)
-        h = int.from_bytes(f.read(4), endian)
-        print('pos: {}; size: {}; dimension: ({}, {})'.format(pos, size, w, h))
-        f.seek(offset + pos)
-        img_data = f.read(size)
-
-    pallete = load_pallete("KAO/SAN6_PALETTE.S6")
-
-    print('img_data len: {}, type: {}'.format(len(img_data), type(img_data)))
-    image = Image.new('RGB', (w, h), color=(55, 55, 55))
-    for i in range(size):
-        x, y = i % w, i // w
-        color_index = img_data[i]
-        image.putpixel((x, y), pallete[color_index])
-    out_filename = 'KAO_{:04d}.png'.format(idx+1)
-    image.save(out_filename)
-
-
 def export_san8_face(filename, p_filename, tag, prefix):
     pallete = load_san8_pallete(p_filename, 5720)  # 5701 from van's text
 
@@ -188,12 +161,6 @@ def nobu5():
 
 def main():
     args = sys.argv[1:]
-
-    # SAN6 輸出單一張圖
-    # export_face("KAO/SAN6_KAODATA.S6", int(args[0], 10))
-
-    # SAN6 輸出全部單圖與全圖
-    # export_all_face("KAO/SAN6_KAODATA.S6", "KAO/SAN6_PALETTE.S6", args[0], args[1])
 
     # SAN7 輸出全部單圖與全圖
     # export_all_face('KAO/SAN7_Kaodata.s7', 'KAO/SAN7_P_Kao.s7', args[0], args[1])
