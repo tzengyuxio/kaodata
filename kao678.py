@@ -34,20 +34,6 @@ def load_san8_pallete(filename, start_pos=0, reverse_rgb=False):
         return [tuple([x[i] for i in range(4)]) for x in bytes_list]
 
 
-def load_pallete_test(filename):
-    palettes = []
-    with open(filename, 'rb') as f:
-        for _ in range(3):
-            _ = f.read(4)
-            data = f.read(1024)
-            bytes_list = [data[i:i+4] for i in range(0, 1024, 4)]
-            palette = [tuple([x[i] for i in range(4)]) for x in bytes_list]
-            palettes.append(palette)
-    print('p0 vs p1: {}'.format(palettes[0] == palettes[1]))
-    print('p0 vs p2: {}'.format(palettes[0] == palettes[2]))
-    return palettes[0]
-
-
 def export_all_face(filename, palette_file, tag, prefix):
     pallete = load_pallete(palette_file)
 
