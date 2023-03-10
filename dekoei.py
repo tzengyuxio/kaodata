@@ -550,7 +550,8 @@ def decode_gt1g(data, idx=0):
         # 0x08 0x00000024 0x00004000 test_new_file0\000.dds 128x128    1       -
         # expected SIZE: 16384, actual 16384 g1t_size: 16440, header_size: 32
         print()
-        print('format:{}(tex_type: {}), dx:{}, dy:{}, mipmap:{}, flags:{}'.format(texture_format, tex_type, tex_dx, tex_dy, tex_mipmaps, flags))
+        print('format:{}(tex_type: {}), dx:{}, dy:{}, mipmap:{}, flags:{}'.format(
+            texture_format, tex_type, tex_dx, tex_dy, tex_mipmaps, flags))
         dds_header = write_dds_header(texture_format, 1 << tex_dx, 1 << tex_dy, tex_mipmaps, flags)
         fout = io.BytesIO(b'')
         fout.write(dds_header)
@@ -561,11 +562,11 @@ def decode_gt1g(data, idx=0):
         # data
         dds_data_start_pos = header_size + offset_tables[i] + 20
         dds_data_size = 0
-        if i != nb_textures - 1: # not last one
+        if i != nb_textures - 1:  # not last one
             dds_data_size = offset_tables[i+1] - offset_tables[i]
         else:
             dds_data_size = g1t_size - offset_tables[i]
-        dds_data_size -=20
+        dds_data_size -= 20
         f.seek(dds_data_start_pos)
         fout.write(f.read(texture_size))
 
@@ -852,6 +853,9 @@ dekoei.add_command(koukai3)
 dekoei.add_command(lempe)
 dekoei.add_command(tk2)
 dekoei.add_command(winning)
+# dekoei.add_command(air2)  # 航空霸業II
+# dekoei.add_command(genpei)  # 源平合戰
+dekoei.add_command(liberty)  # 獨立戰爭
 
 if __name__ == '__main__':
     dekoei()

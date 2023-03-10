@@ -3,7 +3,7 @@ from utils import *
 from ls11 import *
 from rich.progress import track
 from PIL import ImageFile
-ImageFile.LOAD_TRUNCATED_IMAGES = True # for KOUKAI3 palette file
+ImageFile.LOAD_TRUNCATED_IMAGES = True  # for KOUKAI3 palette file
 
 
 @click.group()
@@ -164,6 +164,68 @@ def lempe_face(face_file, out_dir, prefix):
 
 
 lempe.add_command(lempe_face, 'face')
+
+##############################################################################
+
+
+@click.group()
+def liberty():
+    """獨立戰爭
+
+    FACE.IDX
+    """
+    pass
+
+
+@click.command(help='顏 CG 解析')
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+def liberty_face(face_file, out_dir, prefix):
+    palette = color_codes_to_palette(
+        ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
+    )
+    face_w, face_h = 64, 80
+
+    def avg(x):
+        s = 0
+        for xx in x:
+            s += xx
+        return s / len(x)
+
+    os.makedirs(out_dir, exist_ok=True)
+
+    file_size = os.stat(face_file).st_size
+    with open(face_file, 'rb') as f:
+        f.read(3)  # 'IDX'
+
+        count = int.from_bytes(f.read(1), LITTLE_ENDIAN)
+        print('count: {}'.format(count))
+        offsets = []
+        while len(offsets) < count:
+            offset = int.from_bytes(f.read(4), LITTLE_ENDIAN)
+            if offset == 5242944:  # 0x40005000LE
+                break
+            offsets.append(offset)
+        print('offset count: {}'.format(len(offsets)))
+        block_sizes = []
+        for i in range(len(offsets)):
+            offset = offsets[i]
+            f.seek(offset)
+            fb = f.read(4) # first block
+            next_offset = file_size if i == len(offsets)-1 else offsets[i+1]
+            print('[{:02d}] {}, {} {}'.format(i, offset, next_offset - offset, fb))
+            block_size = next_offset - offset
+            block_sizes.append(block_size)
+            w = int.from_bytes(fb[:2], LITTLE_ENDIAN)
+            h = int.from_bytes(fb[2:], LITTLE_ENDIAN)
+            out_filename = '{}/{}{:04d}_{}x{}'.format(out_dir, prefix, i, w, h)
+            with open(out_filename, 'wb') as fout:
+                fout.write(f.read(block_size))
+        print('block size: min({}), max({}), avg{}'.format(min(block_sizes), max(block_sizes), avg(block_sizes)))
+
+
+liberty.add_command(liberty_face, 'face')
 
 ##############################################################################
 
