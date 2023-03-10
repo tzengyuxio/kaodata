@@ -8,6 +8,10 @@
   - block size: min(1538), max(2023), avg1798.12
 - COMMAND.IDX, EVENT.IDX 中有 'NPK016' 字樣，覺得眼熟
   - 另外檔案中也有個 'OPENNPK.NPK', 推測可能是片頭 OP
+- 98版 129 頭像，SF版 174 頭像 (光榮美術館數據)
+- GRAPHICS.IDX 中，每個 block 的頭四個 bytes 是 width 與 height,
+  - 接下來的兩個 bytes (`first_byte`) 可能與色彩數或 block 長度有關
+  - block size = width x height x (`first_byte` / 8)
 
 | file         | pos(3)     | pos(4-7)     | first NBK016 | bytes before first | memo                   |
 | ------------ | ---------- | ------------ | ------------ | ------------------ | ---------------------- |

@@ -10,6 +10,7 @@
   - [SAN1, SAN2](#san1-san2)
     - [檔案](#檔案)
   - [SAN4, SAN5](#san4-san5)
+  - [SAN6](#san6)
   - [SAN11](#san11)
     - [檔案格式](#檔案格式)
   - [SAN12](#san12)
@@ -92,6 +93,10 @@
 - SAN2: `KAODATA.DAT`
 
 ## SAN4, SAN5
+
+## SAN6
+
+- HLP 檔案裡面有黃氏，三張表情圖 https://i.imgur.com/oHTGphi.png (資訊提供 MikageSayo@ptt)
 
 ## SAN11
 

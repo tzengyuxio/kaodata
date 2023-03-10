@@ -2,6 +2,7 @@ import click
 from utils import *
 from ls11 import *
 from rich.progress import track
+from rich.table import Table
 from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True  # for KOUKAI3 palette file
 
@@ -182,6 +183,10 @@ def liberty():
 @click.option('--out_dir', 'out_dir', default='output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def liberty_face(face_file, out_dir, prefix):
+    """
+    ./dekoei.py liberty face -f ~/DOSBox/LIBERTY/FACE.IDX --out_dir LIBERTY --prefix "FACE"
+    ./dekoei.py liberty face -f ~/DOSBox/LIBERTY/GRAPHICS.IDX --out_dir LIBERTY --prefix "GRAPHICS"
+    """
     palette = color_codes_to_palette(
         ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
     )
@@ -201,6 +206,7 @@ def liberty_face(face_file, out_dir, prefix):
 
         count = int.from_bytes(f.read(1), LITTLE_ENDIAN)
         print('count: {}'.format(count))
+        # count = 999 # switch for FACE.IDX
         offsets = []
         while len(offsets) < count:
             offset = int.from_bytes(f.read(4), LITTLE_ENDIAN)
@@ -209,10 +215,17 @@ def liberty_face(face_file, out_dir, prefix):
             offsets.append(offset)
         print('offset count: {}'.format(len(offsets)))
         block_sizes = []
+        table = Table(title=face_file)
+        table.add_column("ID", justify="right", style="cyan", no_wrap=True)
+        table.add_column("width", style="magenta")
+        table.add_column("height", style="magenta")
+        table.add_column("block size", justify="right", style="green")
+        table.add_column("times", justify="right", style="green")
+        table.add_column("first byte", justify="right", style="green")
         for i in range(len(offsets)):
             offset = offsets[i]
             f.seek(offset)
-            fb = f.read(4) # first block
+            fb = f.read(4)  # first block
             next_offset = file_size if i == len(offsets)-1 else offsets[i+1]
             print('[{:02d}] {}, {} {}'.format(i, offset, next_offset - offset, fb))
             block_size = next_offset - offset
@@ -221,7 +234,13 @@ def liberty_face(face_file, out_dir, prefix):
             h = int.from_bytes(fb[2:], LITTLE_ENDIAN)
             out_filename = '{}/{}{:04d}_{}x{}'.format(out_dir, prefix, i, w, h)
             with open(out_filename, 'wb') as fout:
-                fout.write(f.read(block_size))
+                raw_data = f.read(block_size-4)
+                first_byte = int.from_bytes(raw_data[:2], LITTLE_ENDIAN)
+                fout.write(raw_data)
+                table.add_row(str(i), str(w), str(h), str(len(raw_data)), str((len(raw_data)-2)/w/h), str(first_byte))
+        # print block_infos in rows
+        console = Console()
+        console.print(table)
         print('block size: min({}), max({}), avg{}'.format(min(block_sizes), max(block_sizes), avg(block_sizes)))
 
 
