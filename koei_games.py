@@ -3,7 +3,7 @@ from utils import *
 from ls11 import *
 from rich.progress import track
 from PIL import ImageFile
-ImageFile.LOAD_TRUNCATED_IMAGES = True
+ImageFile.LOAD_TRUNCATED_IMAGES = True # for KOUKAI3 palette file
 
 
 @click.group()
@@ -95,8 +95,6 @@ def koukai2_face(face_file, out_dir, prefix):
         ['#000000', '#00A261', '#D34100', '#F3A261', '#0041D3', '#00A2F3', '#D361A2', '#F3E3D3']
     )
     face_w, face_h = 64, 80
-
-    # TODO(yuxioz): start_pos(in single value or in list) and face_count(num_face)
 
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, num_part=128)
 

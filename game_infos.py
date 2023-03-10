@@ -77,21 +77,6 @@ GAME_INFOS = {
         "face_count": 91,
         "palette": ['#000000', '#00BA65', '#FF5555', '#EFCF55', '#0065BA', '#459ADF', '#FF55FF', '#FFFFFF']
     },
-    "SAN1": {
-        "name": "三國志",
-        "face_file": "SAN_B/PICDATA.DAT",
-        "face_size": (48, 80),
-        "face_count": 114,
-        "double_height": True,
-        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55']
-    },
-    "SAN2": {
-        "name": "三國志II",
-        "face_file": "KAODATA.DAT",
-        "face_size": (64, 80),
-        "double_height": True,
-        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
-    },
     "SAN3": {
         "name": "三國志III",
         "face_file": "KAODATA.DAT",
@@ -126,23 +111,6 @@ GAME_INFOS = {
         "face_file": "KAOEX.S5",
         "face_size": (64, 80),
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
-    },
-    "SAN1PC98": {
-        "name": "三國志",
-        "face_file": "PC98_SAN_B.FDI",
-        "face_size": (48, 80),
-        "face_count": 113,  # 後面有 (48, 80)x158個 montage 資料(應為動畫)
-        "start_pos": 15120+240,
-        "double_height": True,
-        "palette": ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
-    },
-    "SAN2PC98": {
-        "name": "三國志II",
-        "face_file": "PC98_SAN2_B.FDI",
-        "face_size": (64, 80),
-        "face_count": [95, 124],  # 後面有 (64,80)x52個 montage 資料
-        "start_pos": [189440, 371842+894],  # 189120 (~121 後半正確) 365697
-        "palette": ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
     },
     "SUIKODEN": {
         "name": "水滸傳",

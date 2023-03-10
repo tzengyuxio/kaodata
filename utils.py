@@ -2,8 +2,11 @@ from itertools import zip_longest
 import math
 import os
 from PIL import Image
+from rich.console import Console
 from rich.progress import track
 from ls11 import ls11_decode, LS11_MAGIC
+
+console = Console()
 
 BGCOLOR = (55, 55, 55)
 
@@ -111,7 +114,9 @@ def load_images(data: bytes, w: int, h: int, palette: list, hh: bool, part_size:
 
 def save_index_image(images: list[Image.Image], w: int, h: int, num_col: int, filename: str) -> None:
     # index image
-    # TODO(yuxioz): return when too large in width or too many in num_col
+    if w > 96:
+        console.log(':exclamation: Single image too large to generate index image.', style='yellow')
+        return
     img_w = w * num_col
     img_h = h * math.ceil(len(images) / num_col)
     index_image = Image.new('RGB', (img_w, img_h), color=BGCOLOR)
