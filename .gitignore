@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# kaodata
+.idea
+.vscode
+GAMES
+KAO
+TEST
+WIP

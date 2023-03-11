@@ -68,8 +68,24 @@ def koukai():
 
 
 @click.command(help='顏 CG 解析')
-def koukai_face():
-    pass
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='output')
+@click.option('--prefix', 'prefix', default='')
+def koukai_face(face_file, out_dir, prefix):
+    """
+    KAO_PUT
+    """
+    palette = color_codes_to_palette(
+        ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
+    )
+    face_w, face_h = 64, 80
+
+    def loader() -> bytes:
+        with open(face_file, 'rb') as f:
+            f.seek(47616)
+            return f.read()
+
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix, num_part=34, hh=True, data_loader=loader)
 
 
 koukai.add_command(koukai_face, 'face')
@@ -83,10 +99,10 @@ def koukai2():
     pass
 
 
+@click.command(help='顏 CG 解析')
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
 @click.option('--out_dir', 'out_dir', default='output')
 @click.option('--prefix', 'prefix', default='')
-@click.command(help='顏 CG 解析')
 def koukai2_face(face_file, out_dir, prefix):
     """KAO2.LZW
 
@@ -188,7 +204,7 @@ def liberty_face(face_file, out_dir, prefix):
     ./dekoei.py liberty face -f ~/DOSBox/LIBERTY/GRAPHICS.IDX --out_dir LIBERTY --prefix "GRAPHICS"
     """
     palette = color_codes_to_palette(
-        ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
+        ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']  # NOT READY
     )
     face_w, face_h = 64, 80
 
@@ -245,6 +261,109 @@ def liberty_face(face_file, out_dir, prefix):
 
 
 liberty.add_command(liberty_face, 'face')
+
+##############################################################################
+
+
+@click.group()
+def royal():
+    """魔法皇冠
+
+    ./dekoei.py royal face -f kao/ROYAL_KAODATA.DAT
+    ./dekoei.py royal face -f kao/ROYAL_PC98_ロイヤルブラッド_B.fdi
+    """
+    pass
+
+
+@click.command(help='顏 CG 解析')
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+def royal_face(face_file, out_dir, prefix):
+    """
+    KAODATA.DAT
+    PC98_ロイヤルブラッド_B.fdi
+    """
+    palette = color_codes_to_palette(
+        ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
+    )
+    face_w, face_h = 64, 80
+    loader = None
+    num_part = 91
+    hh = True
+
+    # PC98 floppy image as face_file
+    if '.fdi' in face_file.lower():
+        palette = color_codes_to_palette(
+            ['#000000', '#00BA65', '#FF5555', '#EFCF55', '#0065BA', '#459ADF', '#FF55FF', '#FFFFFF']
+        )
+        num_part = 91
+
+        def pc98_loader() -> bytes:
+            raw_data = bytearray()
+            offset_infos = [(414720, num_part*1920)]  # (offset, face_count * part_size)
+            with open(face_file, 'rb') as f:
+                for info in offset_infos:
+                    f.seek(info[0])
+                    raw_data.extend(f.read(info[1]))
+            return bytes(raw_data)
+        hh = False
+        loader = pc98_loader
+
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix, num_part=num_part, hh=hh, data_loader=loader)
+
+
+royal.add_command(royal_face, 'face')
+
+##############################################################################
+
+
+@click.group()
+def suikoden():
+    """水滸傳
+
+    """
+    pass
+
+
+@click.command(help='顏 CG 解析')
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+def suikoden_face(face_file, out_dir, prefix):
+    """
+    KAOIBM.DAT
+    水滸伝2.FDI
+    """
+    palette = color_codes_to_palette(
+        ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
+    )
+    face_w, face_h = 64, 80
+    loader = None
+    hh = True
+
+    # PC98 floppy image as face_file
+    if '.fdi' in face_file.lower():
+        palette = color_codes_to_palette(
+            ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
+        )
+        num_part = 260
+
+        def pc98_loader() -> bytes:
+            raw_data = bytearray()
+            offset_infos = [(15360, num_part*1920)]  # (offset, face_count * part_size)
+            with open(face_file, 'rb') as f:
+                for info in offset_infos:
+                    f.seek(info[0])
+                    raw_data.extend(f.read(info[1]))
+            return bytes(raw_data)
+        hh = False
+        loader = pc98_loader
+
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix, hh=hh, data_loader=loader)
+
+
+suikoden.add_command(suikoden_face, 'face')
 
 ##############################################################################
 

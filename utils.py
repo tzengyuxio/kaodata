@@ -1,6 +1,7 @@
 from itertools import zip_longest
 import math
 import os
+import typing
 from PIL import Image
 from rich.console import Console
 from rich.progress import track
@@ -127,10 +128,10 @@ def save_index_image(images: list[Image.Image], w: int, h: int, num_col: int, fi
     index_image.save(filename)
 
 
-def save_single_images(images: list[Image.Image], out_dir: str, prefix: str) -> None:
-    for idx, img in track(enumerate(images), description='Saving...   ', total=len(images)):
-        out_filename = '{}/{}{:04d}.png'.format(out_dir, prefix, idx)
-        img.save(out_filename)
+def save_single_images(images: dict[str, Image.Image], out_dir: str, prefix: str) -> None:
+    for key in track(images, description='Saving...   ', total=len(images)):
+        out_filename = '{}/{}{:0>4}.png'.format(out_dir, prefix, key)
+        images[key].save(out_filename)
 
 
 def calc_part_size(w: int, h: int, num_colors: int, hh=False) -> int:
@@ -150,6 +151,28 @@ def calc_part_size(w: int, h: int, num_colors: int, hh=False) -> int:
         bpp = 8
 
     return int(w * h * bpp / 8 / 2) if hh else int(w * h * bpp / 8)
+
+
+# output_images take a map or a list of Image.Image, save them to out_dir with prefix
+def output_images(images: typing.Union[list[Image.Image], dict[str, Image.Image]],
+                  out_dir: str, prefix: str,
+                  w: typing.Optional[int] = None, h: typing.Optional[int] = None) -> None:
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+    # zip images with index if it's a list
+    images = {str(i): img for i, img in enumerate(images)} if isinstance(images, list) else images
+    image_list = list(images.values())
+
+    if w is None or h is None:
+        w, h = image_list[0].width, image_list[0].height
+
+    # index image
+    out_filename = '{}/{}00-INDEX.png'.format(out_dir, prefix)
+    save_index_image(image_list, w, h, 16, out_filename)
+
+    # single images
+    save_single_images(images, out_dir, prefix)
 
 
 def extract_images(filename: str, w: int, h: int, palette: list, out_dir: str, prefix: str, part_size=-1, num_part=-1, hh=False, data_loader=None) -> None:
@@ -179,12 +202,4 @@ def extract_images(filename: str, w: int, h: int, palette: list, out_dir: str, p
     # load each single images from raw data
     images = load_images(raw_data, w, h, palette, hh, part_size, num_part)
 
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
-
-    # index image
-    out_filename = '{}/{}00-INDEX.png'.format(out_dir, prefix)
-    save_index_image(images, w, h, 16, out_filename)
-
-    # single images
-    save_single_images(images, out_dir, prefix)
+    output_images(images, out_dir, prefix)

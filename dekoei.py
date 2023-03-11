@@ -584,7 +584,15 @@ def decode_gt1g(data, idx=0):
               type=click.Choice(['L', 'S', 'T'], case_sensitive=False),
               help='頭像尺寸 L 240x240,\n S:  64x 80,\n T: 32x40')
 def san9_face(palette_file, face_file, tag, image_size, prefix):
-    """三國志 IX 頭像解析"""
+    """三國志 IX 頭像解析
+
+    ./dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FaceL.s9  -t SAN9L   --image-size=L --prefix "SAN9_WIN_FL"
+    ./dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FacLPK.s9 -t SAN9PKL --image-size=L --prefix "SAN9PK_WIN_FL"
+    ./dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FaceS.s9  -t SAN9S   --image-size=S --prefix "SAN9_WIN_FS"
+    ./dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FacSPK.s9 -t SAN9PKS --image-size=S --prefix "SAN9PK_WIN_FS"
+    ./dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FaceT.s9  -t SAN9T   --image-size=T --prefix "SAN9_WIN_FT"
+    ./dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FacTPK.s9 -t SAN9PKT --image-size=T --prefix "SAN9PK_WIN_FT"
+    """
     image_size_spec = {"L": (240, 240), "S": (64, 80), "T": (32, 40)}
     face_w, face_h = image_size_spec[image_size]
     palette = load_palette(palette_file, start_pos=44)
@@ -851,6 +859,8 @@ dekoei.add_command(koukai)
 dekoei.add_command(koukai2)
 dekoei.add_command(koukai3)
 dekoei.add_command(lempe)
+dekoei.add_command(royal)
+dekoei.add_command(suikoden)
 dekoei.add_command(tk2)
 dekoei.add_command(winning)
 # dekoei.add_command(air2)  # 航空霸業II

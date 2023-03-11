@@ -24,10 +24,6 @@ KHAN_PALETTE = ['#302000', '#417120', '#D33030', '#D3B282', '#204182', '#418292'
 # 航空霸業II (尚未找到)
 # export_faces('AIR2', '/Users/tzengyuxio/DOSBox/AIR2', all_in_one=True)
 
-# 獨立戰爭 (尚未找到)
-# export_faces('LIBERTY', '/Users/tzengyuxio/DOSBox/LIBERTY')
-# export_faces('LIBERTY', '/Users/tzengyuxio/DOSBox/LIBERTY', all_in_one=True)
-
 # ls11_decode('KAODATA/ISHIN2_FACE.I2', 'KAODATA/ISHIN2_FACE.DEC')
 
 

@@ -19,7 +19,7 @@ def san1():
 @click.option('--out_dir', 'out_dir', default='output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def san1_face(face_file, out_dir, prefix):
-    palette = color_codes_to_palette( ['#000000', '#55FF55', '#FF5555', '#FFFF55'])
+    palette = color_codes_to_palette(['#000000', '#55FF55', '#FF5555', '#FFFF55'])
     face_w, face_h = 48, 80
     num_part = 114
     loader = None
@@ -103,13 +103,46 @@ san2.add_command(san2_face, 'face')
 
 @click.group()
 def san3():
-    """三國志III"""
+    """三國志III
+
+    ./dekoei.py san3 face -f kao/SAN3_KAODATA.DAT --out_dir SAN3_DOS --prefix "SAN3_DOS_F"
+    ./dekoei.py san3 face -f kao/SAN3_FACES.BMP --out_dir SAN3_WIN --prefix "SAN3_WIN_F"
+    """
     pass
 
 
 @click.command(help='顏 CG 解析')
-def san3_face():
-    pass
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+def san3_face(face_file, out_dir, prefix):
+    """
+    KAODATA.DAT (DOS)
+    FACES.BMP (WIN, STEAM), 專用顏307, 大眾臉311
+    """
+    if 'faces.bmp' in face_file.lower():
+        facebmp = Image.open(face_file)
+        skips = [307, 308, 309, 310, 311, 623]
+        w, h, num_col = 64, 80, 12
+        num_faces = (facebmp.width // 64) * (facebmp.height // 80)
+        face_images = dict()
+        for i in range(num_faces):
+            if i in skips:
+                continue
+            face = facebmp.crop((i % num_col * w, i // num_col * h, (i % num_col + 1) * w, (i // num_col + 1) * h))
+            face_images[str(i)] = face
+        output_images(face_images, out_dir, prefix)
+        # output_images(list(face_images.values())[:307], out_dir, prefix+'_A')  # 專用顏
+        # output_images(list(face_images.values())[307:], out_dir, prefix+'_B')  # 大眾臉
+        return
+
+    # for KAODATA.DAT (DOS)
+    palette = color_codes_to_palette(
+        ['#000000', '#10B251', '#F35100', '#F3E300', '#0041F3', '#00C3F3', '#F351D3', '#F3F3F3']
+    )
+    face_w, face_h = 64, 80
+
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix)
 
 
 san3.add_command(san3_face, 'face')
@@ -127,7 +160,13 @@ def san4():
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
 @click.option('--out_dir', 'out_dir', default='output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
-def san4_face():
+def san4_face(face_file, out_dir, prefix):
+    """
+
+    # color pallete (威力加強版編輯器)
+    #   | 黑[0] | 深藍[4] | 朱紅[2] | 深皮[6] |
+    #   | 綠[1] | 淺藍[5] | 淺皮[3] | 雪白[7] |
+    """
     pass
 
 
@@ -146,7 +185,7 @@ def san5():
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
 @click.option('--out_dir', 'out_dir', default='output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
-def san5_face():
+def san5_face(face_file, out_dir, prefix):
     pass
 
 

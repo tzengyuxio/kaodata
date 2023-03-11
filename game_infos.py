@@ -21,15 +21,6 @@ GAME_INFOS = {
         "start_pos": 582656,
         "palette": ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
     },
-    "KOUKAI": {
-        "name": "大航海時代",
-        "face_file": "KAO.PUT",
-        "face_size": (64, 80),
-        "face_count": 34,
-        "double_height": True,
-        "start_pos": 47616,
-        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
-    },
     "KOUKAI2M": {
         "name": "大航海時代II",
         "face_file": "KAO.LZW",  # "KAO.LZW", 465890 bytes (LS11: first 292514 bytes, MONTAGE: 173376)
@@ -62,27 +53,6 @@ GAME_INFOS = {
             },
         "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
     },
-    "ROYAL": {
-        "name": "魔法皇冠",
-        "face_file": "KAODATA.DAT",
-        "face_size": (64, 80),
-        "double_height": True,
-        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
-    },
-    "ROYALPC98": {
-        "name": "魔法皇冠",
-        "face_file": "KAODATA.DAT",
-        "face_size": (64, 80),
-        "start_pos": 368640+46080,
-        "face_count": 91,
-        "palette": ['#000000', '#00BA65', '#FF5555', '#EFCF55', '#0065BA', '#459ADF', '#FF55FF', '#FFFFFF']
-    },
-    "SAN3": {
-        "name": "三國志III",
-        "face_file": "KAODATA.DAT",
-        "face_size": (64, 80),
-        "palette": ['#000000', '#10B251', '#F35100', '#F3E300', '#0041F3', '#00C3F3', '#F351D3', '#F3F3F3']
-    },
     "SAN4": {
         "name": "三國志IV",
         # KAODATA.S4 作用尚不明, File Size: 530,413 byte (340 人需要 652,800)
@@ -96,9 +66,6 @@ GAME_INFOS = {
         "face_file": "KAODATA2.S4",
         "face_size": (64, 80),
         "palette": ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251', '#D3D3B2']
-        # color pallete (威力加強版編輯器)
-        #   | 黑[0] | 深藍[4] | 朱紅[2] | 深皮[6] |
-        #   | 綠[1] | 淺藍[5] | 淺皮[3] | 雪白[7] |
     },
     "SAN5": {
         "name": "三國志V",
@@ -111,21 +78,6 @@ GAME_INFOS = {
         "face_file": "KAOEX.S5",
         "face_size": (64, 80),
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
-    },
-    "SUIKODEN": {
-        "name": "水滸傳",
-        "face_file": "KAOIBM.DAT",
-        "face_size": (64, 80),
-        "double_height": True,
-        "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
-    },
-    "SUI98": {
-        "name": "水滸傳",
-        "face_file": "KAOIBM.DAT",
-        "face_size": (64, 80),
-        "start_pos": 15360,
-        "face_count": 260,
-        "palette": ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
     },
     "TAIKOH": {
         "name": "太閣立志傳",
@@ -143,12 +95,6 @@ GAME_INFOS = {
     "ISHIN2": {
         "name": "維新之嵐2",  # NOT READY
         "face_file": "ISHIN2.I2",
-        "face_size": (64, 80),
-        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
-    },
-    "LIBERTY": {
-        "name": "獨立戰爭",  # NOT READY
-        "face_file": "FACE.IDX",
         "face_size": (64, 80),
         "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
     },
