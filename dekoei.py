@@ -83,16 +83,16 @@ def san12():
     Example:
 
         dekoei.py san12 face -f KAO/SAN12_KAO_W_L.S12  --index KAO/SAN12_KAODATA.S12 --tag SAN12LARGE --prefix "SAN12_WIN_FL"
-        ./dekoei.py san12 face -f KAO/SAN12_ADD00_KAO_W_L.S12  --index KAO/SAN12_ADD00.dat --tag SAN12LARGE --prefix "SAN12_WIN_FL"
-        ./dekoei.py san12 face -f KAO/SAN12_ADD20_KAO_W_L.S12  --index KAO/SAN12_ADD20.dat --tag SAN12LARGE --prefix "SAN12_WIN_FL"
-        ./dekoei.py san12 face -f KAO/SAN12_ADD21_KAO_W_L.S12  --index KAO/SAN12_ADD21.dat --tag SAN12LARGE --prefix "SAN12_WIN_FL"
-        ./dekoei.py san12 face -f KAO/SAN12_SP0_KAO_W_L.S12  --index KAO/SAN12_SP0.dat --tag SAN12LARGE --prefix "SAN12_WIN_FL"
+        dekoei.py san12 face -f KAO/SAN12_ADD00_KAO_W_L.S12  --index KAO/SAN12_ADD00.dat --tag SAN12LARGE --prefix "SAN12_WIN_FL"
+        dekoei.py san12 face -f KAO/SAN12_ADD20_KAO_W_L.S12  --index KAO/SAN12_ADD20.dat --tag SAN12LARGE --prefix "SAN12_WIN_FL"
+        dekoei.py san12 face -f KAO/SAN12_ADD21_KAO_W_L.S12  --index KAO/SAN12_ADD21.dat --tag SAN12LARGE --prefix "SAN12_WIN_FL"
+        dekoei.py san12 face -f KAO/SAN12_SP0_KAO_W_L.S12  --index KAO/SAN12_SP0.dat --tag SAN12LARGE --prefix "SAN12_WIN_FL"
 
-        ./dekoei.py san12 face -f KAO/SAN12_KAO_F_M.S12  --index KAO/SAN12_KAODATA.S12 --tag SAN12SMALL --prefix "SAN12_WIN_FM"
-        ./dekoei.py san12 face -f KAO/SAN12_ADD00_KAO_F_M.S12  --index KAO/SAN12_ADD00.dat --tag SAN12SMALLA00 --prefix "SAN12_WIN_FM"
-        ./dekoei.py san12 face -f KAO/SAN12_ADD20_KAO_F_M.S12  --index KAO/SAN12_ADD20.dat --tag SAN12SMALLA20 --prefix "SAN12_WIN_FM"
-        ./dekoei.py san12 face -f KAO/SAN12_ADD21_KAO_F_M.S12  --index KAO/SAN12_ADD21.dat --tag SAN12SMALLA21 --prefix "SAN12_WIN_FM"
-        ./dekoei.py san12 face -f KAO/SAN12_SP0_KAO_F_M.S12  --index KAO/SAN12_SP0.dat --tag SAN12SMALLSP --prefix "SAN12_WIN_FM"
+        dekoei.py san12 face -f KAO/SAN12_KAO_F_M.S12  --index KAO/SAN12_KAODATA.S12 --tag SAN12SMALL --prefix "SAN12_WIN_FM"
+        dekoei.py san12 face -f KAO/SAN12_ADD00_KAO_F_M.S12  --index KAO/SAN12_ADD00.dat --tag SAN12SMALLA00 --prefix "SAN12_WIN_FM"
+        dekoei.py san12 face -f KAO/SAN12_ADD20_KAO_F_M.S12  --index KAO/SAN12_ADD20.dat --tag SAN12SMALLA20 --prefix "SAN12_WIN_FM"
+        dekoei.py san12 face -f KAO/SAN12_ADD21_KAO_F_M.S12  --index KAO/SAN12_ADD21.dat --tag SAN12SMALLA21 --prefix "SAN12_WIN_FM"
+        dekoei.py san12 face -f KAO/SAN12_SP0_KAO_F_M.S12  --index KAO/SAN12_SP0.dat --tag SAN12SMALLSP --prefix "SAN12_WIN_FM"
     """
     pass
 
@@ -866,6 +866,11 @@ dekoei.add_command(winning)
 # dekoei.add_command(air2)  # 航空霸業II
 # dekoei.add_command(genpei)  # 源平合戰
 dekoei.add_command(liberty)  # 獨立戰爭 (研究中)
+dekoei.add_command(ishin)  # 維新之嵐
+# dekoei.add_command(ishin2)  # 維新之嵐2
+# dekoei.add_command(genghis)  # 成吉思汗
+# dekoei.add_command(genchoh)  # 元朝秘史
+dekoei.add_command(taikoh)  # 太閤立志傳
 
 if __name__ == '__main__':
     dekoei()

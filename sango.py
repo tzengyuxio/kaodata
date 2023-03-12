@@ -1,4 +1,8 @@
 import click
+from collections import namedtuple
+from struct import unpack
+from rich.console import Console
+from rich.table import Table
 from utils import *
 
 
@@ -129,7 +133,56 @@ def san3_face(face_file, out_dir, prefix):
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix)
 
 
+@click.command(help='人物資料解析')
+@click.option('-f', '--file', 'file', help="劇本檔案", required=True)
+def san3_person(file):
+    """
+    人物資料解析
+    """
+    console = Console()
+    table = Table(title="Sangokushi III Person Data")
+    table.add_column('ID', justify='right', style='cyan')
+    table.add_column('姓名')
+    table.add_column('顏', justify='right', style='magenta')
+    table.add_column('陸指', justify='right', style='green')
+    table.add_column('水指', justify='right', style='green')
+    table.add_column('武力', justify='right', style='green')
+    table.add_column('智力', justify='right', style='green')
+    table.add_column('政治', justify='right', style='green')
+    table.add_column('魅力', justify='right', style='green')
+    table.add_column('相性', justify='right', style='blue')
+    table.add_column('義理', justify='right', style='blue')
+
+    Person = namedtuple('Person', 'face, next, soldier, items, mask, \
+                        action, sick, lifespan, undercover, role, \
+                        army, navy, war, intl, pol, chrm,\
+                        aisho, justice, royalty, city, faction, service, \
+                        in_faction, in_service, family, train, morale, birth, job, month, \
+                        name')
+
+    def kao2str(face):
+        if face <= 307:
+            return '[red]'+str(face)
+        else:
+            # convert face from number to hex string
+            return hex(face)[2:].upper()
+
+    # 0x0000 顏 次席 士兵 寶物 MASK STATUS ABILITY 相性 義理 忠誠 城市 勢力 仕官 裡所屬士官 親族 訓練 士氣 無 生年 工作 餘月 無 姓名
+    # xx     H  H   H   H   H    BBBBB  BBBBBB   B   B   B   B   B   B    BB       B   B   B   xxx B   B   B   xxx 6s
+    fmt = '<xxHHHHHBBBBBBBBBBBBBBBBBBBBBBxxxBBBxxx6s'
+    with open(file, 'rb') as f:
+        for i in range(600):
+            data = f.read(49)
+            p = Person._make(unpack(fmt, data))
+            if p.name == b'\x00\x00\x00\x00\x00\x00':
+                continue
+            table.add_row(str(i), p.name.hex(), kao2str(p.face), str(p.army), str(p.navy), str(
+                p.war), str(p.intl), str(p.pol), str(p.chrm), str(p.aisho), str(p.justice))
+    console.print(table)
+
+
 san3.add_command(san3_face, 'face')
+san3.add_command(san3_person, 'person')
 
 ##############################################################################
 
@@ -198,7 +251,6 @@ def san5_face(face_file, out_dir, prefix):
     face_w, face_h = 64, 80
 
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix)
-
 
 
 san5.add_command(san5_face, 'face')

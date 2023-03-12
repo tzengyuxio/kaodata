@@ -62,6 +62,61 @@ kohryuki.add_command(kohryuki_face, 'face')
 
 
 @click.group()
+def ishin():
+    """維新之嵐
+
+    """
+    pass
+
+
+@click.command(help='顏 CG 解析')
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+def ishin_face(face_file, out_dir, prefix):
+    """
+    ./dekoei.py ishin face -f kao/ISHIN_維新の嵐A.fdi --prefix ISHIN_PC98_F
+
+    專有顏:106, 守衛:1, 背景:8, 大眾:約56格大小
+    """
+    palette = color_codes_to_palette(
+        ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
+    )
+    face_w, face_h = 48, 80
+    num_part = 105
+    hh = True
+    loader = create_floppy_image_loader(face_file, [(582656, num_part * 720)])
+
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix, hh=hh, data_loader=loader)
+
+
+ishin.add_command(ishin_face, 'face')
+
+##############################################################################
+
+
+@click.group()
+def ishin2():
+    """維新之嵐2
+
+    """
+    pass
+
+
+@click.command(help='顏 CG 解析')
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+def ishin2_face(face_file, out_dir, prefix):
+    pass
+
+
+ishin2.add_command(ishin2_face, 'face')
+
+##############################################################################
+
+
+@click.group()
 def koukai():
     """大航海時代"""
     pass
@@ -73,7 +128,7 @@ def koukai():
 @click.option('--prefix', 'prefix', default='')
 def koukai_face(face_file, out_dir, prefix):
     """
-    KAO_PUT
+    KAO.PUT
     """
     palette = color_codes_to_palette(
         ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
@@ -95,7 +150,12 @@ koukai.add_command(koukai_face, 'face')
 
 @click.group()
 def koukai2():
-    """大航海時代II"""
+    """大航海時代II
+
+    KAO.LZW     顏 CG (64x80) x 128
+                道具 CG (48x48) x 128 (start_pos: 245,760, ls11)
+                大眾臉 CG (start_pos: 292,514)
+    """
     pass
 
 
@@ -163,6 +223,11 @@ def lempe():
     """拿破崙
 
     KAODATA.DAT
+
+    "nations": [
+        "France", "Holland", "Bavaria", "Denmark", "Turkey", "Italy", "Venice", "Naples",
+        "Portugal", "Sweden", "Spain", "Prussia", "Russia", "Austria", "England", "Dublin"
+    ]
     """
     pass
 
@@ -348,6 +413,32 @@ def suikoden_face(face_file, out_dir, prefix):
 
 suikoden.add_command(suikoden_face, 'face')
 
+##############################################################################
+
+
+@click.group()
+def taikoh():
+    """太閤立志傳
+
+    KAO.PUT
+    """
+    pass
+
+
+@click.command(help='顏 CG 解析')
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+def taikoh_face(face_file, out_dir, prefix):
+    palette = color_codes_to_palette(
+        ['#000000', '#41C341', '#F35100', '#F3D300', '#2061A2', '#00C3F3', '#F361B2', '#F3F3F3']
+    )
+    face_w, face_h = 64, 80
+
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix)
+
+
+taikoh.add_command(taikoh_face, 'face')
 ##############################################################################
 
 
