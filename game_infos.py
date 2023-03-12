@@ -53,32 +53,6 @@ GAME_INFOS = {
             },
         "palette": ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
     },
-    "SAN4": {
-        "name": "三國志IV",
-        # KAODATA.S4 作用尚不明, File Size: 530,413 byte (340 人需要 652,800)
-        "face_file": "KAODATAP.S4",
-        "face_size": (64, 80),
-        "face_count": 340, # 專用頭像340, 之後水滸117, 之後大眾臉244, 共701
-        "palette": ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251', '#D3D3B2']
-    },
-    "SAN4P": {
-        "name": "三國志IV 威力加強版",
-        "face_file": "KAODATA2.S4",
-        "face_size": (64, 80),
-        "palette": ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251', '#D3D3B2']
-    },
-    "SAN5": {
-        "name": "三國志V",
-        "face_file": "KAODATA.S5",  # KAODATA.S5, KAODATAP.S5: 1,503,360 = 783 * 1920, 兩檔案相同
-        "face_size": (64, 80),
-        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
-    },
-    "SAN5P": {
-        "name": "三國志V 威力加強版",
-        "face_file": "KAOEX.S5",
-        "face_size": (64, 80),
-        "palette": ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
-    },
     "TAIKOH": {
         "name": "太閣立志傳",
         "face_file": "KAO.PUT",

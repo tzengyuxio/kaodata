@@ -865,7 +865,7 @@ dekoei.add_command(tk2)
 dekoei.add_command(winning)
 # dekoei.add_command(air2)  # 航空霸業II
 # dekoei.add_command(genpei)  # 源平合戰
-dekoei.add_command(liberty)  # 獨立戰爭
+dekoei.add_command(liberty)  # 獨立戰爭 (研究中)
 
 if __name__ == '__main__':
     dekoei()

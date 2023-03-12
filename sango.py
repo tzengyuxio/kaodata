@@ -16,7 +16,7 @@ def san1():
 
 @click.command(help='顏 CG 解析')
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
-@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def san1_face(face_file, out_dir, prefix):
     palette = color_codes_to_palette(['#000000', '#55FF55', '#FF5555', '#FFFF55'])
@@ -31,16 +31,8 @@ def san1_face(face_file, out_dir, prefix):
             ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
         )
         num_part = 113
-
-        def pc98_loader() -> bytes:
-            raw_data = bytearray()
-            offset_infos = [(15360, 113*1440)]  # (offset, face_count * part_size)
-            with open(face_file, 'rb') as f:
-                for info in offset_infos:
-                    f.seek(info[0])
-                    raw_data.extend(f.read(info[1]))
-            return bytes(raw_data)
-        loader = pc98_loader
+        offset_infos = [(15360, num_part*1440)]  # (offset, face_count * part_size)
+        loader = create_floppy_image_loader(face_file, offset_infos)
 
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, num_part=num_part, hh=True, data_loader=loader)
 
@@ -64,7 +56,7 @@ def san2():
 
 @click.command(help='顏 CG 解析')
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
-@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def san2_face(face_file, out_dir, prefix):
     palette = color_codes_to_palette(
@@ -81,17 +73,9 @@ def san2_face(face_file, out_dir, prefix):
             ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
         )
         hh = False
-
-        def pc98_loader() -> bytes:
-            raw_data = bytearray()
-            # NOTE: 在第二組 offset_info 之後還有 52 個 face 大小的 montage 資料
-            offset_infos = [(189440, 95*1920), (372736, 124*1920)]  # (offset, face_count * part_size)
-            with open(face_file, 'rb') as f:
-                for info in offset_infos:
-                    f.seek(info[0])
-                    raw_data.extend(f.read(info[1]))
-            return bytes(raw_data)
-        loader = pc98_loader
+        # NOTE: 在第二組 offset_info 之後還有 52 個 face 大小的 montage 資料
+        offset_infos = [(189440, 95*1920), (372736, 124*1920)]  # (offset, face_count * part_size)
+        loader = create_floppy_image_loader(face_file, offset_infos)
 
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, hh=hh, data_loader=loader)
 
@@ -113,7 +97,7 @@ def san3():
 
 @click.command(help='顏 CG 解析')
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
-@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def san3_face(face_file, out_dir, prefix):
     """
@@ -158,16 +142,29 @@ def san4():
 
 @click.command(help='顏 CG 解析')
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
-@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def san4_face(face_file, out_dir, prefix):
     """
+    KAODATA.S4 (DOS, Steam) 530,413 byte (不明)
+    KAODATA2.S4 (DOS)       三國志3:150, 水滸:170, TOTAL:320
+    KAODATA2.S4 (Steam)     三國志3:150, 水滸:170, 信長:117, TOTAL:437
+    KAODATAP.S4 (DOS)       三國志4:340, 水滸:117, 大眾:244, TOTAL:701
+    KAODATAP.S4 (Steam)     三國志4:340, 水滸:117, 大眾:244, 信長:117, TOTAL:818
 
     # color pallete (威力加強版編輯器)
     #   | 黑[0] | 深藍[4] | 朱紅[2] | 深皮[6] |
     #   | 綠[1] | 淺藍[5] | 淺皮[3] | 雪白[7] |
+
+    ./dekoei.py san4 face -f /Volumes/common/San4WPK/KAODATA2.S4 --prefix SAN4_WIN_F
+    ./dekoei.py san4 face -f /Volumes/common/San4WPK/KAODATAP.S4 --prefix SAN4_WIN_F
     """
-    pass
+    palette = color_codes_to_palette(
+        ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251', '#D3D3B2']
+    )
+    face_w, face_h = 64, 80
+
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix)
 
 
 san4.add_command(san4_face, 'face')
@@ -183,10 +180,25 @@ def san5():
 
 @click.command(help='顏 CG 解析')
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
-@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def san5_face(face_file, out_dir, prefix):
-    pass
+    """
+    KAODATA.S5 (DOS)    專用與大眾臉: 783
+    KAODATAP.S5 (DOS)   同上，兩檔案大小相同 1,503,360 byte
+    KAOEX.S5 (DOS)      三４:160, 項劉:30, 信長:60, 英傑:100, 水滸:32, TOTAL:382
+    Steam 版三檔案與上述同
+
+    ./dekoei.py san5 face -f /Volumes/common/San5WPK/KAODATA.S5 --prefix SAN5_WIN_F
+    ./dekoei.py san5 face -f /Volumes/common/San5WPK/KAOEX.S5  --prefix SAN5_WIN_F
+    """
+    palette = color_codes_to_palette(
+        ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
+    )
+    face_w, face_h = 64, 80
+
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix)
+
 
 
 san5.add_command(san5_face, 'face')
@@ -203,7 +215,7 @@ def san6():
 @click.command(help='顏 CG 解析')
 @click.option('-d', '--dir', 'game_dir', help="遊戲目錄")
 @click.option('-p', '--palette', 'palette_file', default='Palette.S6', help="色盤檔案")
-@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def san6_face(game_dir, palette_file, out_dir, prefix):
     palette: list

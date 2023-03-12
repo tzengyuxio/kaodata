@@ -18,7 +18,7 @@ def europe():
 
 @click.command(help='顏 CG 解析')
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
-@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def europe_face(face_file, out_dir, prefix):
     palette = color_codes_to_palette(
@@ -45,7 +45,7 @@ def kohryuki():
 
 @click.command(help='顏 CG 解析')
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
-@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def kohryuki_face(face_file, out_dir, prefix):
     palette = color_codes_to_palette(
@@ -69,7 +69,7 @@ def koukai():
 
 @click.command(help='顏 CG 解析')
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
-@click.option('--out_dir', 'out_dir', default='output')
+@click.option('--out_dir', 'out_dir', default='_output')
 @click.option('--prefix', 'prefix', default='')
 def koukai_face(face_file, out_dir, prefix):
     """
@@ -101,7 +101,7 @@ def koukai2():
 
 @click.command(help='顏 CG 解析')
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
-@click.option('--out_dir', 'out_dir', default='output')
+@click.option('--out_dir', 'out_dir', default='_output')
 @click.option('--prefix', 'prefix', default='')
 def koukai2_face(face_file, out_dir, prefix):
     """KAO2.LZW
@@ -129,7 +129,7 @@ def koukai3():
 
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
 @click.option('-p', '--palette', 'palette_file', default='cds95FaceHeader.bmp', help="色盤檔案")
-@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 @click.command(help='顏 CG 解析')
 def koukai3_face(face_file, palette_file, out_dir, prefix):
@@ -169,7 +169,7 @@ def lempe():
 
 @click.command(help='顏 CG 解析')
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
-@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def lempe_face(face_file, out_dir, prefix):
     palette = color_codes_to_palette(
@@ -196,7 +196,7 @@ def liberty():
 
 @click.command(help='顏 CG 解析')
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
-@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def liberty_face(face_file, out_dir, prefix):
     """
@@ -277,7 +277,7 @@ def royal():
 
 @click.command(help='顏 CG 解析')
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
-@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def royal_face(face_file, out_dir, prefix):
     """
@@ -297,18 +297,9 @@ def royal_face(face_file, out_dir, prefix):
         palette = color_codes_to_palette(
             ['#000000', '#00BA65', '#FF5555', '#EFCF55', '#0065BA', '#459ADF', '#FF55FF', '#FFFFFF']
         )
-        num_part = 91
-
-        def pc98_loader() -> bytes:
-            raw_data = bytearray()
-            offset_infos = [(414720, num_part*1920)]  # (offset, face_count * part_size)
-            with open(face_file, 'rb') as f:
-                for info in offset_infos:
-                    f.seek(info[0])
-                    raw_data.extend(f.read(info[1]))
-            return bytes(raw_data)
         hh = False
-        loader = pc98_loader
+        offset_infos = [(414720, num_part*1920)]  # (offset, face_count * part_size)
+        loader = create_floppy_image_loader(face_file, offset_infos)
 
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, num_part=num_part, hh=hh, data_loader=loader)
 
@@ -328,7 +319,7 @@ def suikoden():
 
 @click.command(help='顏 CG 解析')
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
-@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def suikoden_face(face_file, out_dir, prefix):
     """
@@ -347,18 +338,10 @@ def suikoden_face(face_file, out_dir, prefix):
         palette = color_codes_to_palette(
             ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
         )
-        num_part = 260
-
-        def pc98_loader() -> bytes:
-            raw_data = bytearray()
-            offset_infos = [(15360, num_part*1920)]  # (offset, face_count * part_size)
-            with open(face_file, 'rb') as f:
-                for info in offset_infos:
-                    f.seek(info[0])
-                    raw_data.extend(f.read(info[1]))
-            return bytes(raw_data)
         hh = False
-        loader = pc98_loader
+        num_part = 260
+        offset_infos = [(15360, num_part*1920)]  # (offset, face_count * part_size)
+        loader = create_floppy_image_loader(face_file, offset_infos)
 
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, hh=hh, data_loader=loader)
 
@@ -379,7 +362,7 @@ def tk2():
 
 @click.command(help='顏 CG 解析')
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
-@click.option('--out_dir', 'out_dir', default='output', help='output directory')
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def tk2_face(face_file, out_dir, prefix):
     palette = color_codes_to_palette(
@@ -405,7 +388,7 @@ def winning():
 
 
 @click.option('-d', '--dir', 'game_dir', help="遊戲目錄", required=True)
-@click.option('--out_dir', 'out_dir', default='output')
+@click.option('--out_dir', 'out_dir', default='_output')
 @click.option('--prefix', 'prefix', default='')
 @click.command(help='顏 CG 解析')
 def winning_face(game_dir, out_dir, prefix):

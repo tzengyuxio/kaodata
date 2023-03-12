@@ -34,36 +34,39 @@ def grouper(iterable, n, incomplete='fill', fillvalue=None):
         raise ValueError('Expected fill, strict, or ignore')
 
 
-def to_2bpp_indexes(data: bytes):
+def to_2bpp_indexes(data: bytes) -> list[int]:
     indexes = []
     for g in grouper(data, 2, incomplete='ignore'):
-        for i in range(7, -1, -1):
-            n = (((g[0] >> i) & 1) << 1) | \
-                ((g[1] >> i) & 1)
-            indexes.append(n)
+        indexes.extend([
+            (((g[0] >> i) & 1) << 1) |
+            ((g[1] >> i) & 1)
+            for i in range(7, -1, -1)
+        ])
     return indexes
 
 
-def to_3bpp_indexes(data: bytes):
+def to_3bpp_indexes(data: bytes) -> list[int]:
     indexes = []
     for g in grouper(data, 3, incomplete='ignore'):
-        for i in range(7, -1, -1):
-            n = (((g[0] >> i) & 1) << 2) | \
-                (((g[1] >> i) & 1) << 1) | \
-                ((g[2] >> i) & 1)
-            indexes.append(n)
+        indexes.extend([
+            (((g[0] >> i) & 1) << 2) |
+            (((g[1] >> i) & 1) << 1) |
+            ((g[2] >> i) & 1)
+            for i in range(7, -1, -1)
+        ])
     return indexes
 
 
-def to_4bpp_indexes(data: bytes):
+def to_4bpp_indexes(data: bytes) -> list[int]:
     indexes = []
     for g in grouper(data, 4, incomplete='ignore'):
-        for i in range(7, -1, -1):
-            n = (((g[0] >> i) & 1) << 3) | \
-                (((g[1] >> i) & 1) << 2) | \
-                (((g[2] >> i) & 1) << 1) | \
-                ((g[3] >> i) & 1)
-            indexes.append(n)
+        indexes.extend([
+            (((g[0] >> i) & 1) << 3) |
+            (((g[1] >> i) & 1) << 2) |
+            (((g[2] >> i) & 1) << 1) |
+            ((g[3] >> i) & 1)
+            for i in range(7, -1, -1)
+        ])
     return indexes
 
 
@@ -174,6 +177,9 @@ def output_images(images: typing.Union[list[Image.Image], dict[str, Image.Image]
     # single images
     save_single_images(images, out_dir, prefix)
 
+    # output image info
+    console.log(':white_check_mark: {} images saved to {}.'.format(len(images), out_dir), style='green')
+
 
 def extract_images(filename: str, w: int, h: int, palette: list, out_dir: str, prefix: str, part_size=-1, num_part=-1, hh=False, data_loader=None) -> None:
     """
@@ -203,3 +209,17 @@ def extract_images(filename: str, w: int, h: int, palette: list, out_dir: str, p
     images = load_images(raw_data, w, h, palette, hh, part_size, num_part)
 
     output_images(images, out_dir, prefix)
+
+
+def create_floppy_image_loader(filename: str, offset_infos: list[tuple[int, int]]) -> typing.Callable[[], bytes]:
+    """
+    Create a data loader for floppy image.
+    """
+    def loader():
+        raw_data = bytearray()
+        with open(filename, 'rb') as f:
+            for offset, size in offset_infos:
+                f.seek(offset)
+                raw_data.extend(f.read(size))
+        return bytes(raw_data)
+    return loader
