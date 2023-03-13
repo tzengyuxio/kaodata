@@ -138,6 +138,8 @@ def san3_face(face_file, out_dir, prefix):
 def san3_person(file):
     """
     人物資料解析
+
+    SNDATA1B.CIM
     """
     console = Console()
     table = Table(title="Sangokushi III Person Data")

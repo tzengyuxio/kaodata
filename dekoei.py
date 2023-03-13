@@ -854,6 +854,8 @@ dekoei.add_command(san13)
 dekoei.add_command(san14)
 
 dekoei.add_command(europe)
+dekoei.add_command(ishin)  # 維新之嵐
+# dekoei.add_command(ishin2)  # 維新之嵐2
 dekoei.add_command(kohryuki)
 dekoei.add_command(koukai)
 dekoei.add_command(koukai2)
@@ -861,16 +863,14 @@ dekoei.add_command(koukai3)
 dekoei.add_command(lempe)
 dekoei.add_command(royal)
 dekoei.add_command(suikoden)
+dekoei.add_command(taikoh)  # 太閤立志傳
 dekoei.add_command(tk2)
 dekoei.add_command(winning)
 # dekoei.add_command(air2)  # 航空霸業II
 # dekoei.add_command(genpei)  # 源平合戰
 dekoei.add_command(liberty)  # 獨立戰爭 (研究中)
-dekoei.add_command(ishin)  # 維新之嵐
-# dekoei.add_command(ishin2)  # 維新之嵐2
 # dekoei.add_command(genghis)  # 成吉思汗
 # dekoei.add_command(genchoh)  # 元朝秘史
-dekoei.add_command(taikoh)  # 太閤立志傳
 
 if __name__ == '__main__':
     dekoei()

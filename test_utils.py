@@ -30,3 +30,17 @@ def test_to_2bpp_indexes():
     assert to_2bpp_indexes(b'\x00\x00\x00\x00') == [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     assert to_2bpp_indexes(b'\xFF\xFF\xFF\xFF') == [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
     assert to_2bpp_indexes(b'\xAA\x55\xAA\x55') == [2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1]
+
+
+def test_count_in_big5_v2():
+    # Test 1: Test if the function returns an integer for a given input
+    assert isinstance(count_in_big5_v2('0001'), int)
+
+    # Test 2: Test normal input
+    assert count_in_big5_v2('A440') == 1    # A440 一 1
+    assert count_in_big5_v2('B0A1') == 1948 # B0A1 陛 1948
+    assert count_in_big5_v2('B0AF') == 1962 # B0AF 偺
+    assert count_in_big5_v2('B1D7') == 2159 # B1D7 斜
+
+    # Test 3: Test edge cases
+    assert count_in_big5_v2('A140') == 1
