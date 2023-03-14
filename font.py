@@ -3,12 +3,14 @@ from PIL import Image
 from utils import grouper
 from rich.console import Console
 from rich.table import Table
+from math import ceil, floor
+from rich.progress import track
 #
 SAN2_MSG16P = "/Users/tzengyuxio/DOSBox/SAN2/MSG.16P"
 SAN2_NAME16P = "/Users/tzengyuxio/DOSBox/SAN2/NAME.16P"
 
 # 307張
-SAN3_HAN16P = "/Users/tzengyuxio/DOSBox/SAN3/HAN.16P"  # 1335 字
+SAN3_HAN16P = "/Users/tzengyuxio/DOSBox/SAN3/HAN.16P"  # 37380 bytes, 1335 字, 每字 28 bytes
 SAN3_NAME16P = "/Users/tzengyuxio/DOSBox/SAN3/NAME.16P"
 
 
@@ -145,11 +147,50 @@ ctable = {
     "黃": ("B6C0", "A236"),  # SAN3
     "良": ("A87D", "9656"),  # SAN3
     "陶": ("B3B3", "9F98"),  # SAN3
-    "春": ("AC4B", "9999"),  # 
-    "夏": ("AE4C", "9999"),  # 
-    "秋": ("ACEE", "9999"),  # 
-    "冬": ("A556", "9999"),  # 
-    "莉": ("B2FA", "9549")  # 漢字部分不確定
+    "伊": ("A5EC", "9444"),  # nobu4
+    "達": ("B946", "A444"),  # nobu4
+    "宗": ("A976", "96F7"),  # nobu4
+    "中": ("A4A4", "92E2"),  # nobu4
+    "野": ("B3A5", "9F8A"),  # nobu4
+    "張": ("B169", "9DAE"),  # SAN3
+    "飛": ("ADB8", "9A9A"),  # SAN3
+    "周": ("A950", "96D1"),  # SAN3
+    "倉": ("ADDC", "9ABE"),  # SAN3
+    "胡": ("AD4A", "9A43"),  # SAN3, 車兒 966B 96A2
+    "宮": ("AE63", "9B36"),  # SAN3, 陳 9F94
+    "島": ("AE71", "9B4B"),  # nobu4, 津 999E
+    "義": ("B871", "A399"),  # nobu4
+    "時": ("AEC9", "9B8C"),  # nobu4
+    "泰": ("AEF5", "9BB8"),  # SAN3
+    "班": ("AF5A", "9BDC"),  # SAN3, 吳 9562
+    "祖": ("AFAA", "9C43"),  # SAN3, 黃 A236
+    "純": ("AFC2", "9C61"),  # SAN3
+    "蔣": ("BDB1", "A7D9"),  # SAN3, 琬 BEA0
+    "蔡": ("BDB2", "A7DA"),  # SAN3, 瑁 A346
+    "蒙": ("BB58", "A5DF"),  # SAN3, 呂 9564
+    "褚": ("BB75", "A5FC"),  # SAN3, 許褚 9F58
+    "遜": ("BBB9", "A657"),  # SAN3, 陸 9F95
+    "審": ("BC66", "A6CF"),  # SAN3, 配 9CD8
+    "德": ("BC77", "A6E0"),  # SAN3, 龐 ACB1
+    "樂": ("BCD6", "A756"),  # SAN3, 進 A1CF
+    # "群": ("B873", "9A95"),  # SAN3, 陳 9F94
+    "會": ("B77C", "A2C3"),  # SAN3, 鍾 AB95
+    "當": ("B7ED", "A34B"),  # SAN3, 韓 ABA6
+    "雲": ("B6B3", "A1F7"), # SAN3
+    "賈": ("B8EB", "A3F1"),  # SAN3, 詡 C36A
+    "宋": ("A7BA", "9CEC"), # SUI, koei 編碼不準
+    "江": ("A6BF", "B3FD"), # SUI, koei 編碼不準
+    "詡": ("E048", "C36A")  # SAN3
+    # "春": ("AC4B", "9999"),  #
+    # "夏": ("AE4C", "9999"),  #
+    # "秋": ("ACEE", "9999"),  #
+    # "冬": ("A556", "9999"),  #
+    # "莉": ("B2FA", "9549")  # 漢字部分不確定
+    # 徐庶 (KOEI)9B579DAB
+    # "徐": ("A8A4", "9650"),  # AI
+    # 鄒靖 (KOEI)A44FA478
+    # "鄒": ("A8A4", "9650"),  # AI
+    # 趙雲 (KOEI)A64DA1F7
 }
 
 # export_font('LEMPE', 'FONT/LEMPE_MSG.16P', pre=True)
@@ -171,82 +212,129 @@ ctable = {
 # print(count_koei('9da0'))  # 崙 2069
 # print()
 
-s = '黃良陶春夏秋冬'
+s = '宋江' # '即晨晝夜晴雲多雨霧'
 
 for c in s:
     print(c, big5_code(c))
+
+not_matched = []
 
 # 列出關係與驗證
 for k in sorted(ctable.keys(), key=lambda x: count_big5(ctable[x][0])):
     v = ctable[k]
     matched = ' ' if count_big5(v[0]) == count_koei(v[1]) else 'x'
+    if matched == 'x':
+        not_matched.append(v[1])
     print("{} [{}] {:04d} {:04d}, {}".format(k, matched, count_big5(v[0]), count_koei(v[1]), v))
 
 
+def num_unique(a_list: list) -> int:
+    return len(set(a_list))
+
+
+def collect_koei_font_codes(filename, offset, read_count, read_size, beg, end):
+    codes: list[str] = []
+    with open(filename, 'rb') as f:
+        f.seek(offset)
+        for _ in range(read_count):
+            data = f.read(read_size)
+            text = data[beg:end]
+            for c in grouper(text, 2):
+                if c == (0, 0):
+                    continue
+                code = ''.join([hex(x)[2:].upper() for x in c])
+                codes.append(code)
+    print('  count/distinct: {:4d}/{:4d} ({})'.format(len(codes), num_unique(codes), filename))
+    return codes
+
+
 def draw_table():
-    codes = set()
-    with open('/Users/tzengyuxio/DOSBox/lempereur/NPDATA.CIM', 'rb') as f:
-        f.seek(8934)
-        for i in range(255):
-            data = f.read(17)
-            name = data[:14]
-            for c in grouper(name, 2):
-                if c == (b'\x00', b'\x00') or c == (0, 0):
-                    continue
-                to_add = ''.join([hex(x)[2:].upper() for x in c])
-                if to_add == '00':
-                    print('(({}))'.format(c))
-                codes.add(to_add)
-    print('count:', len(codes))
+    codes = []
+    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/lempereur/NPDATA.CIM', 8934, 255, 17, 0, 14))  # 人名
+    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/lempereur/NPDATA.CIM', 7220, 16, 10, 0, 8))  # 國名
+    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/lempereur/NPDATA.CIM', 7370, 46, 34, 0, 14))  # 城市名
+    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/SAN3/SNDATA1B.CIM', 0, 600, 49, 43, 49))
+    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/SAN3/SNDATA1.CIM', 3733, 21, 25, 0, 6))
+    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/nobu4/SNDATA1.CIM', 4498, 250, 33, 0, 6))  # 風雲錄 劇本1 姓
+    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/nobu4/SNDATA1.CIM', 4505, 250, 33, 0, 6))  # 風雲錄 劇本1 名
+    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/nobu4/SNDATA2.CIM', 4498, 255, 33, 0, 6))  # 風雲錄 劇本2 姓
+    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/nobu4/SNDATA2.CIM', 4505, 255, 33, 0, 6))  # 風雲錄 劇本2 名
+    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/nobu4/SNDATA3.CIM', 4498, 250, 33, 0, 6))  # 風雲錄 劇本3 姓
+    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/nobu4/SNDATA3.CIM', 4505, 250, 33, 0, 6))  # 風雲錄 劇本3 名
+    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/SUI/SUIDATA1.CIM', 7124, 255, 45, 0, 6))  # 水滸傳
+    unique_codes = set(codes)
+    print('count/distinct: {:4d}/{:4d}'.format(len(codes), len(unique_codes)))
 
-    with open('/Users/tzengyuxio/DOSBox/SAN3/SNDATA1B.CIM', 'rb') as f:
-        for i in range(600):
-            data = f.read(49)
-            name = data[43:]
-            for c in grouper(name, 2):
-                if c == (b'\x00', b'\x00') or c == (0, 0):
-                    continue
-                to_add = ''.join([hex(x)[2:].upper() for x in c])
-                if to_add == '00':
-                    print('(({}))'.format(c))
-                codes.add(to_add)
-
-    print('count:', len(codes))
-    # for c in codes:
-    #     print(c)
-
-    lower_codes = set()
-    for c in codes:
-        if c[2:] == '':
-            print('({})'.format(c))
-        lower_codes.add(c[2:])
+    unique_lower_codes = set()
+    for c in unique_codes:
+        # if c[:2] >= 'A9': 列出誤差較大範圍
+        #     print(c)
+        unique_lower_codes.add(c[2:])
+    print('unique_lower_codes len: {:4d}'.format(len(unique_lower_codes)))
 
     tbl = dict()
     for i in range(16):
-        key = hex(i).upper().replace('0X', '')
+        key = hex(i).replace('0x', '').upper()
         tbl[key] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        # print(key)
 
-    print('====')
-    for c in lower_codes:
-        # print('[{}]'.format(c))
-        # print('[{}]'.format(c))
-        # print(c[0], c[1], type(c[0]))
-        # print(int(c[1], 16))
-        tbl[c[0]][int(c[1], 16)] += 1
+    print('not_matched:', len(not_matched))
+    for c in unique_codes:
+        lo = c[2:]
+        try:
+            if c in not_matched:  # ('9AF3', '9B30', '9B71', '9C31'):
+                tbl[lo[0]][int(lo[1], 16)] += 100
+            else:
+                tbl[lo[0]][int(lo[1], 16)] += 1
+        except IndexError:
+            print('+', c, '+')
+            raise
+        except KeyError:
+            print(tbl.keys(), lo[0], lo)
 
-    print('count:', len(lower_codes))
+    print('count:', len(unique_lower_codes))
 
-    table = Table(title="Star Wars Movies")
+    table = Table(title="")
 
-    table.add_column('UPPER\\LOWER', justify="right", style="cyan", no_wrap=True)
+    table.add_column('HI\\LO', justify="center", style="cyan", no_wrap=True)
     for i in range(16):
-        table.add_column(hex(i).upper(), justify="right", style="cyan", no_wrap=True)
+        table.add_column(hex(i).upper(), justify="center", style="cyan", no_wrap=True)
     for k, v in tbl.items():
-        table.add_row(k, *['' if x == 0 else 'Ｏ' for x in v])
+        table.add_row(k+'0', *['[red]⬜️️' if x == 0 else '[red]'+str(x) if x > 100 else '[green]'+str(x) for x in v])
 
     console = Console()
     console.print(table)
 
-
 draw_table()
+
+
+def extract_font(filename: str, glyph_h: int = 14, prefix: str = '') -> None:
+    font_data_count = 1335
+    font_data_size = glyph_h * 2
+    font_data_list = []
+    with open(filename, 'rb') as f:
+        while font_data := f.read(font_data_size):
+            font_data_list.append(font_data)
+
+    # draw font index table
+    cell_width = 20
+    cell_height = 20
+    num_col = 40
+    num_row = ceil(font_data_count / num_col)
+    img_w = cell_width * num_col
+    img_h = cell_height * num_row
+    img = Image.new('RGB', (img_w, img_h), color='white')
+    for glyph_idx, font_data in track(enumerate(font_data_list)):
+        for byte_idx, byte in enumerate(font_data):
+            for k in range(7, -1, -1):
+                bit = (byte >> k) & 1
+                rel_x = 7-k+8*(byte_idx % 2)
+                rel_y = byte_idx // 2
+                abs_x = (glyph_idx % num_col) * cell_width + rel_x
+                abs_y = (glyph_idx // num_col) * cell_width + rel_y
+                color = (0, 0, 0) if bit == 1 else (255, 255, 255)
+                img.putpixel((abs_x, abs_y), color)
+
+    img.save('{}_font_index.png'.format(prefix))
+
+
+extract_font(SAN3_HAN16P, 14, 'SAN3_HAN16P')

@@ -1,5 +1,25 @@
 # 字庫研究
 
+## 通用
+
+- 0xnn3A - 0xnn40
+- 0xnn5B - 0xnn60
+- 0xnn7B - 0xnn7F
+
+輸出表格中，XX30-xx7F 這段的圖形分佈，與 EUC JP 的 A3B0-A3FF 圖形相似。
+
+https://uic.io/en/charset/show/euc-jp/
+
+推測未使用部分可能用來作為某些控制碼定義。
+
+big5
+    - per page: 157
+    - start pos: A440
+koei-font
+    - per page: 188(?), 187(?)
+    - start pos: 92A0 (未證實，須參考 '一' 的 code)
+
+
 ## 三國志III
 
 | 字  | DOS編碼 | WIN 編碼 | Big5 |        Memo        |
