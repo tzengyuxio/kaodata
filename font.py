@@ -183,8 +183,13 @@ ctable = {
     "當": ("B7ED", "A34B"),  # SAN3, 韓 ABA6
     "雲": ("B6B3", "A1F7"),  # SAN3
     "賈": ("B8EB", "A3F1"),  # SAN3, 詡 C36A
-    "宋": ("A7BA", "9CEC"),  # SUI, koei 編碼不準
-    "江": ("A6BF", "B3FD"),  # SUI, koei 編碼不準
+    "宋": ("A7BA", "959B"),  # SUI
+    "江": ("A6BF", "94BF"),  # SUI
+    "魯": ("BE7C", "A8A6"),  # SUI
+    "智": ("B4BC", "A082"),  # SUI
+    "深": ("B260", "9E86"),  # SUI
+    "高": ("B0AA", "9CEC"),  # SUI
+    "俅": ("CDDE", "B3FD"),  # SUI
     "詡": ("E048", "C36A")  # SAN3
     # "春": ("AC4B", "9999"),  #
     # "夏": ("AE4C", "9999"),  #
@@ -200,7 +205,7 @@ ctable = {
 
 # export_font('LEMPE', 'FONT/LEMPE_MSG.16P', pre=True)
 
-s = '宋江'  # '即晨晝夜晴雲多雨霧'
+s = '高俅宋江'  # '即晨晝夜晴雲多雨霧'
 
 for c in s:
     print(c, big5_code(c))
@@ -344,6 +349,7 @@ def extract_font(filename: str, glyph_h: int = 14, prefix: str = '', has_big5_co
 #   [ ] OCR? https://gist.github.com/beremaran/dc41c96aa8e3aaa1c1951428314df554
 
 # draw_table()
+
 
 extract_font(SAN2_MSG16P, 14, 'SAN2_MSG16P', has_big5_code=True)
 extract_font(SAN3_HAN16P, 14, 'SAN3_HAN16P')
