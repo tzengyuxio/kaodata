@@ -16,8 +16,15 @@ SAN2_NAME16P = HOME_DIR + "/DOSBox/SAN2/NAME.16P"
 SAN3_HAN16P = HOME_DIR + "/DOSBox/SAN3/HAN.16P"  # 37380 bytes, 1335 字, 每字 28 bytes
 SAN3_NAME16P = HOME_DIR + "/DOSBox/SAN3/NAME.16P"
 
-LEMPE_MSG16P = HOME_DIR + "/DOSBox/lempereur/MSG.16P"
 NOBU4_MSG16P = HOME_DIR + "/DOSBox/NOBU4/MSG.16P"
+
+AIR2_MSG16P = HOME_DIR + "/DOSBox/AIR2/MSG.16P"
+AIR2_ZIKU16P = HOME_DIR + "/DOSBox/AIR2/ZIKU.16P"
+AIR2_INSTALL16P = HOME_DIR + "/DOSBox/AIR2/INSTALL.16P"
+EUROPE_MSG16P = HOME_DIR + "/DOSBox/olzx/MSG.16P"
+EUROPE_EMSG16P = HOME_DIR + "/DOSBox/olzx/EMSG.16P"
+LEMPE_MSG16P = HOME_DIR + "/DOSBox/lempereur/MSG.16P"
+ROYAL_MSG16P = HOME_DIR + "/DOSBox/gemfire/MSG.16P"
 SUI_MSG16P = HOME_DIR + "/DOSBox/SUI/MSG.16P"
 
 
@@ -190,6 +197,26 @@ ctable = {
     "深": ("B260", "9E86"),  # SUI
     "高": ("B0AA", "9CEC"),  # SUI
     "俅": ("CDDE", "B3FD"),  # SUI
+    "美": ("ACFC", "9A30"),  # nobu4 宇佐美 A674 A6F5 ACFC, 949694F59A30
+    "納": ("AFC7", "9C66"),  # nobu4 新納 忠元 B773 AFC7 A9BE A4B8, A2BA9C66
+    "荀": ("AFFB", "9CA0"),  # SAN3, 荀彧 _, 9CA0B6FC
+    "彧": ("D17B", "B6FC"),  # SAN3, 荀彧 _, 9CA0B6FC
+    "髦": ("BBEC", "A696"),  # SAN3, 髦
+    "尹": ("A4A8", "92E6"),  # SAN3, 尹賞 _, 92E6A841
+    "賞": ("BDE0", "A841"),  # SAN3, 尹賞 _, 92E6A841
+    "耿": ("AFD5", "9C75"),  # SAN3, 耿武 _, 9C7597BC
+    "武": ("AA5A", "97BC"),  # SAN3, 耿武 _, 9C7597BC
+    "震": ("BE5F", "A889"),  # SAN3
+    "鄭": ("BE47", "A86D"),  # SAN3, 鄭度 _, A86D98F8
+    "度": ("ABD7", "98F8"),  # SAN3, 鄭度 _, A86D98F8
+    "潘": ("BCEF", "A775"),  # SAN3, 潘濬 _, A775AAAA
+    "濬": ("C0E0", "AAAA"),  # SAN3, 潘濬 _, A775AAAA
+    "郭": ("B3A2", "9F87"),  # SAN3, 郭汜 _, 9F87B0DA
+    "汜": ("C9FA", "B0DA"),  # SAN3, 郭汜 _, 9F87B0DA
+    "張": ("B169", "9DAE"),  # SAN3, 張繡(縤) _, 9DAECC66
+    "縤": ("EADE", "CC66"),  # SAN3, 張繡(縤) _, 9DAECC66
+    "步": ("A842", "95E2"),  # SAN3, 步騭 _, 95E2D4F0
+    "騭": ("F563", "D4F0"),  # SAN3, 步騭 _, 95E2D4F0
     "詡": ("E048", "C36A")  # SAN3
     # "春": ("AC4B", "9999"),  #
     # "夏": ("AE4C", "9999"),  #
@@ -203,22 +230,26 @@ ctable = {
     # 趙雲 (KOEI)A64DA1F7
 }
 
-# export_font('LEMPE', 'FONT/LEMPE_MSG.16P', pre=True)
 
-s = '高俅宋江'  # '即晨晝夜晴雲多雨霧'
+def view_big5_code():
+    s = '耿武震鄭度潘濬郭汜張縤步騭'  # '即晨晝夜晴雲多雨霧'
+    for c in s:
+        print(c, big5_code(c))
 
-for c in s:
-    print(c, big5_code(c))
 
 not_matched = []
 
-# 列出關係與驗證
-for k in sorted(ctable.keys(), key=lambda x: count_big5(ctable[x][0])):
-    v = ctable[k]
-    matched = ' ' if count_big5(v[0]) == count_koei(v[1]) else 'x'
-    if matched == 'x':
-        not_matched.append(v[1])
-    print("{} [{}] {:04d} {:04d}, {}".format(k, matched, count_big5(v[0]), count_koei(v[1]), v))
+
+def list_relation_and_verify():
+    # 列出關係與驗證
+    for k in sorted(ctable.keys(), key=lambda x: count_big5(ctable[x][0])):
+        v = ctable[k]
+        matched = ' ' if count_big5(v[0]) == count_koei(v[1]) else 'x'
+        if matched == 'x':
+            not_matched.append(v[1])
+        delta = count_big5(v[0]) - count_koei(v[1])
+        delta_str = ' ' if delta == 0 else ('+'+str(delta) if delta > 0 else str(delta))
+        print("{} [{}] {:04d} {:04d}, {} {}".format(k, matched, count_big5(v[0]), count_koei(v[1]), v, delta_str))
 
 
 def num_unique(a_list: list) -> int:
@@ -258,12 +289,24 @@ def draw_table():
     unique_codes = set(codes)
     print('count/distinct: {:4d}/{:4d}'.format(len(codes), len(unique_codes)))
 
+    adjusted_codes = set()
+    uncommon_codes = set()
     unique_lower_codes = set()
     for c in unique_codes:
-        # if c[:2] >= 'A9': 列出誤差較大範圍
-        #     print(c)
+        if ('9A30' < c and c < '9C75') or ('A657' < c and c < 'A889'):
+            adjusted_codes.add(c)
+        if c > 'AAAA':  # 非常用字, 要找出誤差大的修正方式
+            uncommon_codes.add(c)
         unique_lower_codes.add(c[2:])
     print('unique_lower_codes len: {:4d}'.format(len(unique_lower_codes)))
+
+    for c in sorted(adjusted_codes):
+        print(c)
+    print('------------------------------------------------------------------------------')
+    for c in sorted(uncommon_codes):
+        print(c)
+    print('adjusted_codes:{}'.format(len(adjusted_codes)))
+    print('uncommon_codes:{}'.format(len(uncommon_codes)))
 
     tbl = dict()
     for i in range(16):
@@ -348,11 +391,20 @@ def extract_font(filename: str, glyph_h: int = 14, prefix: str = '', has_big5_co
 #   [ ] list all the font which koei-code is higher than A9
 #   [ ] OCR? https://gist.github.com/beremaran/dc41c96aa8e3aaa1c1951428314df554
 
-# draw_table()
+# view_big5_code()
+list_relation_and_verify()
+draw_table()
 
 
-extract_font(SAN2_MSG16P, 14, 'SAN2_MSG16P', has_big5_code=True)
-extract_font(SAN3_HAN16P, 14, 'SAN3_HAN16P')
-extract_font(LEMPE_MSG16P, 14, 'LEMPE_MSG16P', has_big5_code=True)
-extract_font(NOBU4_MSG16P, 14, 'NOBU4_MSG16P')
-extract_font(SUI_MSG16P, 14, 'SUI_MSG16P', has_big5_code=True)
+# == Extract font from file ==
+# extract_font(AIR2_MSG16P, 14, 'AIR2_MSG16P')
+# extract_font(AIR2_ZIKU16P, 14, 'AIR2_ZIKU16P')
+# extract_font(AIR2_INSTALL16P, 14, 'AIR2_INSTALL16P')
+# extract_font(EUROPE_MSG16P, 14, 'EUROPE_MSG16P')
+# extract_font(EUROPE_EMSG16P, 14, 'EUROPE_EMSG16P')
+# extract_font(SAN2_MSG16P, 14, 'SAN2_MSG16P', has_big5_code=True)
+# extract_font(SAN3_HAN16P, 14, 'SAN3_HAN16P')
+# extract_font(LEMPE_MSG16P, 14, 'LEMPE_MSG16P', has_big5_code=True)
+# extract_font(NOBU4_MSG16P, 14, 'NOBU4_MSG16P')
+# extract_font(SUI_MSG16P, 14, 'SUI_MSG16P', has_big5_code=True)
+# extract_font(ROYAL_MSG16P, 14, 'ROYAL_MSG16P')

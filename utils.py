@@ -264,39 +264,3 @@ def big5_from_order(n: int) -> int:
     if n < 0:
         return -1
     return 0
-
-
-def count_in_big5(data: bytes) -> int:
-    """
-    Count the number of characters in big5 encoding.
-    """
-    count = 0
-    for i in range(0, len(data), 2):
-        if data[i] >= 0xa1 and data[i+1] >= 0x40:
-            count += 1
-    return count
-
-
-def count_in_big5_v2(s) -> int:
-    """
-    1-base, start from '一乙丁七', A440, A441, A442, A443
-    """
-    up = s[:2]
-    dw = s[2:]
-    a = int('0x'+up, 16) - int('0xa4', 16)
-    bb = int('0x'+dw, 16)
-    if bb >= int('0xa1', 16):
-        bb = bb - int('0xa1', 16) + 63
-    else:
-        bb = bb - int('0x40', 16)
-    return (a * 157 + bb) + 1
-
-
-def count_in_big5_v3(s: bytes) -> int:
-    a = s[0] - 0xA4
-    bb = s[1]
-    if bb > 0xA0:  # for lager than 0xa0
-        bb = bb - 0x7E
-    else:
-        bb = bb - 0x40
-    return (a * 157 + bb) + 1
