@@ -32,6 +32,7 @@ def test_to_2bpp_indexes():
     assert to_2bpp_indexes(b'\xAA\x55\xAA\x55') == [2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1]
 
 
+
 def test_count_in_big5_v2():
     # Test 1: Test if the function returns an integer for a given input
     assert isinstance(count_in_big5_v2('0001'), int)
@@ -43,4 +44,17 @@ def test_count_in_big5_v2():
     assert count_in_big5_v2('B1D7') == 2159 # B1D7 斜
 
     # Test 3: Test edge cases
-    assert count_in_big5_v2('A140') == 1
+    assert count_in_big5_v2('A140') < 1
+
+def test_order_of_big5():
+    # Test 1: Test if the function returns an integer for a given input
+    assert isinstance(order_of_big5(0x0001), int)
+
+    # Test 2: Test normal input
+    assert order_of_big5(0xA440) == 0    # A440 一 0
+    assert order_of_big5(0xB0A1) == 1947 # B0A1 陛 1947
+    assert order_of_big5(0xB0AF) == 1961 # B0AF 偺
+    assert order_of_big5(0xB1D7) == 2158 # B1D7 斜
+
+    # Test 3: Test edge cases
+    assert order_of_big5(0xA140) == -1

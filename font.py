@@ -5,13 +5,20 @@ from rich.console import Console
 from rich.table import Table
 from math import ceil, floor
 from rich.progress import track
+
+HOME_DIR = os.path.expanduser('~')
+
 #
-SAN2_MSG16P = "/Users/tzengyuxio/DOSBox/SAN2/MSG.16P"
-SAN2_NAME16P = "/Users/tzengyuxio/DOSBox/SAN2/NAME.16P"
+SAN2_MSG16P = HOME_DIR + "/DOSBox/SAN2/MSG.16P"
+SAN2_NAME16P = HOME_DIR + "/DOSBox/SAN2/NAME.16P"
 
 # 307張
-SAN3_HAN16P = "/Users/tzengyuxio/DOSBox/SAN3/HAN.16P"  # 37380 bytes, 1335 字, 每字 28 bytes
-SAN3_NAME16P = "/Users/tzengyuxio/DOSBox/SAN3/NAME.16P"
+SAN3_HAN16P = HOME_DIR + "/DOSBox/SAN3/HAN.16P"  # 37380 bytes, 1335 字, 每字 28 bytes
+SAN3_NAME16P = HOME_DIR + "/DOSBox/SAN3/NAME.16P"
+
+LEMPE_MSG16P = HOME_DIR + "/DOSBox/lempereur/MSG.16P"
+NOBU4_MSG16P = HOME_DIR + "/DOSBox/NOBU4/MSG.16P"
+SUI_MSG16P = HOME_DIR + "/DOSBox/SUI/MSG.16P"
 
 
 def export_font(tag, filename, font_h=14, pre=True):
@@ -58,11 +65,9 @@ def export_font(tag, filename, font_h=14, pre=True):
     print()
 
 # 三國志2
-# export_font('SAN2', SAN2_MSG16P, pre=True)
 # export_font('SAN2', SAN2_NAME16P)
 
 # 三國志3
-# export_font('SAN3', SAN3_HAN16P, font_h=14)
 # export_font('SAN3', SAN3_NAME16P, font_h=14)
 
 
@@ -176,10 +181,10 @@ ctable = {
     # "群": ("B873", "9A95"),  # SAN3, 陳 9F94
     "會": ("B77C", "A2C3"),  # SAN3, 鍾 AB95
     "當": ("B7ED", "A34B"),  # SAN3, 韓 ABA6
-    "雲": ("B6B3", "A1F7"), # SAN3
+    "雲": ("B6B3", "A1F7"),  # SAN3
     "賈": ("B8EB", "A3F1"),  # SAN3, 詡 C36A
-    "宋": ("A7BA", "9CEC"), # SUI, koei 編碼不準
-    "江": ("A6BF", "B3FD"), # SUI, koei 編碼不準
+    "宋": ("A7BA", "9CEC"),  # SUI, koei 編碼不準
+    "江": ("A6BF", "B3FD"),  # SUI, koei 編碼不準
     "詡": ("E048", "C36A")  # SAN3
     # "春": ("AC4B", "9999"),  #
     # "夏": ("AE4C", "9999"),  #
@@ -195,24 +200,7 @@ ctable = {
 
 # export_font('LEMPE', 'FONT/LEMPE_MSG.16P', pre=True)
 
-# print(count_big5('a454'))  # 三 21
-# print(count_big5('a540'))  # 世 158
-# print(count_big5('a57c'))  # 四 218
-# print(count_big5('aca5'))  # 洛 1324
-# print(count_big5('aeb3'))  # 拿 1652 // 後面不管(+3)
-# print(count_big5('af7d'))  # 破 1789 (+18)
-# print(count_big5('b15b'))  # 崙 2069
-# print()
-# print(count_koei('92b4'))  # 三 21
-# print(count_koei('9381'))  # 世 158
-# print(count_koei('93bd'))  # 四 218
-# print(count_koei('99a7'))  # 洛 1324
-# print(count_koei('9b71'))  # 拿 1647
-# print(count_koei('9c31'))  # 破 1771
-# print(count_koei('9da0'))  # 崙 2069
-# print()
-
-s = '宋江' # '即晨晝夜晴雲多雨霧'
+s = '宋江'  # '即晨晝夜晴雲多雨霧'
 
 for c in s:
     print(c, big5_code(c))
@@ -250,18 +238,18 @@ def collect_koei_font_codes(filename, offset, read_count, read_size, beg, end):
 
 def draw_table():
     codes = []
-    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/lempereur/NPDATA.CIM', 8934, 255, 17, 0, 14))  # 人名
-    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/lempereur/NPDATA.CIM', 7220, 16, 10, 0, 8))  # 國名
-    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/lempereur/NPDATA.CIM', 7370, 46, 34, 0, 14))  # 城市名
-    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/SAN3/SNDATA1B.CIM', 0, 600, 49, 43, 49))
-    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/SAN3/SNDATA1.CIM', 3733, 21, 25, 0, 6))
-    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/nobu4/SNDATA1.CIM', 4498, 250, 33, 0, 6))  # 風雲錄 劇本1 姓
-    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/nobu4/SNDATA1.CIM', 4505, 250, 33, 0, 6))  # 風雲錄 劇本1 名
-    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/nobu4/SNDATA2.CIM', 4498, 255, 33, 0, 6))  # 風雲錄 劇本2 姓
-    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/nobu4/SNDATA2.CIM', 4505, 255, 33, 0, 6))  # 風雲錄 劇本2 名
-    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/nobu4/SNDATA3.CIM', 4498, 250, 33, 0, 6))  # 風雲錄 劇本3 姓
-    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/nobu4/SNDATA3.CIM', 4505, 250, 33, 0, 6))  # 風雲錄 劇本3 名
-    codes.extend(collect_koei_font_codes('/Users/tzengyuxio/DOSBox/SUI/SUIDATA1.CIM', 7124, 255, 45, 0, 6))  # 水滸傳
+    codes.extend(collect_koei_font_codes(HOME_DIR+'/DOSBox/lempereur/NPDATA.CIM', 8934, 255, 17, 0, 14))  # 人名
+    codes.extend(collect_koei_font_codes(HOME_DIR+'/DOSBox/lempereur/NPDATA.CIM', 7220, 16, 10, 0, 8))  # 國名
+    codes.extend(collect_koei_font_codes(HOME_DIR+'/DOSBox/lempereur/NPDATA.CIM', 7370, 46, 34, 0, 14))  # 城市名
+    codes.extend(collect_koei_font_codes(HOME_DIR+'/DOSBox/SAN3/SNDATA1B.CIM', 0, 600, 49, 43, 49))
+    codes.extend(collect_koei_font_codes(HOME_DIR+'/DOSBox/SAN3/SNDATA1.CIM', 3733, 21, 25, 0, 6))
+    codes.extend(collect_koei_font_codes(HOME_DIR+'/DOSBox/nobu4/SNDATA1.CIM', 4498, 250, 33, 0, 6))  # 風雲錄 劇本1 姓
+    codes.extend(collect_koei_font_codes(HOME_DIR+'/DOSBox/nobu4/SNDATA1.CIM', 4505, 250, 33, 0, 6))  # 風雲錄 劇本1 名
+    codes.extend(collect_koei_font_codes(HOME_DIR+'/DOSBox/nobu4/SNDATA2.CIM', 4498, 255, 33, 0, 6))  # 風雲錄 劇本2 姓
+    codes.extend(collect_koei_font_codes(HOME_DIR+'/DOSBox/nobu4/SNDATA2.CIM', 4505, 255, 33, 0, 6))  # 風雲錄 劇本2 名
+    codes.extend(collect_koei_font_codes(HOME_DIR+'/DOSBox/nobu4/SNDATA3.CIM', 4498, 250, 33, 0, 6))  # 風雲錄 劇本3 姓
+    codes.extend(collect_koei_font_codes(HOME_DIR+'/DOSBox/nobu4/SNDATA3.CIM', 4505, 250, 33, 0, 6))  # 風雲錄 劇本3 名
+    codes.extend(collect_koei_font_codes(HOME_DIR+'/DOSBox/SUI/SUIDATA1.CIM', 7124, 255, 45, 0, 6))  # 水滸傳
     unique_codes = set(codes)
     print('count/distinct: {:4d}/{:4d}'.format(len(codes), len(unique_codes)))
 
@@ -304,16 +292,30 @@ def draw_table():
     console = Console()
     console.print(table)
 
-draw_table()
 
-
-def extract_font(filename: str, glyph_h: int = 14, prefix: str = '') -> None:
-    font_data_count = 1335
+def extract_font(filename: str, glyph_h: int = 14, prefix: str = '', has_big5_code: bool = False) -> None:
+    """
+    TODO:
+        [ ] Custom cell width and height
+        [ ] Custom num_col
+        [ ] Auto add pages when num_row is not enough
+        [x] Output filename with count
+        [ ] Output big5 code list as well
+    """
+    file_size = os.stat(filename).st_size
     font_data_size = glyph_h * 2
+    font_data_count = file_size / (font_data_size + 2 if has_big5_code else font_data_size)
     font_data_list = []
+    big5_code_list = []
     with open(filename, 'rb') as f:
-        while font_data := f.read(font_data_size):
-            font_data_list.append(font_data)
+        if has_big5_code:
+            while big5_code := f.read(2):
+                font_data = f.read(font_data_size)
+                font_data_list.append(font_data)
+                big5_code_list.append(big5_code)
+        else:
+            while font_data := f.read(font_data_size):
+                font_data_list.append(font_data)
 
     # draw font index table
     cell_width = 20
@@ -323,7 +325,7 @@ def extract_font(filename: str, glyph_h: int = 14, prefix: str = '') -> None:
     img_w = cell_width * num_col
     img_h = cell_height * num_row
     img = Image.new('RGB', (img_w, img_h), color='white')
-    for glyph_idx, font_data in track(enumerate(font_data_list)):
+    for glyph_idx, font_data in track(enumerate(font_data_list), total=font_data_count):
         for byte_idx, byte in enumerate(font_data):
             for k in range(7, -1, -1):
                 bit = (byte >> k) & 1
@@ -334,7 +336,17 @@ def extract_font(filename: str, glyph_h: int = 14, prefix: str = '') -> None:
                 color = (0, 0, 0) if bit == 1 else (255, 255, 255)
                 img.putpixel((abs_x, abs_y), color)
 
-    img.save('{}_font_index.png'.format(prefix))
+    img.save('font_index_{}({}).png'.format(prefix, int(font_data_count)))
 
+# TODO:
+#   [ ] find out all the font files
+#   [ ] list all the font which koei-code is higher than A9
+#   [ ] OCR? https://gist.github.com/beremaran/dc41c96aa8e3aaa1c1951428314df554
 
+# draw_table()
+
+extract_font(SAN2_MSG16P, 14, 'SAN2_MSG16P', has_big5_code=True)
 extract_font(SAN3_HAN16P, 14, 'SAN3_HAN16P')
+extract_font(LEMPE_MSG16P, 14, 'LEMPE_MSG16P', has_big5_code=True)
+extract_font(NOBU4_MSG16P, 14, 'NOBU4_MSG16P')
+extract_font(SUI_MSG16P, 14, 'SUI_MSG16P', has_big5_code=True)

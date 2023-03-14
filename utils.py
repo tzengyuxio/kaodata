@@ -225,6 +225,47 @@ def create_floppy_image_loader(filename: str, offset_infos: list[tuple[int, int]
     return loader
 
 
+def order_of_big5(c: typing.Union[bytes, int]) -> int:
+    """
+    Return the order of a big5 character.
+
+    0-base, start from '一' (0xA440)
+    """
+    if isinstance(c, int):
+        c = c.to_bytes(2, 'big')
+
+    if len(c) != 2:
+        return -1
+
+    hi, lo = c[0], c[1]
+    offset: int
+    hi_base: int
+    if 0xa4 <= hi and hi <= 0xc6:
+        offset, hi_base = 0, 0xa4
+    elif 0xc9 <= hi and hi <= 0xf9:
+        offset, hi_base = 5401, 0xc9
+    else:
+        return -1
+
+    if 0x40 <= lo and lo <= 0x7e:
+        return offset + (hi - hi_base) * 157 + lo - 0x40
+    elif 0xa1 <= lo and lo <= 0xfe:
+        return offset + (hi - hi_base) * 157 + lo - 0xa1 + 63
+    else:
+        return -1
+
+
+def big5_from_order(n: int) -> int:
+    """
+    Return the big5 character from order.
+
+    0-base, start from '一' (0xA440)
+    """
+    if n < 0:
+        return -1
+    return 0
+
+
 def count_in_big5(data: bytes) -> int:
     """
     Count the number of characters in big5 encoding.
@@ -248,7 +289,7 @@ def count_in_big5_v2(s) -> int:
         bb = bb - int('0xa1', 16) + 63
     else:
         bb = bb - int('0x40', 16)
-    return (a * 157 + bb)  + 1
+    return (a * 157 + bb) + 1
 
 
 def count_in_big5_v3(s: bytes) -> int:
