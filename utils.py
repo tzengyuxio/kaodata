@@ -240,16 +240,16 @@ def order_of_big5(c: typing.Union[bytes, int]) -> int:
     hi, lo = c[0], c[1]
     offset: int
     hi_base: int
-    if 0xa4 <= hi and hi <= 0xc6:
+    if 0xa4 <= hi <= 0xc6:
         offset, hi_base = 0, 0xa4
-    elif 0xc9 <= hi and hi <= 0xf9:
+    elif 0xc9 <= hi <= 0xf9:
         offset, hi_base = 5401, 0xc9
     else:
         return -1
 
-    if 0x40 <= lo and lo <= 0x7e:
+    if 0x40 <= lo <= 0x7e:
         return offset + (hi - hi_base) * 157 + lo - 0x40
-    elif 0xa1 <= lo and lo <= 0xfe:
+    elif 0xa1 <= lo <= 0xfe:
         return offset + (hi - hi_base) * 157 + lo - 0xa1 + 63
     else:
         return -1
@@ -264,3 +264,37 @@ def big5_from_order(n: int) -> int:
     if n < 0:
         return -1
     return 0
+
+
+def order_of_koei_tw(c: typing.Union[bytes, int]) -> int:
+    """
+    Return the order of a koei-tw character.
+
+    0-base, start from '一' (0x92A0)
+    """
+    if isinstance(c, int):
+        c = c.to_bytes(2, 'big')
+
+    if len(c) != 2:
+        return -1
+
+    hi, lo = c[0], c[1]
+    offset: int
+    hi_base: int
+    if hi == 0x92:
+        offset, hi_base = -94, 0x92
+    elif 0x92 < hi < 0xd9:
+        offset, hi_base = 94, 0x93
+    else:
+        return -1
+
+    if 0x30 <= lo <= 0x39:
+        return offset + (hi - hi_base) * 188 + lo - 0x30
+    elif 0x41 <= lo <= 0x5a:
+        return offset + (hi - hi_base) * 188 + lo - 0x41 + 10
+    elif 0x61 <= lo <= 0x7a:
+        return offset + (hi - hi_base) * 188 + lo - 0x61 + 36
+    elif 0x80 <= lo <= 0xfd:
+        return offset + (hi - hi_base) * 188 + lo - 0x80 + 62 
+    else:
+        return -1

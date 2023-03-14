@@ -93,8 +93,11 @@ san2.add_command(san2_face, 'face')
 def san3():
     """三國志III
 
-    ./dekoei.py san3 face -f kao/SAN3_KAODATA.DAT --out_dir SAN3_DOS --prefix "SAN3_DOS_F"
-    ./dekoei.py san3 face -f kao/SAN3_FACES.BMP --out_dir SAN3_WIN --prefix "SAN3_WIN_F"
+    NBDATA.DAT      新武將
+    SANGOKU3.SAV    存檔
+
+    dekoei.py san3 face -f kao/SAN3_KAODATA.DAT --out_dir SAN3_DOS --prefix "SAN3_DOS_F"
+    dekoei.py san3 face -f kao/SAN3_FACES.BMP --out_dir SAN3_WIN --prefix "SAN3_WIN_F"
     """
     pass
 

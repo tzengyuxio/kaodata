@@ -1,6 +1,6 @@
 import os
 from PIL import Image
-from utils import grouper
+from utils import grouper, order_of_big5, order_of_koei_tw
 from rich.console import Console
 from rich.table import Table
 from math import ceil, floor
@@ -28,49 +28,6 @@ ROYAL_MSG16P = HOME_DIR + "/DOSBox/gemfire/MSG.16P"
 SUI_MSG16P = HOME_DIR + "/DOSBox/SUI/MSG.16P"
 
 
-def export_font(tag, filename, font_h=14, pre=True):
-    font_size = font_h * 2
-    block_w = 20
-    block_h = 28
-    with open(filename, 'rb') as f:
-        f.seek(0, os.SEEK_END)
-        file_size = f.tell()
-        # num_font = (file_size-4) // font_size if head else file_size // font_size
-        num_font = file_size // font_size
-        img_w = block_w * 40
-        img_h = block_h * ((num_font // 40) + 1)
-        # print('head        : {}'.format(head))
-        print('file size   : {}'.format(file_size))
-        print('num of fonts: {}'.format(num_font))
-        print('image size  : {}x{} ({}x{})'.format(img_w, img_h, 40, ((num_font // 40) + 1)))
-
-        i = 0
-        img = Image.new('RGB', (img_w, img_h), color='white')
-        f.seek(0)
-        if pre:
-            c = f.read(2)  # 這個是 big5
-            print('{}: ({}, {})'.format(c.hex(), i // 40, i % 40))
-        while data_bytes := f.read(font_size):
-            for idx, byte in enumerate(data_bytes):
-                for k in range(7, -1, -1):
-                    x = 7 - k + 8 * (idx % 2)
-                    y = idx // 2
-                    bit = (byte >> k) & 1
-                    abs_x = (i % 40) * block_w + x
-                    abs_y = (i // 40) * block_h + y
-                    if bit:
-                        img.putpixel((abs_x, abs_y), (0, 0, 0))
-                    else:
-                        img.putpixel((abs_x, abs_y), (255, 255, 255))
-            i += 1
-            if pre:
-                c = f.read(2)
-                print('{}: ({}, {})'.format(c.hex(), i // 40, i % 40))
-    img_filename = '{}_{}.png'.format(tag, os.path.basename(filename).replace('.', ''))
-    img.save(img_filename)
-    print('...save {}'.format(img_filename))
-    print()
-
 # 三國志2
 # export_font('SAN2', SAN2_NAME16P)
 
@@ -79,43 +36,15 @@ def export_font(tag, filename, font_h=14, pre=True):
 
 
 def count_big5(s):
-    up = s[:2]
-    dw = s[2:]
-    a = int('0x'+up, 16) - int('0xa4', 16)
-    bb = int('0x'+dw, 16)
-    if bb >= int('0xa1', 16):
-        bb = bb - int('0xa1', 16) + 63
-    else:
-        bb = bb - int('0x40', 16)
-    return (a * 157 + bb) + 1
+    # convert hex string to int
+    n = int('0x'+s, 16)
+    return order_of_big5(n)
 
 
 def count_koei(s):
-    up = s[:2]
-    dw = s[2:]
-    a = int('0x'+up, 16) - int('0x92', 16)
-    bb = int('0x'+dw, 16)
-    if bb >= int('0x80', 16):
-        bb = bb - int('0x80', 16) + 62
-    elif bb >= int('0x61', 16):
-        bb = bb - int('0x61', 16) + 36
-    elif bb >= int('0x41', 16):
-        bb = bb - int('0x41', 16) + 10
-    else:
-        bb = bb - int('0x30', 16)
-    return (a * 188 + bb) + 1 - 94
-
-
-def count_koei_old(s):
-    up = s[:2]
-    dw = s[2:]
-    a = int('0x'+up, 16) - int('0x92', 16)
-    bb = int('0x'+dw, 16)
-    if bb > int('0x80', 16):
-        bb = bb - int('0x80', 16) + 63
-    else:
-        bb = bb - int('0x40', 16)
-    return (a * 188 + bb) + 1 - 95
+    # convert hex string to int
+    n = int('0x'+s, 16)
+    return order_of_koei_tw(n)
 
 
 def big5_code(c):
@@ -217,9 +146,35 @@ ctable = {
     "縤": ("EADE", "CC66"),  # SAN3, 張繡(縤) _, 9DAECC66
     "步": ("A842", "95E2"),  # SAN3, 步騭 _, 95E2D4F0
     "騭": ("F563", "D4F0"),  # SAN3, 步騭 _, 95E2D4F0
+    "申": ("A5D3", "93F2"),  # SAN3, 申耽 _, 93F29C74
+    "耽": ("AFD4", "9C74"),  # SAN3, 申耽 _, 93F29C74
+    "雷": ("B970", "A474"),  # SAN3, 雷銅 _, A474A66E
+    "銅": ("BBC9", "A66E"),  # SAN3, 雷銅 _, A474A66E
+    "鄧": ("BE48", "A86E"),  # SAN3, 鄧賢 _, A86EA846
+    "賢": ("BDE5", "A846"),  # SAN3, 鄧賢 _, A86EA846
+    "嚴": ("C459", "AD85"),  # SAN3, 嚴輿 _, AD85AB82
+    "輿": ("C1D6", "AB82"),  # SAN3, 嚴輿 _, AD85AB82
+    "程": ("B57B", "A132"),  # SAN3, 程銀 _, A132A66D
+    "銀": ("BBC8", "A66D"),  # SAN3, 程銀 _, A132A66D
+    "卓": ("A8F4", "96B6"),  # SAN3, 卓膺 _, 96B6AAFD
+    "膺": ("C174", "AAFD"),  # SAN3, 卓膺 _, 96B6AAFD
+    "魏": ("C351", "AC9C"),  # SAN3, 魏續 _, AC9CADFC
+    "續": ("C4F2", "ADFC"),  # SAN3, 魏續 _, AC9CADFC
+    "觀": ("C65B", "AF37"),  # SAN3, 孫觀 _, 9B30AF37
+    "夏": ("AE4C", "9AED"),  # SAN3, 夏侯楙 _, 9AED9AB6C177
+    "候": ("ADD4", "9AB6"),  # SAN3, 夏侯楙(候) _, 9AED9AB6C177
+    "楙": ("DDD5", "C177"),  # SAN3, 夏侯楙 _, 9AED9AB6C177
+    "謝": ("C1C2", "AB69"),  # SAN3, 謝旌 _, AB699E31
+    "旌": ("B1DC", "9E31"),  # SAN3, 謝旌 _, AB699E31
+    "薛": ("C1A7", "AB47"),  # SAN3, 薛悌 _, AB479B6B
+    "悌": ("AEAD", "9B6B"),  # SAN3, 薛悌 _, AB479B6B
+    "禮": ("C2A7", "ABF0"),  # SAN3, 薛禮 _, AB47ABF0
+    "田": ("A5D0", "93EF"),  # SAN3, 田豐 _, 93EFAC58
+    "豐": ("C2D7", "AC58"),  # SAN3, 田豐 _, 93EFAC58
+    "瓚": ("C5D0", "AEBB"),  # SAN3
+    "翊": ("D6F6", "BBBA"),  # SAN3
     "詡": ("E048", "C36A")  # SAN3
     # "春": ("AC4B", "9999"),  #
-    # "夏": ("AE4C", "9999"),  #
     # "秋": ("ACEE", "9999"),  #
     # "冬": ("A556", "9999"),  #
     # "莉": ("B2FA", "9549")  # 漢字部分不確定
@@ -232,7 +187,7 @@ ctable = {
 
 
 def view_big5_code():
-    s = '耿武震鄭度潘濬郭汜張縤步騭'  # '即晨晝夜晴雲多雨霧'
+    s = '輿謝旌薛悌禮田豐'  # '即晨晝夜晴雲多雨霧'
     for c in s:
         print(c, big5_code(c))
 
@@ -293,7 +248,7 @@ def draw_table():
     uncommon_codes = set()
     unique_lower_codes = set()
     for c in unique_codes:
-        if ('9A30' < c and c < '9C75') or ('A657' < c and c < 'A889'):
+        if ('9A30' < c and c < '9C74') or ('A657' < c and c < 'A889'):
             adjusted_codes.add(c)
         if c > 'AAAA':  # 非常用字, 要找出誤差大的修正方式
             uncommon_codes.add(c)
@@ -391,9 +346,10 @@ def extract_font(filename: str, glyph_h: int = 14, prefix: str = '', has_big5_co
 #   [ ] list all the font which koei-code is higher than A9
 #   [ ] OCR? https://gist.github.com/beremaran/dc41c96aa8e3aaa1c1951428314df554
 
+
 # view_big5_code()
 list_relation_and_verify()
-draw_table()
+# draw_table()
 
 
 # == Extract font from file ==

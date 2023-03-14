@@ -35,6 +35,27 @@ koei-font
 | 陳  | 9F94    |          | B3AF |                    |
 | 琳  | A0DE    |          | B559 | 與 拿破崙 in-game 編碼相同 |
 
+### 實驗
+
+#### 將袁紹名字改一個不存在於 MSG.16P 的字，看顯示結果
+
+將「紹」改為「叻」，這字的 BIG5 順序在「四」(93BD)之前，推導為 '93BC', MSG.16P 沒有。進去遊戲後亂碼。
+
+#### 新君主名字取「一乙丁」看存檔內容
+
+"一乙丁": D901 D902 D903
+改成 D901 D904 D905 後進遊戲看不到後面兩個字
+字型存在存檔檔案中, 605,520 開始為 D901 第一個字，每 28 bytes 一個字
+
+#### 結論
+
+- 綜合上面實驗可知，遊戲中有對應方式可以將 koei-tw 編碼對應到 MSG.16P 裡面的字，但目前不知在哪。
+- 對應方式以外的字，會無法顯示成為亂碼（目前不知亂碼產生規則）
+- 若要新增對應方式以外的字，必須將新字存於 sav file 中以作為顯示
+- NBDATA.DAT 中也有對應字型(glyph)紀錄
+- 上兩點的字形編碼從 D901 開始，形狀由 NAME.16P copy
+
+
 ## 拿破崙
 
 | word | in name | big 5 | in msg.16 |     |  diff  |
@@ -61,21 +82,16 @@ koei-font
 9A43 <- [x] 胡
 （中略）
 9C66 <- [x] 新納 忠元 A2BA9C66
-9C74
+9C74 <- [ ] 耽
 9C75 <- [ ] 耿
 
-A66D
-A66E
-A68A
+A66D <- [x] 銀
+A66E <- [x] 銅
 A696 <- [x] 髦
 （中略）
 A841 <- [x] 賞
-A846
-A849
-A858
-A86B
 A86D <- [x] 鄭
-A86E
+A86E <- [x] 鄧
 A889 <- [ ] 震
 
 ## uncommon codes
@@ -96,20 +112,20 @@ AAE3
 AAE9
 AAEC
 AAF5
-AAFD
+AAFD <- 膺
 AB41
-AB47
+AB47 <- [ ] 薛
 AB65
-AB69
+AB69 <- [x] 謝
 AB70
-AB82
+AB82 <- [x] 輿
 AB86
 AB8C
 AB93
 AB95
 ABA6
 ABAF
-ABF0
+ABF0 <- [x] 禮
 ABFB
 ABFD
 AC38
@@ -118,14 +134,14 @@ AC45
 AC46
 AC47
 AC55
-AC58
+AC58 <- [ ] 豐
 AC64
 AC6B
 AC74
 AC85
 AC8E
 AC97
-AC9C
+AC9C <- 魏
 ACA6
 ACB0
 ACB1
@@ -145,7 +161,7 @@ AD59
 AD68
 AD78
 AD81
-AD85
+AD85 <- [ ] 嚴
 AD8B
 ADA5
 ADAA
@@ -157,7 +173,7 @@ ADD5
 ADDC
 ADE0
 ADFA
-ADFC
+ADFC <- 續
 AE31
 AE39
 AE4D
@@ -170,19 +186,19 @@ AE83
 AE92
 AE9D
 AEB2
-AEBB
+AEBB <- [ ] 瓚
 AECE
 AEDA
 AEE7
 AEE8
 AEF0
 AEFB
-AF37
+AF37 <- 觀
 AF4A
 B035
 B06C
 B0BB
-B0DA <- 汜
+B0DA <- 汜 (big5: C9FA)
 B339
 B3AC
 B3D9
@@ -193,7 +209,7 @@ B6FC
 B868
 B9B5
 BA8F
-BBBA
+BBBA <- 翊
 BCB5
 BD84
 BDBD
@@ -204,7 +220,7 @@ BEB0
 BF46
 BFEC
 C04F
-C177
+C177 <- 楙
 C18A
 C19C
 C36A
