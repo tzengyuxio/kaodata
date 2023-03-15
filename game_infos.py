@@ -14,11 +14,6 @@ GAME_INFOS = {
     },
     "LEMPE": {
         "name": "拿破崙",
-        "persons": {
-            "start_pos": [8934, 13274],
-            "data_size": [17, 15],
-            "data_count": 255
-        },
         "places": {
             "start_pos": 7404,
             "data_size": 34,

@@ -1,3 +1,5 @@
+from collections import namedtuple
+from struct import unpack
 import click
 from utils import *
 from ls11 import *
@@ -218,6 +220,77 @@ koukai3.add_command(koukai3_face, 'face')
 ##############################################################################
 
 
+def unpack_abi(b):
+    ability = []
+    t = ['D', 'C', 'B', 'A']
+    for i in range(4):
+        c = (b >> 2*i) & 0b00000011
+        ability.append(t[c])
+    return ability
+
+
+def unpack_mask(b):
+    masks = []
+    b = b >> 2
+    if b & 1:
+        masks.append('幸運')
+    else:
+        masks.append('')
+    b = b >> 1
+    if b & 1:
+        masks.append('魅力')
+    else:
+        masks.append('')
+    b = b >> 1
+    c = b & 3
+    if c == 1:
+        masks.append('勇氣')
+    elif c == 2:
+        masks.append('膽小')
+    else:
+        masks.append('')
+    b = b >> 2
+    c = b & 3
+    if c == 1:
+        masks.append('冷靜')
+    elif c == 2:
+        masks.append('單純')
+    else:
+        masks.append('')
+    masks.reverse()
+    return masks
+
+
+PersonRaw = namedtuple('PersonRaw', 'name, face, masks, nation, city, ability1, ability2')
+Person = namedtuple(
+    'Person', 'name, face, pol, eco, sup, buld, lead, soldier, horse, cannon, nation, city, luk, chrm, brave, cool')
+
+
+def lempe_convert(pr: PersonRaw) -> Person:
+    a, b, c, d = unpack_mask(pr.masks)
+    pol, eco, sup, buld = unpack_abi(pr.ability1)  # 政治 經濟 補給 建設
+    lead, soldier, horse, cannon = unpack_abi(pr.ability2)  # 統帥 步兵 騎兵 砲兵
+    p = Person(
+        name=to_unicode_name(pr.name),
+        face=pr.face,
+        pol=pol,
+        eco=eco,
+        sup=sup,
+        buld=buld,
+        lead=lead,
+        soldier=soldier,
+        horse=horse,
+        cannon=cannon,
+        nation=pr.nation,
+        city=pr.city,
+        luk=a,
+        chrm=b,
+        brave=c,
+        cool=d,
+    )
+    return p
+
+
 @click.group()
 def lempe():
     """拿破崙
@@ -245,7 +318,93 @@ def lempe_face(face_file, out_dir, prefix):
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, hh=True)
 
 
+@click.command(help='人物資料解析')
+@click.option('-f', '--file', 'file', help="劇本檔案", required=True)
+def lempe_person(file):
+    """
+    人物資料解析
+
+    NPDATA.CIM
+    """
+    console = Console()
+    table = Table(title="Sangokushi III Person Data")
+    table.add_column('ID', justify='right', style='cyan')
+    table.add_column('姓名')
+    table.add_column('顏', justify='right', style='magenta')
+    table.add_column('政治', justify='right', style='green')
+    table.add_column('經濟', justify='right', style='green')
+    table.add_column('補給', justify='right', style='green')
+    table.add_column('建設', justify='right', style='green')
+    table.add_column('統帥', justify='right', style='green')
+    table.add_column('步兵', justify='right', style='green')
+    table.add_column('騎兵', justify='right', style='blue')
+    table.add_column('砲兵', justify='right', style='blue')
+    table.add_column('個性1', justify='right', style='blue')
+    table.add_column('個性2', justify='right', style='blue')
+    table.add_column('個性3', justify='right', style='blue')
+    table.add_column('個性4', justify='right', style='blue')
+
+    # 4E61706F 6C656F6E 00000000 0000005F 06  # BCBA AACA 1111
+    # 4E61706F 6C656F6E 00000000 0000005F 06  # start[22204]
+    # 4E61706F 6C656F6E 00000000 0000005F 06  # start[35474]
+    # 4E61706F 6C656F6E 00000000 0000005F 06  # start[48744]
+    # 4E61706F 6C656F6E 00000000 0000005F 06  # start[62014]
+    #  N a p o  l e o n
+    #
+    # 4A6F7365 70680000 00000000 00000103 06  # CCCB CCDD 0000, 2nd, Joseph
+    # 4C756369 656E0000 00000000 00000203 06  # BBCC CDDD 0000, 3rd, Lucien
+    # 42657274 68696572 00000000 00000842 06  # CCAB ACDC 1000, 9th, Berthier
+    # 57697474 67656E73 7465696E 00007201 06  # CDBC BBCB 0000, Wittgenstein
+    # 47656F72 67652049 49490000 00003A82 06  # George III
+    # 47656F72 67652049 56000000 00003B82 00  # George IV
+    # 56696374 6F726961 00000000 00003C5E 00  # Victoria
+    # 4B757475 736F7600 00000000 00006346 06  # Kutusov (single eye?)
+    # 42617272 61730000 00000000 00000B20 06  # Barras
+    # 4C656665 62767265 00000000 00000C12 06  # Lefebvre -o--
+    # 41756765 72656175 00000000 00000D81 06  # Augereau x---
+    # ^^^^^^^^ ^^^^^^^^ ^^^^^^^^     ^^
+    # 名字                            序號
+    # 00 1AE6DF00 411C0505 00525705 0000 # BCBA AACA 1111, 1769
+    # 00 1B950500 491E0500 00303904 0000 # CCCB CCDD 0000, 1768
+    # 00 1B5A0100 42170000 00000004 0000 # BBCC CDDD 0000, 1775
+    # 00 1E610500 31140000 00000000 0000 # CDBC CCDD 0000, 1778
+    # 00 1E515500 2D0E0000 00000000 0000 # CDCC CCCC -000, 1784
+    # 0E 04AF6A00 64E96464 00646401 0000 # AABB BBBC 1111, 1819
+    # ^^ ^ ^^^^   ^^  ^^     ^^^^
+    # 國 城 能     忠  兵      訓士
+    #             誠  力      練氣
+
+    # NAME, FACE, MASKS, x, NAT., CITY, ABI1, ABI2,
+    fmt = '<14sBBxBBBBxxxxxxxxxxx'
+
+    # "start_pos": [8934, 13274],
+    # "data_size": [17, 15],
+    # "data_count": 255
+
+    def kao2str(face):
+        if face <= 265:
+            return '[red]'+str(face)
+        else:
+            # convert face from number to hex string
+            return hex(face)[2:].upper()
+
+    with open(file, 'rb') as f:
+        for i in range(255):
+            f.seek(8934+17*i)
+            d1 = f.read(17)
+            f.seek(13274+15*i)
+            d2 = f.read(15)
+            data = b''.join([d1, d2])
+
+            pr = PersonRaw._make(unpack(fmt, data))
+            p = lempe_convert(pr)
+            table.add_row(str(i), p.name, str(p.face), str(p.pol), str(p.eco), str(p.sup), p.buld, p.lead,
+                          p.soldier, p.horse, p.cannon, p.luk, p.chrm, p.brave, p.cool)
+    console.print(table)
+
+
 lempe.add_command(lempe_face, 'face')
+lempe.add_command(lempe_person, 'person')
 
 ##############################################################################
 

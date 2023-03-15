@@ -316,6 +316,7 @@ def load_cns11643_unicode_table(filename: str = 'Unicode/CNS2UNICODE_Unicode BMP
                 continue
             code_point = int(tokens[1].strip(), 16)
             table[tokens[0]] = chr(code_point)
+    print('cns11643 table loaded with {} code points.'.format(len(table)))
     return table
 
 
