@@ -2,12 +2,14 @@ from itertools import zip_longest
 import math
 import os
 import typing
+import struct
 from PIL import Image
 from rich.console import Console
 from rich.progress import track
 from ls11 import ls11_decode, LS11_MAGIC
 
 console = Console()
+cns11643_unicode_table = {}
 
 BGCOLOR = (55, 55, 55)
 
@@ -255,23 +257,6 @@ def order_of_big5(c: typing.Union[bytes, int]) -> int:
         return -1
 
 
-def cns_from_order(n: int) -> typing.Tuple[int, int]:
-    """
-    Return the cns11643 code from order.
-
-    0-base, start from (0x2121), and "一" is 0x4421, offset 35x94=3280
-    """
-    if n < 5401:
-        hi = n // 94
-        lo = n % 94
-        return 1, (hi + 0x44) * 0x100 + lo + 0x21
-    n -= 5401
-    n -= 145 # (MAGIC)
-    hi = n // 94
-    lo = n % 94
-    return 2, (hi + 0x21) * 0x100 + lo + 0x21
-
-
 def order_of_koei_tw(c: typing.Union[bytes, int]) -> int:
     """
     Return the order of a koei-tw character.
@@ -304,3 +289,42 @@ def order_of_koei_tw(c: typing.Union[bytes, int]) -> int:
         return offset + (hi - hi_base) * 188 + lo - 0x80 + 62
     else:
         return -1
+
+
+def cns_from_order(n: int) -> str:
+    """
+    Return the cns11643 code from order.
+
+    0-base, start from (0x2121), and "一" is 0x4421
+    """
+    if n < 0:
+        return ''
+    if n < 5401:
+        hi, lo = divmod(n, 94)
+        return '{}-{:4X}'.format(1, (hi + 0x44) << 8 | lo + 0x21)
+    n -= 5546  # 5401 + 145 (MAGIC NUM)
+    hi, lo = divmod(n, 94)
+    return '{}-{:4X}'.format(2, (hi + 0x21) << 8 | lo + 0x21)
+
+
+def load_cns11643_unicode_table(filename: str = 'Unicode/CNS2UNICODE_Unicode BMP.txt') -> dict[str, str]:
+    table = {'':''}
+    with open(filename, 'r') as f:
+        while entry := f.readline():
+            tokens = [str(x) for x in entry.split('\t')]
+            if tokens[0][:2] not in ['1-', '2-']:
+                continue
+            code_point = int(tokens[1].strip(), 16)
+            table[tokens[0]] = chr(code_point)
+    return table
+
+
+def to_unicode_name(s: bytes) -> str:
+    """
+    Convert a string to unicode name.
+    """
+    global cns11643_unicode_table
+    if len(cns11643_unicode_table) == 0:
+        cns11643_unicode_table = load_cns11643_unicode_table()
+    words = struct.unpack('>' + 'H'*int(len(s)/2), s)
+    return ''.join([cns11643_unicode_table[cns_from_order(order_of_koei_tw(w))] for w in words])

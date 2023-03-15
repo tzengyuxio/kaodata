@@ -12,8 +12,8 @@ def san1():
 
     SAN_B/PICDATA.DAT
 
-    ./dekoei.py san1 face -f kao/三國志b.fdi
-    ./dekoei.py san1 face -f kao/SAN1_DOS_PICDATA.DAT
+    dekoei.py san1 face -f kao/三國志b.fdi
+    dekoei.py san1 face -f kao/SAN1_DOS_PICDATA.DAT
     """
     pass
 
@@ -52,8 +52,8 @@ def san2():
 
     KAODATA.DAT
 
-    ./dekoei.py san2 face -f kao/SAN2_DOS_KAODATA.DAT
-    ./dekoei.py san2 face -f kao/SAN2_PC98_三國志2_b.fdi
+    dekoei.py san2 face -f kao/SAN2_DOS_KAODATA.DAT
+    dekoei.py san2 face -f kao/SAN2_PC98_三國志2_b.fdi
     """
     pass
 
@@ -181,7 +181,8 @@ def san3_person(file):
             p = Person._make(unpack(fmt, data))
             if p.name == b'\x00\x00\x00\x00\x00\x00':
                 continue
-            table.add_row(str(i), p.name.hex(), kao2str(p.face), str(p.army), str(p.navy), str(
+            name = to_unicode_name(p.name)
+            table.add_row(str(i), name, kao2str(p.face), str(p.army), str(p.navy), str(
                 p.war), str(p.intl), str(p.pol), str(p.chrm), str(p.aisho), str(p.justice))
     console.print(table)
 
@@ -214,8 +215,8 @@ def san4_face(face_file, out_dir, prefix):
     #   | 黑[0] | 深藍[4] | 朱紅[2] | 深皮[6] |
     #   | 綠[1] | 淺藍[5] | 淺皮[3] | 雪白[7] |
 
-    ./dekoei.py san4 face -f /Volumes/common/San4WPK/KAODATA2.S4 --prefix SAN4_WIN_F
-    ./dekoei.py san4 face -f /Volumes/common/San4WPK/KAODATAP.S4 --prefix SAN4_WIN_F
+    dekoei.py san4 face -f /Volumes/common/San4WPK/KAODATA2.S4 --prefix SAN4_WIN_F
+    dekoei.py san4 face -f /Volumes/common/San4WPK/KAODATAP.S4 --prefix SAN4_WIN_F
     """
     palette = color_codes_to_palette(
         ['#302000', '#417120', '#B24120', '#D3B282', '#204182', '#418292', '#C38251', '#D3D3B2']
