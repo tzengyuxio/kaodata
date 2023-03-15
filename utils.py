@@ -255,15 +255,21 @@ def order_of_big5(c: typing.Union[bytes, int]) -> int:
         return -1
 
 
-def big5_from_order(n: int) -> int:
+def cns_from_order(n: int) -> typing.Tuple[int, int]:
     """
-    Return the big5 character from order.
+    Return the cns11643 code from order.
 
-    0-base, start from '一' (0xA440)
+    0-base, start from (0x2121), and "一" is 0x4421, offset 35x94=3280
     """
-    if n < 0:
-        return -1
-    return 0
+    if n < 5401:
+        hi = n // 94
+        lo = n % 94
+        return 1, (hi + 0x44) * 0x100 + lo + 0x21
+    n -= 5401
+    n -= 145 # (MAGIC)
+    hi = n // 94
+    lo = n % 94
+    return 2, (hi + 0x21) * 0x100 + lo + 0x21
 
 
 def order_of_koei_tw(c: typing.Union[bytes, int]) -> int:
@@ -295,6 +301,6 @@ def order_of_koei_tw(c: typing.Union[bytes, int]) -> int:
     elif 0x61 <= lo <= 0x7a:
         return offset + (hi - hi_base) * 188 + lo - 0x61 + 36
     elif 0x80 <= lo <= 0xfd:
-        return offset + (hi - hi_base) * 188 + lo - 0x80 + 62 
+        return offset + (hi - hi_base) * 188 + lo - 0x80 + 62
     else:
         return -1

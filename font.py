@@ -1,6 +1,6 @@
 import os
 from PIL import Image
-from utils import grouper, order_of_big5, order_of_koei_tw
+from utils import grouper, order_of_big5, order_of_koei_tw, cns_from_order
 from rich.console import Console
 from rich.table import Table
 from math import ceil, floor
@@ -352,6 +352,27 @@ def extract_font(filename: str, glyph_h: int = 14, prefix: str = '', has_big5_co
         font_index_filename = 'GLYPH_TABLE_{}({}){}.png'.format(prefix, int(font_data_count), page_postfix)
         img.save(font_index_filename)
 
+
+def hex_to_unicode(hex_str):
+    code_point = int(hex_str, 16)
+    return chr(code_point)
+
+
+def koei_tw_to_unicode(data: bytes) -> str:
+    cns_table = {}
+    with open("Unicode/CNS2UNICODE_Unicode BMP.txt", 'r') as f:
+        while entry := f.readline():
+            cols = [str(x) for x in entry.split('\t')]
+            if cols[0][:2] not in ['1-', '2-']:
+                continue
+            code_point = int(cols[1].strip(), 16)
+            cns_table[cols[0]] = chr(code_point)
+    cns_page, cns_code = cns_from_order(order_of_koei_tw(data))
+    print('debug:', hex(cns_code), order_of_koei_tw(data))
+    cns_code_str = '{}-{:4X}'.format(cns_page, cns_code)
+    return cns_table[cns_code_str]
+
+
 # TODO:
 #   [ ] find out all the font files
 #   [ ] list all the font which koei-code is higher than A9
@@ -363,8 +384,8 @@ def extract_font(filename: str, glyph_h: int = 14, prefix: str = '', has_big5_co
 
 
 view_big5_code()
-# list_relation_and_verify()
-draw_table()
+list_relation_and_verify()
+# draw_table()
 
 
 # == Extract font from file ==
@@ -374,10 +395,27 @@ draw_table()
 # extract_font(EUROPE_MSG16P, 14, 'EUROPE_MSG16P')
 # extract_font(EUROPE_EMSG16P, 14, 'EUROPE_EMSG16P')
 # extract_font(SAN2_MSG16P, 14, 'SAN2_MSG16P', has_big5_code=True)
-extract_font(SAN2_NAME16P, 14, 'SAN2_NAME16P')
+# extract_font(SAN2_NAME16P, 14, 'SAN2_NAME16P')
 # extract_font(SAN3_HAN16P, 14, 'SAN3_HAN16P')
 # extract_font(SAN3_NAME16P, 14, 'SAN3_NAME16P')
 # extract_font(LEMPE_MSG16P, 14, 'LEMPE_MSG16P', has_big5_code=True)
 # extract_font(NOBU4_MSG16P, 14, 'NOBU4_MSG16P')
 # extract_font(SUI_MSG16P, 14, 'SUI_MSG16P', has_big5_code=True)
 # extract_font(ROYAL_MSG16P, 14, 'ROYAL_MSG16P')
+
+print(koei_tw_to_unicode(b'\x92\xa0'))  # 一
+print(koei_tw_to_unicode(b'\x92\xb4'))  # 三
+print(koei_tw_to_unicode(b'\xa6\x57'))  # 遜
+print(koei_tw_to_unicode(b'\xa6\x6d'))  # 銀
+print(koei_tw_to_unicode(b'\xb3\xfd'))  # 俅
+print(koei_tw_to_unicode(b'\xb0\xda'))  # 汜
+print(koei_tw_to_unicode(b'\xc3\x6a'))  # 詡
+
+
+def cns_order(c: bytes) -> int:
+    print(c[0], c[1])
+    return (c[0]-0x21) * 94 + (c[1] - 0x21)
+
+# print(cns_order(b'\x21\x21'))  # 0
+# print(cns_order(b'\x28\x71'))  # 俅 2-287E
+# print(cns_order(b'\x22\x5b'))  # 汜 2-225B
