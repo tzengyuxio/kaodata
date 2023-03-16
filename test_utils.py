@@ -1,4 +1,5 @@
 from utils import *
+from koei_games import unpack_mask, unpack_abi
 
 cns11643_unicode_table = {}
 
@@ -193,3 +194,37 @@ def test_ctable():
         order = order_of_koei_tw(int(v[1], 16))
         cns_code = cns_from_order(order)
         assert cns11643_unicode_table[cns_code] == k
+
+
+def test_unpack_mask():
+    # Test case where all masks are present
+    b = 0b01011111  # binary representation of 255
+    expected = ['冷靜', '勇氣', '魅力', '幸運']
+    assert unpack_mask(b) == expected
+
+    # Test case where no masks are present
+    b = 0
+    expected = ['', '', '', '']
+    assert unpack_mask(b) == expected
+
+    # Test case where some masks are present
+    b = 0b10101010  # binary representation of 170
+    expected = ['單純', '膽小', '魅力', '']
+    assert unpack_mask(b) == expected
+
+
+def test_unpack_abi():
+    # Test case 1
+    b = 0b00011011
+    expected_output = ['A', 'B', 'C', 'D']
+    assert unpack_abi(b) == expected_output
+
+    # Test case 2
+    b = 0b00000000
+    expected_output = ['D', 'D', 'D', 'D']
+    assert unpack_abi(b) == expected_output
+
+    # Test case 3
+    b = 0b10101010
+    expected_output = ['B', 'B', 'B', 'B']
+    assert unpack_abi(b) == expected_output

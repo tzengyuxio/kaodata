@@ -221,43 +221,33 @@ koukai3.add_command(koukai3_face, 'face')
 
 
 def unpack_abi(b):
-    ability = []
-    t = ['D', 'C', 'B', 'A']
-    for i in range(4):
-        c = (b >> 2*i) & 0b00000011
-        ability.append(t[c])
+    lookup = {0: 'D', 1: 'C', 2: 'B', 3: 'A'}
+    ability = [lookup[(b >> 2*i) & 0b11] for i in range(4)]
     return ability
 
 
 def unpack_mask(b):
-    masks = []
-    b = b >> 2
-    if b & 1:
-        masks.append('幸運')
-    else:
-        masks.append('')
-    b = b >> 1
-    if b & 1:
-        masks.append('魅力')
-    else:
-        masks.append('')
-    b = b >> 1
-    c = b & 3
-    if c == 1:
-        masks.append('勇氣')
-    elif c == 2:
-        masks.append('膽小')
-    else:
-        masks.append('')
-    b = b >> 2
-    c = b & 3
-    if c == 1:
-        masks.append('冷靜')
-    elif c == 2:
-        masks.append('單純')
-    else:
-        masks.append('')
-    masks.reverse()
+    # 0b00000100 幸運
+    # 0b00001000 魅力
+    # 0b00010000 勇氣
+    # 0b00100000 膽小
+    # 0b01000000 冷靜
+    # 0b10000000 單純
+    masks = [''] * 4
+    if b & 0b11000000 == 0b01000000:
+        masks[0] = '冷靜'
+    elif b & 0b11000000 == 0b10000000:
+        masks[0] = '單純'
+
+    if b & 0b00110000 == 0b00010000:
+        masks[1] = '勇氣'
+    elif b & 0b00110000 == 0b00100000:
+        masks[1] = '膽小'
+
+    if b & 0b00001000:
+        masks[2] = '魅力'
+    if b & 0b00000100:
+        masks[3] = '幸運'
     return masks
 
 
@@ -570,7 +560,21 @@ def suikoden_face(face_file, out_dir, prefix):
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, hh=hh, data_loader=loader)
 
 
+@click.command(help='人物資料解析')
+@click.option('-f', '--file', 'file', help="劇本檔案", required=True)
+def suikoden_person(file):
+    """
+    人物資料解析
+
+    SUIDATA1.CIM
+    SUIDATA2.CIM
+    SUIDATA3.CIM
+    SUIDATA4.CIM
+    """
+
+
 suikoden.add_command(suikoden_face, 'face')
+suikoden.add_command(suikoden_person, 'person')
 
 ##############################################################################
 
