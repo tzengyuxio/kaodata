@@ -1,3 +1,4 @@
+from collections import namedtuple
 from itertools import zip_longest
 import math
 import os
@@ -16,6 +17,33 @@ BGCOLOR = (55, 55, 55)
 BIG_ENDIAN = 'big'
 LITTLE_ENDIAN = 'little'
 DEFAULT_ENDIAN = LITTLE_ENDIAN
+
+# H 為表頭的欄位資訊
+# cate 為 category 縮寫, 作為表頭欄位的分類，不同分類的表頭會搭配不同的 color and style
+# 預計的表頭欄位分類有： id, name, face, base(基本能力), mask(隱藏能力), status(劇本相關資訊), memo...等
+H = namedtuple('H', 'text, cate')
+
+def column_arguments(h:H) -> dict:
+    style = None
+    justify = 'left'
+    if h.cate == 'id':
+        justify = 'center'
+        style = 'cyan'
+    elif h.cate == 'name':
+        pass
+    elif h.cate == 'face':
+        justify = 'right'
+        style = 'magenta'
+    elif h.cate == 'base':
+        justify = 'right'
+        style = 'green'
+    elif h.cate == 'mask':
+        justify = 'right'
+        style = 'blue'
+    return {
+        'justify': justify,
+        'style': style,
+    }
 
 
 def color_codes_to_palette(color_codes):
@@ -308,7 +336,7 @@ def cns_from_order(n: int) -> str:
 
 
 def load_cns11643_unicode_table(filename: str = 'Unicode/CNS2UNICODE_Unicode BMP.txt') -> dict[str, str]:
-    table = {'':''}
+    table = {'': ''}
     with open(filename, 'r') as f:
         while entry := f.readline():
             tokens = [str(x) for x in entry.split('\t')]

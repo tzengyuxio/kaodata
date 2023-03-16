@@ -313,26 +313,23 @@ def lempe_face(face_file, out_dir, prefix):
 def lempe_person(file):
     """
     人物資料解析
+    TODO:
+      - [ ] check names of following person in game
+        - [019] 圣西里
+        - [183] 默函特二世
+      - [ ] 同時處理中英文姓名
 
     NPDATA.CIM
     """
+    headers = [H('ID', 'id'), H('姓名', 'name'), H('顏', 'face'),
+               H('政治', 'base'), H('經濟', 'base'), H('補給', 'base'), H('建設', 'base'),
+               H('統帥', 'base'), H('步兵', 'base'), H('騎兵', 'base'), H('砲兵', 'base'),
+               H('冷靜', 'mask'), H('勇敢', 'mask'), H('魅力', 'mask'), H('幸運', 'mask')]
     console = Console()
-    table = Table(title="Sangokushi III Person Data")
-    table.add_column('ID', justify='right', style='cyan')
-    table.add_column('姓名')
-    table.add_column('顏', justify='right', style='magenta')
-    table.add_column('政治', justify='right', style='green')
-    table.add_column('經濟', justify='right', style='green')
-    table.add_column('補給', justify='right', style='green')
-    table.add_column('建設', justify='right', style='green')
-    table.add_column('統帥', justify='right', style='green')
-    table.add_column('步兵', justify='right', style='green')
-    table.add_column('騎兵', justify='right', style='blue')
-    table.add_column('砲兵', justify='right', style='blue')
-    table.add_column('個性1', justify='right', style='blue')
-    table.add_column('個性2', justify='right', style='blue')
-    table.add_column('個性3', justify='right', style='blue')
-    table.add_column('個性4', justify='right', style='blue')
+    table = Table(title="L'Empereur Person Data")
+    for h in headers:
+        args = column_arguments(h)
+        table.add_column(h.text, justify=args['justify'], style=args['style'])
 
     # 4E61706F 6C656F6E 00000000 0000005F 06  # BCBA AACA 1111
     # 4E61706F 6C656F6E 00000000 0000005F 06  # start[22204]
@@ -370,13 +367,6 @@ def lempe_person(file):
     # "start_pos": [8934, 13274],
     # "data_size": [17, 15],
     # "data_count": 255
-
-    def kao2str(face):
-        if face <= 265:
-            return '[red]'+str(face)
-        else:
-            # convert face from number to hex string
-            return hex(face)[2:].upper()
 
     with open(file, 'rb') as f:
         for i in range(255):
@@ -422,7 +412,7 @@ def liberty_face(face_file, out_dir, prefix):
     )
     face_w, face_h = 64, 80
 
-    def avg(x):
+    def avg(x):  # average
         s = 0
         for xx in x:
             s += xx

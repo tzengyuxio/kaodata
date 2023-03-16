@@ -84,7 +84,38 @@ def san2_face(face_file, out_dir, prefix):
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, hh=hh, data_loader=loader)
 
 
+@click.command(help='人物資料解析')
+@click.option('-f', '--file', 'file', help="劇本檔案", required=True)
+def san2_person(file):
+    """
+    人物資料解析
+
+    <filename>
+    """
+
+    # 定義 PersonRaw 資料結構
+    # 定義 Person 資料結構
+    # func of PersonRaw -> Person
+    #
+    # 定義 headers
+    # new table and add columns with header
+    # 定義 'stack unpack fmt' for PersonRaw
+    #
+    # 宣告 persons
+    # with open file:
+    #     read data (maybe need to join with parts)
+    #     pr = PersonRaw._make(unpack(fmt, data))
+    #     p = convert(pr)
+    #     persons.append(p)
+    #
+    # for p in persons:
+    #     add row to table, or
+    #     output as csv
+    # print summary of persons
+
+
 san2.add_command(san2_face, 'face')
+san2.add_command(san2_person, 'person')
 
 ##############################################################################
 
@@ -144,19 +175,14 @@ def san3_person(file):
 
     SNDATA1B.CIM
     """
+    headers = [H('ID', 'id'), H('姓名', 'name'), H('顏', 'face'),
+               H('陸指', 'base'), H('水指', 'base'), H('武力', 'base'), H('智力', 'base'), H('政治', 'base'), H('魅力', 'base'),
+               H('相性', 'mask'), H('義理', 'mask')]
     console = Console()
     table = Table(title="Sangokushi III Person Data")
-    table.add_column('ID', justify='right', style='cyan')
-    table.add_column('姓名')
-    table.add_column('顏', justify='right', style='magenta')
-    table.add_column('陸指', justify='right', style='green')
-    table.add_column('水指', justify='right', style='green')
-    table.add_column('武力', justify='right', style='green')
-    table.add_column('智力', justify='right', style='green')
-    table.add_column('政治', justify='right', style='green')
-    table.add_column('魅力', justify='right', style='green')
-    table.add_column('相性', justify='right', style='blue')
-    table.add_column('義理', justify='right', style='blue')
+    for h in headers:
+        args = column_arguments(h)
+        table.add_column(h.text, justify=args['justify'], style=args['style'])
 
     Person = namedtuple('Person', 'face, next, soldier, items, mask, \
                         action, sick, lifespan, undercover, role, \
@@ -248,8 +274,8 @@ def san5_face(face_file, out_dir, prefix):
     KAOEX.S5 (DOS)      三４:160, 項劉:30, 信長:60, 英傑:100, 水滸:32, TOTAL:382
     Steam 版三檔案與上述同
 
-    ./dekoei.py san5 face -f /Volumes/common/San5WPK/KAODATA.S5 --prefix SAN5_WIN_F
-    ./dekoei.py san5 face -f /Volumes/common/San5WPK/KAOEX.S5  --prefix SAN5_WIN_F
+    dekoei.py san5 face -f /Volumes/common/San5WPK/KAODATA.S5 --prefix SAN5_WIN_F
+    dekoei.py san5 face -f /Volumes/common/San5WPK/KAOEX.S5  --prefix SAN5_WIN_F
     """
     palette = color_codes_to_palette(
         ['#202010', '#206510', '#BA3000', '#EFAA8A', '#104575', '#658A9A', '#BA7545', '#EFDFCF']
