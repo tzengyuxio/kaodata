@@ -64,12 +64,8 @@ def san1_person(file, scenario):
         return person_data
     person_data = person_loader(file, scenario)
 
-    table = build_table(s1_table_title, s1_headers)
     persons = load_person(person_data, s1_format, S1Person)
-    for p in persons:
-        table.add_row(*[p[h.name] for h in s1_headers])
-
-    console.print(table)
+    print_table(s1_table_title, s1_headers, persons)
 
 
 san1.add_command(san1_face, 'face')
@@ -118,32 +114,46 @@ def san2_face(face_file, out_dir, prefix):
 
 @click.command(help='人物資料解析')
 @click.option('-f', '--file', 'file', help="劇本檔案", required=True)
-def san2_person(file):
+@click.option('-t', '--taiki-file', 'taiki_file', help="待機檔案", required=True)
+def san2_person(file, taiki_file):
     """
     人物資料解析
 
-    <filename>
+    dekoei.py san2 person -f ~/dosbox/SAN2/SCENARIO.DAT -t ~/DOSBox/san2/TAIKI.DAT
     """
 
-    # 定義 PersonRaw 資料結構
-    # 定義 Person 資料結構
-    # func of PersonRaw -> Person
-    #
-    # 定義 headers
-    # new table and add columns with header
-    # 定義 'stack unpack fmt' for PersonRaw
-    #
-    # 宣告 persons
-    # with open file:
-    #     read data (maybe need to join with parts)
-    #     pr = PersonRaw._make(unpack(fmt, data))
-    #     p = convert(pr)
-    #     persons.append(p)
-    #
-    # for p in persons:
-    #     add row to table, or
-    #     output as csv
-    # print summary of persons
+    def person_loader(file, taiki_file):
+        offsets = [0x0, 0x33af, 0x675e, 0x9b0d, 0xcebc, 0x1026b]  # size=0x33af per scenario
+        read_count, read_size = 215, struct.calcsize(s2_format)  # count=215
+        tf_read_count, tf_read_size = 420, struct.calcsize(s2_format_taiki)  # count=420
+        person_data = []
+        kaos = set()  # 用來過濾重複
+        with open(file, 'rb') as f, open(taiki_file, 'rb') as tf:
+            for offset in offsets:
+                f.seek(offset+0x16)
+                for _ in range(read_count):
+                    pd = f.read(read_size)
+                    if pd[26:28] in kaos:  # [26:28]
+                        continue
+                    if pd[28:32] == b'\x00\x00\x00\x00':
+                        break
+                    person_data.append(b''.join([b'\xFF\xFF\xFF', pd]))
+                    kaos.add(pd[26:28])
+            tf.seek(0x6)
+            for _ in range(tf_read_count):
+                pd = tf.read(tf_read_size)
+                if pd[29:31] in kaos:  # [29:31]
+                    continue
+                if pd[31:35] == b'\x00\x00\x00\x00':
+                    break
+                person_data.append(pd)
+                kaos.add(pd[29:31])
+        return person_data
+    person_data = person_loader(file, taiki_file)
+
+    persons = load_person(person_data, s2_format_taiki, S2Person)
+    # print_csv(s2_headers, persons)
+    print_table(s2_table_title, s2_headers, persons)
 
 
 san2.add_command(san2_face, 'face')
@@ -220,12 +230,8 @@ def san3_person(file):
         return person_data
     person_data = person_loader(file)
 
-    table = build_table(s3_table_title, s3_headers)
     persons = load_person(person_data, s3_format, S3Person)
-    for p in persons:
-        table.add_row(*[p[h.name] for h in s3_headers])
-
-    console.print(table)
+    print_table(s3_table_title, s3_headers, persons)
 
 
 san3.add_command(san3_face, 'face')

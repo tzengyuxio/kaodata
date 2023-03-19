@@ -348,7 +348,7 @@ def load_cns11643_unicode_table(filename: str = 'Unicode/CNS2UNICODE_Unicode BMP
                 continue
             code_point = int(tokens[1].strip(), 16)
             table[tokens[0]] = chr(code_point)
-    print('cns11643 table loaded with {} code points.'.format(len(table)))
+    # print('cns11643 table loaded with {} code points.'.format(len(table)))
     return table
 
 
@@ -357,7 +357,10 @@ def to_unicode_name(s: bytes) -> str:
     Convert a string to unicode name.
     """
     if 32 <= s[0] <= 126:
-        return s.decode('ascii')
+        try:
+            return s.decode('ascii')
+        except UnicodeDecodeError:
+            print('decode error: {}'.format(s))
     global cns11643_unicode_table
     if len(cns11643_unicode_table) == 0:
         cns11643_unicode_table = load_cns11643_unicode_table()
@@ -397,3 +400,20 @@ def load_person(data: list[bytes], format: str, ptype: typing.Type) -> list:
         p.id = idx
         persons.append(p)
     return persons
+
+
+def print_csv(headers: list, persons: list) -> None:
+    """
+    Print a list of persons in csv format.
+    """
+    print(','.join([h.text for h in headers]))
+    for p in persons:
+        print(','.join([p[h.name] for h in headers]))
+
+
+def print_table(title: str, headers: list, persons: list) -> None:
+    table = build_table(title, headers)
+    for p in persons:
+        table.add_row(*[p[h.name] for h in headers])
+
+    console.print(table)

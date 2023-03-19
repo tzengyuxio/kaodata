@@ -20,13 +20,13 @@
 ## 人物解析步驟
 
 ```py
+    # 定義 'stack unpack fmt' for PersonRaw
     # 定義 PersonRaw 資料結構
     # 定義 Person 資料結構
     # func of PersonRaw -> Person
     #
     # 定義 headers
     # new table and add columns with header
-    # 定義 'stack unpack fmt' for PersonRaw
     #
     # 宣告 persons
     # with open file:
