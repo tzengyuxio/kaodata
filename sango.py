@@ -41,7 +41,72 @@ def san1_face(face_file, out_dir, prefix):
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, num_part=num_part, hh=True, data_loader=loader)
 
 
+@click.command(help='人物資料解析')
+@click.option('-f', '--file', 'file', help="劇本檔案", required=True)
+def san1_person(file):
+    """
+    人物資料解析
+
+    SINADATA.DAT
+    """
+    # variables: PersonRaw, Person, headers, table_title, converter, loader
+
+    PersonRaw = namedtuple(
+        'PersonRaw', 'name,age,body,intell,power,charisma,luck,loyalty,naval,face,soldiers,nation,s_loyalty,s_ability,s_arms')
+    Person = namedtuple('Person', 'id, name, face, body, intell, power, charisma, luck')
+
+    def convert_person_raw_to_person(idx, pr):
+        return Person(
+            id=str(idx),
+            name=to_unicode_name(pr.name),
+            face=str(pr.face),
+            body=str(pr.body),
+            intell=str(pr.intell),
+            power=str(pr.power),
+            charisma=str(pr.charisma),
+            luck=str(pr.luck)
+        )
+
+    # headers = [H('id', 'ID', 'id'), H('name', '姓名', 'name'), H('face', '顏', 'face'),
+    #            H('status', 'Status', 'state'), H('position', 'Position', 'state'), H('loyalty', 'Loyalty', 'state'),
+    #            H('age', 'Age', 'base'), H('body', 'Body', 'base'), H('intell', 'Intell.', 'base'), H('power', 'Power', 'base'), H(
+    #                'charisma', 'Charisma', 'base'), H('luck', 'Luck', 'base'), H('exp', 'Exper.', 'base'),
+    #            H('soldier', 'Soldiers', 'soldier'), H('sloyalty', '-Loyalty', 'soldier'), H('sability', '-Ability', 'soldier'), H('sarms', '-Arms', 'soldier'), H('naval', 'Naval', 'soldier')]
+    headers = [H('id', 'ID', 'id'), H('name', '姓名', 'name'), H('face', '顏', 'face'),
+               H('body', 'Body', 'base'), H('intell', 'Intell.', 'base'), H('power', 'Power', 'base'), H(
+                   'charisma', 'Charisma', 'base'), H('luck', 'Luck', 'base')]
+    console = Console()
+    table = Table(title="Sangokushi Person Data")
+    for h in headers:
+        args = column_arguments(h)
+        table.add_column(h.text, justify=args['justify'], style=args['style'])
+    # 32 bytes, name, age, body, int, pow, charisma, luck, loyalty, position(1: employed?, 3: master), face, soldier, nation, sold.(loyalty, ability, arms)
+    fmt = '<12sBBBBBBBBHHxBBBBxxx'
+
+    def person_loader(file):
+        person_data = []
+        with open(file, 'rb') as f:
+            f.seek(4326)
+            for _ in range(255):
+                person_data.append(f.read(32))
+        return person_data
+
+    person_data = person_loader(file)
+
+    persons = []
+    for idx, pd in enumerate(person_data):
+        pr = PersonRaw._make(unpack(fmt, pd))
+        p = convert_person_raw_to_person(idx, pr)
+        persons.append(p)
+
+    for p in persons:
+        table.add_row(*[getattr(p, h.name) for h in headers])
+
+    console.print(table)
+
+
 san1.add_command(san1_face, 'face')
+san1.add_command(san1_person, 'person')
 
 ##############################################################################
 
@@ -175,9 +240,10 @@ def san3_person(file):
 
     SNDATA1B.CIM
     """
-    headers = [H('ID', 'id'), H('姓名', 'name'), H('顏', 'face'),
-               H('陸指', 'base'), H('水指', 'base'), H('武力', 'base'), H('智力', 'base'), H('政治', 'base'), H('魅力', 'base'),
-               H('相性', 'mask'), H('義理', 'mask')]
+    headers = [H('id', 'ID', 'id'), H('name', '姓名', 'name'), H('face', '顏', 'face'),
+               H('army', '陸指', 'base'), H('navy', '水指', 'base'), H('war', '武力', 'base'), H(
+                   'intl', '智力', 'base'), H('pol', '政治', 'base'), H('charm', '魅力', 'base'),
+               H('aisho', '相性', 'mask'), H('justice', '義理', 'mask')]
     console = Console()
     table = Table(title="Sangokushi III Person Data")
     for h in headers:

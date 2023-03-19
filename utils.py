@@ -21,7 +21,7 @@ DEFAULT_ENDIAN = LITTLE_ENDIAN
 # H 為表頭的欄位資訊
 # cate 為 category 縮寫, 作為表頭欄位的分類，不同分類的表頭會搭配不同的 color and style
 # 預計的表頭欄位分類有： id, name, face, base(基本能力), mask(隱藏能力), status(劇本相關資訊), memo...等
-H = namedtuple('H', 'text, cate')
+H = namedtuple('H', 'name, text, cate')
 
 def column_arguments(h:H) -> dict:
     style = None
@@ -352,6 +352,8 @@ def to_unicode_name(s: bytes) -> str:
     """
     Convert a string to unicode name.
     """
+    if 32 <= s[0] <= 126:
+        return s.decode('ascii')
     global cns11643_unicode_table
     if len(cns11643_unicode_table) == 0:
         cns11643_unicode_table = load_cns11643_unicode_table()

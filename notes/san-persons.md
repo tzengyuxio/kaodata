@@ -16,3 +16,27 @@
 ## 其他註記
 
 - 光榮美術館目前 39 作 (2023/3/1), koei-wiki 已整理 27 作，但尚未完整發布
+
+## 人物解析步驟
+
+```py
+    # 定義 PersonRaw 資料結構
+    # 定義 Person 資料結構
+    # func of PersonRaw -> Person
+    #
+    # 定義 headers
+    # new table and add columns with header
+    # 定義 'stack unpack fmt' for PersonRaw
+    #
+    # 宣告 persons
+    # with open file:
+    #     read data (maybe need to join with parts)
+    #     pr = PersonRaw._make(unpack(fmt, data))
+    #     p = convert(pr)
+    #     persons.append(p)
+    #
+    # for p in persons:
+    #     add row to table, or
+    #     output as csv
+    # print summary of persons
+```

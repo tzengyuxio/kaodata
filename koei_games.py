@@ -321,10 +321,10 @@ def lempe_person(file):
 
     NPDATA.CIM
     """
-    headers = [H('ID', 'id'), H('姓名', 'name'), H('顏', 'face'),
-               H('政治', 'base'), H('經濟', 'base'), H('補給', 'base'), H('建設', 'base'),
-               H('統帥', 'base'), H('步兵', 'base'), H('騎兵', 'base'), H('砲兵', 'base'),
-               H('冷靜', 'mask'), H('勇敢', 'mask'), H('魅力', 'mask'), H('幸運', 'mask')]
+    headers = [H('id', 'ID', 'id'), H('name', '姓名', 'name'), H('face', '顏', 'face'),
+               H('pol', '政治', 'base'), H('eco', '經濟', 'base'), H('sup', '補給', 'base'), H('build', '建設', 'base'),
+               H('lead', '統帥', 'base'), H('army', '步兵', 'base'), H('knight', '騎兵', 'base'), H('cannon', '砲兵', 'base'),
+               H('cool', '冷靜', 'mask'), H('brave', '勇敢', 'mask'), H('charm', '魅力', 'mask'), H('luk', '幸運', 'mask')]
     console = Console()
     table = Table(title="L'Empereur Person Data")
     for h in headers:
