@@ -7,6 +7,7 @@ import struct
 from PIL import Image
 from rich.console import Console
 from rich.progress import track
+from rich.table import Table
 from ls11 import ls11_decode, LS11_MAGIC
 
 console = Console()
@@ -19,11 +20,14 @@ LITTLE_ENDIAN = 'little'
 DEFAULT_ENDIAN = LITTLE_ENDIAN
 
 # H 為表頭的欄位資訊
+# name 為名稱，用以對應 Person 的欄位,
+# text 為表頭顯示的文字,
 # cate 為 category 縮寫, 作為表頭欄位的分類，不同分類的表頭會搭配不同的 color and style
 # 預計的表頭欄位分類有： id, name, face, base(基本能力), mask(隱藏能力), status(劇本相關資訊), memo...等
 H = namedtuple('H', 'name, text, cate')
 
-def column_arguments(h:H) -> dict:
+
+def column_arguments(h: H) -> dict:
     style = None
     justify = 'left'
     if h.cate == 'id':
@@ -359,3 +363,37 @@ def to_unicode_name(s: bytes) -> str:
         cns11643_unicode_table = load_cns11643_unicode_table()
     words = struct.unpack('>' + 'H'*int(len(s)/2), s)
     return ''.join([cns11643_unicode_table[cns_from_order(order_of_koei_tw(w))] for w in words])
+
+
+def kao2str(face: int, upper_limit: int = -1, one_base: bool = False) -> str:
+    """
+    Convert a kao face to string.
+
+    one_base: face number in game data is one-base. If True, minus 1 to meet zero-base.
+    """
+    if upper_limit != -1 and face > upper_limit:
+        # convert face from number to hex string
+        return hex(face)[2:].upper()
+
+    face = face - 1 if one_base else face
+    return '[red]'+str(face)
+
+
+def build_table(title: str, headers: list[H]) -> Table:
+    """
+    Build a table with title and headers.
+    """
+    table = Table(title=title)
+    for h in headers:
+        args = column_arguments(h)
+        table.add_column(h.text, justify=args['justify'], style=args['style'])
+    return table
+
+
+def load_person(data: list[bytes], format: str, ptype: typing.Type) -> list:
+    persons = []
+    for idx, pd in enumerate(data):
+        p = ptype._make(struct.unpack(format, pd))
+        p.id = idx
+        persons.append(p)
+    return persons

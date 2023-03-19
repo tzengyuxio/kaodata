@@ -4,6 +4,9 @@ from struct import unpack
 from rich.console import Console
 from rich.table import Table
 from utils import *
+from san_person import *
+
+console = Console()
 
 
 @click.group()
@@ -43,64 +46,28 @@ def san1_face(face_file, out_dir, prefix):
 
 @click.command(help='人物資料解析')
 @click.option('-f', '--file', 'file', help="劇本檔案", required=True)
-def san1_person(file):
+@click.option('-s', '--scenario', 'scenario', help="劇本", default=0)
+def san1_person(file, scenario):
     """
     人物資料解析
 
     SINADATA.DAT
     """
-    # variables: PersonRaw, Person, headers, table_title, converter, loader
-
-    PersonRaw = namedtuple(
-        'PersonRaw', 'name,age,body,intell,power,charisma,luck,loyalty,naval,face,soldiers,nation,s_loyalty,s_ability,s_arms')
-    Person = namedtuple('Person', 'id, name, face, body, intell, power, charisma, luck')
-
-    def convert_person_raw_to_person(idx, pr):
-        return Person(
-            id=str(idx),
-            name=to_unicode_name(pr.name),
-            face=str(pr.face),
-            body=str(pr.body),
-            intell=str(pr.intell),
-            power=str(pr.power),
-            charisma=str(pr.charisma),
-            luck=str(pr.luck)
-        )
-
-    # headers = [H('id', 'ID', 'id'), H('name', '姓名', 'name'), H('face', '顏', 'face'),
-    #            H('status', 'Status', 'state'), H('position', 'Position', 'state'), H('loyalty', 'Loyalty', 'state'),
-    #            H('age', 'Age', 'base'), H('body', 'Body', 'base'), H('intell', 'Intell.', 'base'), H('power', 'Power', 'base'), H(
-    #                'charisma', 'Charisma', 'base'), H('luck', 'Luck', 'base'), H('exp', 'Exper.', 'base'),
-    #            H('soldier', 'Soldiers', 'soldier'), H('sloyalty', '-Loyalty', 'soldier'), H('sability', '-Ability', 'soldier'), H('sarms', '-Arms', 'soldier'), H('naval', 'Naval', 'soldier')]
-    headers = [H('id', 'ID', 'id'), H('name', '姓名', 'name'), H('face', '顏', 'face'),
-               H('body', 'Body', 'base'), H('intell', 'Intell.', 'base'), H('power', 'Power', 'base'), H(
-                   'charisma', 'Charisma', 'base'), H('luck', 'Luck', 'base')]
-    console = Console()
-    table = Table(title="Sangokushi Person Data")
-    for h in headers:
-        args = column_arguments(h)
-        table.add_column(h.text, justify=args['justify'], style=args['style'])
-    # 32 bytes, name, age, body, int, pow, charisma, luck, loyalty, position(1: employed?, 3: master), face, soldier, nation, sold.(loyalty, ability, arms)
-    fmt = '<12sBBBBBBBBHHxBBBBxxx'
-
-    def person_loader(file):
+    def person_loader(file, scenario=0):
+        offsets = [4326, 16816, 29306, 41796, 54286]
+        read_count, read_size = 255, struct.calcsize(s1_format)
         person_data = []
         with open(file, 'rb') as f:
-            f.seek(4326)
-            for _ in range(255):
-                person_data.append(f.read(32))
+            f.seek(offsets[scenario])
+            for _ in range(read_count):
+                person_data.append(f.read(read_size))
         return person_data
+    person_data = person_loader(file, scenario)
 
-    person_data = person_loader(file)
-
-    persons = []
-    for idx, pd in enumerate(person_data):
-        pr = PersonRaw._make(unpack(fmt, pd))
-        p = convert_person_raw_to_person(idx, pr)
-        persons.append(p)
-
+    table = build_table(s1_table_title, s1_headers)
+    persons = load_person(person_data, s1_format, S1Person)
     for p in persons:
-        table.add_row(*[getattr(p, h.name) for h in headers])
+        table.add_row(*[p[h.name] for h in s1_headers])
 
     console.print(table)
 
@@ -240,42 +207,24 @@ def san3_person(file):
 
     SNDATA1B.CIM
     """
-    headers = [H('id', 'ID', 'id'), H('name', '姓名', 'name'), H('face', '顏', 'face'),
-               H('army', '陸指', 'base'), H('navy', '水指', 'base'), H('war', '武力', 'base'), H(
-                   'intl', '智力', 'base'), H('pol', '政治', 'base'), H('charm', '魅力', 'base'),
-               H('aisho', '相性', 'mask'), H('justice', '義理', 'mask')]
-    console = Console()
-    table = Table(title="Sangokushi III Person Data")
-    for h in headers:
-        args = column_arguments(h)
-        table.add_column(h.text, justify=args['justify'], style=args['style'])
 
-    Person = namedtuple('Person', 'face, next, soldier, items, mask, \
-                        action, sick, lifespan, undercover, role, \
-                        army, navy, war, intl, pol, chrm,\
-                        aisho, justice, royalty, city, faction, service, \
-                        in_faction, in_service, family, train, morale, birth, job, month, \
-                        name')
+    def person_loader(file):
+        read_count, read_size = 600, struct.calcsize(s3_format)
+        person_data = []
+        with open(file, 'rb') as f:
+            for _ in range(read_count):
+                pd = f.read(read_size)
+                if pd[43:] == b'\x00\x00\x00\x00\x00\x00':
+                    continue
+                person_data.append(pd)
+        return person_data
+    person_data = person_loader(file)
 
-    def kao2str(face):
-        if face <= 307:
-            return '[red]'+str(face)
-        else:
-            # convert face from number to hex string
-            return hex(face)[2:].upper()
+    table = build_table(s3_table_title, s3_headers)
+    persons = load_person(person_data, s3_format, S3Person)
+    for p in persons:
+        table.add_row(*[p[h.name] for h in s3_headers])
 
-    # 0x0000 顏 次席 士兵 寶物 MASK STATUS ABILITY 相性 義理 忠誠 城市 勢力 仕官 裡所屬士官 親族 訓練 士氣 無 生年 工作 餘月 無 姓名
-    # xx     H  H   H   H   H    BBBBB  BBBBBB   B   B   B   B   B   B    BB       B   B   B   xxx B   B   B   xxx 6s
-    fmt = '<xxHHHHHBBBBBBBBBBBBBBBBBBBBBBxxxBBBxxx6s'
-    with open(file, 'rb') as f:
-        for i in range(600):
-            data = f.read(49)
-            p = Person._make(unpack(fmt, data))
-            if p.name == b'\x00\x00\x00\x00\x00\x00':
-                continue
-            name = to_unicode_name(p.name)
-            table.add_row(str(i), name, kao2str(p.face), str(p.army), str(p.navy), str(
-                p.war), str(p.intl), str(p.pol), str(p.chrm), str(p.aisho), str(p.justice))
     console.print(table)
 
 
