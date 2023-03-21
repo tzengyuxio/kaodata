@@ -1,8 +1,5 @@
-from collections import namedtuple
-from struct import unpack
 import click
 from ls11 import *
-from rich.progress import track
 from rich.table import Table
 from PIL import ImageFile
 from utils import *
@@ -136,14 +133,16 @@ def koukai_face(face_file, out_dir, prefix):
     palette = color_codes_to_palette(
         ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
     )
-    face_w, face_h = 64, 80
+    face_w, face_h, bpp = 64, 80, 3
+    part_size = int(face_w*face_h*bpp/8)
 
-    def loader() -> bytes:
+    def stream() -> typing.Generator[bytes, None, None]:
         with open(face_file, 'rb') as f:
             f.seek(47616)
-            return f.read()
+            for _ in range(34):
+                yield f.read(part_size)
 
-    extract_images(face_file, face_w, face_h, palette, out_dir, prefix, num_part=34, hh=True, data_loader=loader)
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix, num_part=34, hh=True, data_loader=stream)
 
 
 koukai.add_command(koukai_face, 'face')
@@ -577,16 +576,15 @@ def winning_face(game_dir, out_dir, prefix):
     face_w, face_h, bpp = 64, 80, 3
     part_size = int(face_w*face_h*bpp/8)
 
-    def loader() -> bytes:
-        raw_data = bytearray()
+    def stream() -> typing.Generator[bytes, None, None]:
         with open(game_dir+'/KAO.DAT', 'rb') as f:
-            raw_data.extend(f.read())
+            while part := f.read(part_size):
+                yield part
         with open(game_dir+'/TEXTGRP.DAT', 'rb') as f:
             # 有馬桜子
-            raw_data.extend(f.read(part_size))
-        return bytes(raw_data)
+            yield f.read(part_size)
 
-    extract_images('', face_w, face_h, palette, out_dir, prefix, data_loader=loader)
+    extract_images('', face_w, face_h, palette, out_dir, prefix, data_loader=stream)
 
 
 winning.add_command(winning_face, 'face')
