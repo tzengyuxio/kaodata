@@ -1,4 +1,3 @@
-from functools import reduce
 from bitstream import BitStream
 from rich.progress import track
 
@@ -62,7 +61,9 @@ def ls11_decode(data: bytes) -> bytes:
         pos += 12
 
     decoded_data = bytearray()
-    for i in track(range(len(infos)), description="Decoding... "):
+    # for i in track(range(len(infos)), description="Decoding... "):
+    # rich.errors.LiveError: Only one live display may be active at once
+    for i in range(len(infos)):
         compressed_size, uncompressed_size, offset = infos[i]
         compressed_data = data[offset:offset+compressed_size]
         codes = get_codes(compressed_data)

@@ -1,4 +1,6 @@
 from collections import namedtuple
+import inspect
+import io
 from itertools import zip_longest
 import math
 import os
@@ -138,7 +140,7 @@ def data_to_image(data: bytes, w: int, h: int, palette: list, hh=False) -> Image
     image = Image.new('RGB', (w, h), BGCOLOR)
     color_indexes = to_color_indexes(data, len(palette))
     for px_index, color_index in enumerate(color_indexes):
-        x, y = px_index % w, px_index // w
+        y, x = divmod(px_index, w)
         c = palette[color_index]
         if hh:
             image.putpixel((x, 2*y), c)
@@ -148,13 +150,18 @@ def data_to_image(data: bytes, w: int, h: int, palette: list, hh=False) -> Image
     return image
 
 
-def load_images(data: bytes, w: int, h: int, palette: list, hh: bool, part_size: int, num_part: int) -> list[Image.Image]:
+def load_images_with_data(data: bytes, w: int, h: int, palette: list, hh: bool, part_size: int, num_part: int) -> list[Image.Image]:
     images = []
     for i in track(range(num_part), description="Loding...   "):
         pos = i*part_size
         img = data_to_image(data[pos:pos+part_size], w, h, palette, hh)
         images.append(img)
     return images
+
+
+def load_images(g: typing.Generator[bytes, None, None], w: int, h: int, palette: list, hh: bool) -> list[Image.Image]:
+    data_stream = track(g, description="Loding...   ")
+    return [data_to_image(data, w, h, palette, hh) for data in data_stream]
 
 
 def save_index_image(images: list[Image.Image], w: int, h: int, num_col: int, filename: str) -> None:
@@ -197,6 +204,20 @@ def calc_part_size(w: int, h: int, num_colors: int, hh=False) -> int:
     return int(w * h * bpp / 8 / 2) if hh else int(w * h * bpp / 8)
 
 
+def basic_data_stream(filename: str, read_size: int, read_count: int) -> typing.Generator[bytes, None, None]:
+    with open(filename, 'rb') as f:
+        header = f.read(4)
+        f.seek(0)
+        buf_reader: typing.Union[io.BufferedReader, io.BytesIO]
+        buf_reader = io.BytesIO(ls11_decode(f.read())) if header in LS11_MAGIC else f
+        count = 0
+        while data := buf_reader.read(read_size):
+            if len(data) < read_size or (read_count > 0 and count >= read_count):
+                break
+            count += 1
+            yield data
+
+
 # output_images take a map or a list of Image.Image, save them to out_dir with prefix
 def output_images(images: typing.Union[list[Image.Image], dict[str, Image.Image]],
                   out_dir: str, prefix: str,
@@ -226,28 +247,26 @@ def extract_images(filename: str, w: int, h: int, palette: list, out_dir: str, p
     """
     A basic scaffold of loading file, save index and save single images.
     """
-
-    # get raw data (binary) of images
-    raw_data: bytes
-    if data_loader:
-        raw_data = data_loader()
-    else:
-        with open(filename, 'rb') as f:
-            header = f.read(4)
-            f.seek(0)
-            if header in LS11_MAGIC:
-                raw_data = ls11_decode(f.read())
-            else:
-                raw_data = f.read()
-
     if part_size == -1:
         part_size = calc_part_size(w, h, len(palette), hh)
 
-    if num_part == -1:
-        num_part = len(raw_data) // part_size
+    data_generator: typing.Generator[bytes, None, None]
+    if data_loader is None:
+        print('Using basic data stream loader.')
+        data_generator = basic_data_stream(filename, part_size, num_part)
+    elif inspect.isgeneratorfunction(data_loader):
+        print('Using custom data stream loader.')
+        data_generator = data_loader()
+    else:  # deprecated
+        print('Using custom data loader.')
+        raw_data = data_loader()
+        data_generator = (raw_data[i*part_size:(i+1)*part_size] for i in range(num_part))
+
+    # if num_part == -1:
+    #     num_part = len(raw_data) // part_size
 
     # load each single images from raw data
-    images = load_images(raw_data, w, h, palette, hh, part_size, num_part)
+    images = load_images(data_generator, w, h, palette, hh)
 
     output_images(images, out_dir, prefix)
 
@@ -264,6 +283,19 @@ def create_floppy_image_loader(filename: str, offset_infos: list[tuple[int, int]
                 raw_data.extend(f.read(size))
         return bytes(raw_data)
     return loader
+
+
+def create_floppy_image_stream(filename: str, offset_infos: list[tuple[int, int]], read_size: int) -> typing.Callable[[], typing.Generator[bytes, None, None]]:
+    """
+    Create a data stream loader for floppy image.
+    """
+    def stream() -> typing.Generator[bytes, None, None]:
+        with open(filename, 'rb') as f:
+            for offset, size in offset_infos:
+                f.seek(offset)
+                for _ in range(size // read_size):
+                    yield f.read(read_size)
+    return stream
 
 
 def order_of_big5(c: typing.Union[bytes, int]) -> int:

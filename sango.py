@@ -35,8 +35,9 @@ def san1_face(face_file, out_dir, prefix):
             ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
         )
         num_part = 113
-        offset_infos = [(15360, num_part*1440)]  # (offset, face_count * part_size)
-        loader = create_floppy_image_loader(face_file, offset_infos)
+        part_size = calc_part_size(face_w, face_h, len(palette), hh=True)
+        offset_infos = [(15360, num_part*part_size)]  # (offset, face_count * part_size)
+        loader = create_floppy_image_stream(face_file, offset_infos, part_size)
 
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, num_part=num_part, hh=True, data_loader=loader)
 
@@ -103,8 +104,9 @@ def san2_face(face_file, out_dir, prefix):
         )
         hh = False
         # NOTE: 在第二組 offset_info 之後還有 52 個 face 大小的 montage 資料
-        offset_infos = [(189440, 95*1920), (372736, 124*1920)]  # (offset, face_count * part_size)
-        loader = create_floppy_image_loader(face_file, offset_infos)
+        part_size = calc_part_size(face_w, face_h, len(palette), hh=hh)
+        offset_infos = [(189440, 95*part_size), (372736, 124*part_size)]  # (offset, face_count * part_size)
+        loader = create_floppy_image_stream(face_file, offset_infos, part_size)
 
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, hh=hh, data_loader=loader)
 
@@ -331,7 +333,7 @@ def san6_face(game_dir, face_file, palette_file, out_dir, prefix):
     palette = load_palette_from_file(palette_file, 4)  # 4 bytes: 0x01000300
     face_w, face_h = 96, 120
 
-    def loader() -> bytes:
+    def stream() -> typing.Generator[bytes, None, None]:
         with open(face_file, 'rb') as f:
             """
             KAODATA.S6
@@ -347,9 +349,10 @@ def san6_face(game_dir, face_file, palette_file, out_dir, prefix):
             count = int.from_bytes(f.read(4), LITTLE_ENDIAN)
             offset = 4 + 16 * count  # 4: header size; 16: info size(pos, len, w, h)
             f.seek(offset)
-            return f.read()
+            while data := f.read(96*120):
+                yield data
 
-    extract_images('', face_w, face_h, palette, out_dir, prefix, data_loader=loader)
+    extract_images('', face_w, face_h, palette, out_dir, prefix, data_loader=stream)
 
 
 san6.add_command(san6_face, 'face')
@@ -383,7 +386,7 @@ def san7_face(game_dir, face_file, palette_file, out_dir, prefix):
     palette = load_palette_from_file(palette_file, 4)  # 4 bytes: 0x01000300
     face_w, face_h = 96, 120
 
-    def loader() -> bytes:
+    def stream() -> typing.Generator[bytes, None, None]:
         with open(face_file, 'rb') as f:
             """
             KAODATA.S7
@@ -399,9 +402,10 @@ def san7_face(game_dir, face_file, palette_file, out_dir, prefix):
             count = int.from_bytes(f.read(4), LITTLE_ENDIAN)
             offset = 4 + 16 * count  # 4: header size; 16: info size(pos, len, w, h)
             f.seek(offset)
-            return f.read()
+            while data := f.read(96*120):
+                yield data
 
-    extract_images('', face_w, face_h, palette, out_dir, prefix, data_loader=loader)
+    extract_images('', face_w, face_h, palette, out_dir, prefix, data_loader=stream)
 
 
 san7.add_command(san7_face, 'face')
@@ -457,13 +461,14 @@ def san8_face(game_dir, face_file, palette_file, size, out_dir, prefix):
         face_w, face_h = 160, 180  # 大頭像
         offset = 9380+12
 
-    def loader() -> bytes:
+    def stream() -> typing.Generator[bytes, None, None]:
         with open(face_file, 'rb') as f:
             count = 846
             f.seek(offset)
-            return f.read(face_w * face_h * count)
+            for _ in range(count):
+                yield f.read(face_w * face_h)
 
-    extract_images('', face_w, face_h, palette, out_dir, prefix, data_loader=loader)
+    extract_images('', face_w, face_h, palette, out_dir, prefix, data_loader=stream)
 
 
 san8.add_command(san8_face, 'face')
@@ -519,7 +524,7 @@ def san9_face(game_dir, palette_file, face_file, image_size, out_dir, prefix):
     #   - [ ] loader 應該改用 iterator/generator 方式重寫過，不要一次回傳一大塊 bytes
     #   - [ ] 改使用 game_dir, 指定色盤與頭像檔太繁瑣
     #   - [ ] 將 6,7,8,9 的 load palette 抽出
-    def loader() -> bytes:
+    def stream() -> typing.Generator[bytes, None, None]:
         with open(face_file, 'rb') as f:
             data_size = face_w * face_h
             file_size = os.stat(face_file).st_size
@@ -529,10 +534,9 @@ def san9_face(game_dir, palette_file, face_file, image_size, out_dir, prefix):
             face_data = bytearray()
             for _ in range(count):
                 f.read(16)  # skip info(block_size, ?, width, height)
-                face_data.extend(f.read(data_size))
-            return bytes(face_data)
+                yield f.read(data_size)
 
-    extract_images('', face_w, face_h, palette, out_dir, prefix, data_loader=loader)
+    extract_images('', face_w, face_h, palette, out_dir, prefix, data_loader=stream)
 
 
 @click.command()
