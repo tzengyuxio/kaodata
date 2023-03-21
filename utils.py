@@ -197,13 +197,18 @@ def calc_part_size(w: int, h: int, num_colors: int, hh=False) -> int:
     return int(w * h * bpp / 8 / 2) if hh else int(w * h * bpp / 8)
 
 
-def basic_data_stream(filename: str, read_size: int) -> typing.Generator[bytes, None, None]:
+def basic_data_stream(filename: str, read_size: int, read_count: int) -> typing.Generator[bytes, None, None]:
     with open(filename, 'rb') as f:
         header = f.read(4)
         f.seek(0)
         buf_reader: typing.Union[io.BufferedReader, io.BytesIO]
         buf_reader = io.BytesIO(ls11_decode(f.read())) if header in LS11_MAGIC else f
-        yield buf_reader.read(read_size)
+        count = 0
+        while data := buf_reader.read(read_size):
+            if len(data) < read_size or (read_count > 0 and count >= read_count):
+                break
+            count += 1
+            yield data
 
 
 # output_images take a map or a list of Image.Image, save them to out_dir with prefix
@@ -240,10 +245,13 @@ def extract_images(filename: str, w: int, h: int, palette: list, out_dir: str, p
 
     data_generator: typing.Generator[bytes, None, None]
     if data_loader is None:
-        data_generator = basic_data_stream(filename, part_size)
+        print('Using basic data stream loader.')
+        data_generator = basic_data_stream(filename, part_size, num_part)
     elif inspect.isgeneratorfunction(data_loader):
+        print('Using custom data stream loader.')
         data_generator = data_loader()
-    else:
+    else:  # deprecated
+        print('Using custom data loader.')
         raw_data = data_loader()
         data_generator = (raw_data[i*part_size:(i+1)*part_size] for i in range(num_part))
 
@@ -268,6 +276,19 @@ def create_floppy_image_loader(filename: str, offset_infos: list[tuple[int, int]
                 raw_data.extend(f.read(size))
         return bytes(raw_data)
     return loader
+
+
+def create_floppy_image_stream(filename: str, offset_infos: list[tuple[int, int]], read_size: int) -> typing.Callable[[], typing.Generator[bytes, None, None]]:
+    """
+    Create a data stream loader for floppy image.
+    """
+    def stream() -> typing.Generator[bytes, None, None]:
+        with open(filename, 'rb') as f:
+            for offset, size in offset_infos:
+                f.seek(offset)
+                for _ in range(size // read_size):
+                    yield f.read(read_size)
+    return stream
 
 
 def order_of_big5(c: typing.Union[bytes, int]) -> int:

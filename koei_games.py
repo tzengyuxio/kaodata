@@ -77,17 +77,17 @@ def ishin_face(face_file, out_dir, prefix):
     """
     ./dekoei.py ishin face -f kao/ISHIN_維新の嵐A.fdi --prefix ISHIN_PC98_F
 
-    專有顏:106, 守衛:1, 背景:8, 大眾:約56格大小
+    專有顏:105, 守衛:1, 背景:8, 大眾:約56格大小
     """
     palette = color_codes_to_palette(
         ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
     )
     face_w, face_h = 48, 80
     num_part = 105
-    hh = True
-    loader = create_floppy_image_loader(face_file, [(582656, num_part * 720)])
+    part_size = calc_part_size(face_w, face_h, len(palette), hh=True)
+    loader = create_floppy_image_stream(face_file, [(582656, num_part * part_size)], part_size)
 
-    extract_images(face_file, face_w, face_h, palette, out_dir, prefix, hh=hh, data_loader=loader)
+    extract_images(face_file, face_w, face_h, palette, out_dir, prefix, hh=True, data_loader=loader)
 
 
 ishin.add_command(ishin_face, 'face')
@@ -133,8 +133,8 @@ def koukai_face(face_file, out_dir, prefix):
     palette = color_codes_to_palette(
         ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']
     )
-    face_w, face_h, bpp = 64, 80, 3
-    part_size = int(face_w*face_h*bpp/8)
+    face_w, face_h = 64, 80
+    part_size = calc_part_size(face_w, face_h, len(palette), hh=True)
 
     def stream() -> typing.Generator[bytes, None, None]:
         with open(face_file, 'rb') as f:
@@ -432,8 +432,9 @@ def royal_face(face_file, out_dir, prefix):
             ['#000000', '#00BA65', '#FF5555', '#EFCF55', '#0065BA', '#459ADF', '#FF55FF', '#FFFFFF']
         )
         hh = False
-        offset_infos = [(414720, num_part*1920)]  # (offset, face_count * part_size)
-        loader = create_floppy_image_loader(face_file, offset_infos)
+        part_size = calc_part_size(face_w, face_h, len(palette), hh=hh)
+        offset_infos = [(414720, num_part*part_size)]  # (offset, face_count * part_size)
+        loader = create_floppy_image_stream(face_file, offset_infos, part_size)
 
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, num_part=num_part, hh=hh, data_loader=loader)
 
@@ -474,8 +475,9 @@ def suikoden_face(face_file, out_dir, prefix):
         )
         hh = False
         num_part = 260
-        offset_infos = [(15360, num_part*1920)]  # (offset, face_count * part_size)
-        loader = create_floppy_image_loader(face_file, offset_infos)
+        part_size = calc_part_size(face_w, face_h, len(palette), hh=hh)
+        offset_infos = [(15360, num_part*part_size)]  # (offset, face_count * part_size)
+        loader = create_floppy_image_stream(face_file, offset_infos, part_size)
 
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, hh=hh, data_loader=loader)
 

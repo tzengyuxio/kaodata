@@ -35,8 +35,9 @@ def san1_face(face_file, out_dir, prefix):
             ['#000000', '#00FF00', '#FF0000', '#FFFF00', '#0000FF', '#00FFFF', '#FF00FF', '#FFFFFF']
         )
         num_part = 113
-        offset_infos = [(15360, num_part*1440)]  # (offset, face_count * part_size)
-        loader = create_floppy_image_loader(face_file, offset_infos)
+        part_size = calc_part_size(face_w, face_h, len(palette), hh=True)
+        offset_infos = [(15360, num_part*part_size)]  # (offset, face_count * part_size)
+        loader = create_floppy_image_stream(face_file, offset_infos, part_size)
 
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, num_part=num_part, hh=True, data_loader=loader)
 
@@ -103,8 +104,9 @@ def san2_face(face_file, out_dir, prefix):
         )
         hh = False
         # NOTE: 在第二組 offset_info 之後還有 52 個 face 大小的 montage 資料
-        offset_infos = [(189440, 95*1920), (372736, 124*1920)]  # (offset, face_count * part_size)
-        loader = create_floppy_image_loader(face_file, offset_infos)
+        part_size = calc_part_size(face_w, face_h, len(palette), hh=hh)
+        offset_infos = [(189440, 95*part_size), (372736, 124*part_size)]  # (offset, face_count * part_size)
+        loader = create_floppy_image_stream(face_file, offset_infos, part_size)
 
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, hh=hh, data_loader=loader)
 
