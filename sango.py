@@ -328,12 +328,7 @@ def san6_face(game_dir, face_file, palette_file, out_dir, prefix):
         palette_file = os.path.join(game_dir, 'Palette.S6')
         face_file = os.path.join(game_dir, 'Kaodata.s6')
 
-    palette: list
-    with open(palette_file, 'rb') as f:
-        f.read(4)  # 0x00030001
-        raw_data = f.read(1024)
-        palette = list(grouper(raw_data, 4))
-
+    palette = load_palette_from_file(palette_file, 4)  # 4 bytes: 0x01000300
     face_w, face_h = 96, 120
 
     def loader() -> bytes:
@@ -385,12 +380,7 @@ def san7_face(game_dir, face_file, palette_file, out_dir, prefix):
         palette_file = os.path.join(game_dir, 'P_Kao.s7')
         face_file = os.path.join(game_dir, 'Kaodata.s7')
 
-    palette: list
-    with open(palette_file, 'rb') as f:
-        f.read(4)  # 0x00030001
-        raw_data = f.read(1024)
-        palette = list(grouper(raw_data, 4))
-
+    palette = load_palette_from_file(palette_file, 4)  # 4 bytes: 0x01000300
     face_w, face_h = 96, 120
 
     def loader() -> bytes:
@@ -445,25 +435,21 @@ def san8_face(game_dir, face_file, palette_file, size, out_dir, prefix):
         palette_file = os.path.join(game_dir, 'P_MAIN.S8')
         face_file = os.path.join(game_dir, 'g_maindy.s8')
 
-    palette: list
-    with open(palette_file, 'rb') as f:
-        """
-        P_MAIN.S8
+    """
+    P_MAIN.S8
 
-        MAGIC WORD      8       bytes  # 0x4B4F4549 = 'KOEI'
-        OFFSET          8       bytes  # 0x4C06 = 1612
-        SIZE            8       bytes  # size of BOFFSETS (block offsets), 0x3406 = 1588
-        BOFFSETS        4x397   bytes  # 397 = SIZE / 4
-        UNKNOWN        12       bytes  # 0xFFFFFFFF 0x00000000 0x00000000
+    MAGIC WORD      8       bytes  # 0x4B4F4549 = 'KOEI'
+    OFFSET          8       bytes  # 0x4C06 = 1612
+    SIZE            8       bytes  # size of BOFFSETS (block offsets), 0x3406 = 1588
+    BOFFSETS        4x397   bytes  # 397 = SIZE / 4
+    UNKNOWN        12       bytes  # 0xFFFFFFFF 0x00000000 0x00000000
 
-        BLOCK N      1024       bytes  # offset = OFFSET + BOFFSETS[N] + 12
-                                       # size = BOFFSETS[N+1] - BOFFSETS[N]
+    BLOCK N      1024       bytes  # offset = OFFSET + BOFFSETS[N] + 12
+                                    # size = BOFFSETS[N+1] - BOFFSETS[N]
 
-        KAO PALETTE = BLOCK 4 (0-base)
-        """
-        f.seek(5720)  # 4096(BOFFSETS[4]) + 1612 + 12
-        raw_data = f.read(1024)
-        palette = list(grouper(raw_data, 4))
+    KAO PALETTE = BLOCK 4 (0-base)
+    """
+    palette = load_palette_from_file(palette_file, 5720)  # 5720 = 4096 + 1612 + 12, 4096: BOFFSETS[4]
 
     face_w, face_h = 64, 80  # 小頭像
     offset = 24374192  # 9380 + 24364800 + 12 = 24,374,192
@@ -524,11 +510,7 @@ def san9_face(game_dir, palette_file, face_file, image_size, out_dir, prefix):
     ./dekoei.py san9 face -p /Volumes/common/San9WPK/P_Face.s9 -f /Volumes/common/San9WPK/G_FaceS.s9 --image-size=S
     ./dekoei.py san9 face -p /Volumes/common/San9WPK/P_Face.s9 -f /Volumes/common/San9WPK/G_FaceL.s9 --image-size=L
     """
-    palette: list
-    with open(palette_file, 'rb') as f:
-        f.seek(44)
-        raw_data = f.read(1024)
-        palette = list(grouper(raw_data, 4))
+    palette = load_palette_from_file(palette_file, 44)
 
     image_size_spec = {"L": (240, 240), "S": (64, 80), "T": (32, 40)}
     face_w, face_h = image_size_spec[image_size]

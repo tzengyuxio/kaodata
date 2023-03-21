@@ -50,9 +50,16 @@ def column_arguments(h: H) -> dict:
     }
 
 
-def color_codes_to_palette(color_codes):
+def color_codes_to_palette(color_codes) -> list[tuple[int, int, int]]:
     # ['#FF0000', '#00FF00', '#0000FF'] --> ((255, 0, 0), (0, 255, 0), (0, 0, 255))
     return [(int(x[1:3], base=16), int(x[3:5], base=16), int(x[5:7], base=16)) for x in color_codes]
+
+
+def load_palette_from_file(filename, offset=0) -> list[tuple[int, int, int]]:
+    with open(filename, 'rb') as f:
+        f.seek(offset)
+        raw_data = f.read(1024)
+        return list(grouper(raw_data, 4))
 
 
 def grouper(iterable, n, incomplete='fill', fillvalue=None):
