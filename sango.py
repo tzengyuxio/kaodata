@@ -521,9 +521,7 @@ def san9_face(game_dir, palette_file, face_file, image_size, out_dir, prefix):
     face_w, face_h = image_size_spec[image_size]
 
     # TODO(yuxioz):
-    #   - [ ] loader 應該改用 iterator/generator 方式重寫過，不要一次回傳一大塊 bytes
     #   - [ ] 改使用 game_dir, 指定色盤與頭像檔太繁瑣
-    #   - [ ] 將 6,7,8,9 的 load palette 抽出
     def stream() -> typing.Generator[bytes, None, None]:
         with open(face_file, 'rb') as f:
             data_size = face_w * face_h
@@ -531,7 +529,6 @@ def san9_face(game_dir, palette_file, face_file, image_size, out_dir, prefix):
             count = file_size // data_size
 
             f.seek(4)  # skip header
-            face_data = bytearray()
             for _ in range(count):
                 f.read(16)  # skip info(block_size, ?, width, height)
                 yield f.read(data_size)
