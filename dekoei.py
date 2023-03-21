@@ -22,23 +22,6 @@ def dekoei():
 
 
 @click.group()
-def san9():
-    """三國志IX
-
-    \b
-    File List:
-        G_FaceL.s9
-        G_FaceS.s9
-        G_FaceT.s9
-        G_FacLPK.s9
-        G_FacSPK.s9
-        G_FacTPK.s9
-        P_Face.s9
-    """
-    pass
-
-
-@click.group()
 def san10():
     """三國志X
 
@@ -179,40 +162,11 @@ def ls11_decode_data(data, dictionary, orig_size):
     return bytes(original_bytes)
 
 
-def load_palette(filename, start_pos):
-    with open(filename, 'rb') as f:
-        _ = f.read(start_pos)
-        data = f.read(1024)
-        color_bytes = [data[i:i+4] for i in range(0, 1024, 4)]
-        colors = [tuple([x[i] for i in range(4)]) for x in color_bytes]
-        return colors
-
-
 def load_palette_data(data: bytes, reverse: bool):
     color_bytes = [data[i:i+4] for i in range(0, 1024, 4)]
     if reverse:
         return [tuple(x[2::-1]+x[3:]) for x in color_bytes]  # [b, g, r, a] -> [r, g, b, a]
     return [tuple(x) for x in color_bytes]
-
-
-def san9_load_face(filename, palette, face_w=64, face_h=80, count=9999, start_pos=0):
-    data_size = face_w * face_h
-    file_size = os.stat(filename).st_size
-    count = min(count, file_size // data_size)
-
-    face_images = []
-    with open(filename, 'rb') as f:
-        f.seek(start_pos)
-        for _ in range(count):
-            f.read(16)
-            face_data = f.read(data_size)
-            image = Image.new('RGB', (face_w, face_h), color=(55, 55, 55))
-            for px_idx in range(data_size):
-                x, y = px_idx % face_w, px_idx // face_w
-                color_index = face_data[px_idx]
-                image.putpixel((x, y), palette[color_index])
-            face_images.append(image)
-    return face_images
 
 
 def san10_load_face(filename, count):
@@ -576,36 +530,6 @@ def decode_gt1g(data, idx=0):
 
 
 @click.command(help="顏CG解析")
-@click.option('-p', '--palette', 'palette_file', help="色盤", required=True)
-@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
-@click.option('-t', '--tag', 'tag', default='SAN9', help='')
-@click.option('--prefix', 'prefix', help='')
-@click.option('--image-size',
-              type=click.Choice(['L', 'S', 'T'], case_sensitive=False),
-              help='頭像尺寸 L 240x240,\n S:  64x 80,\n T: 32x40')
-def san9_face(palette_file, face_file, tag, image_size, prefix):
-    """三國志 IX 頭像解析
-
-    ./dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FaceL.s9  -t SAN9L   --image-size=L --prefix "SAN9_WIN_FL"
-    ./dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FacLPK.s9 -t SAN9PKL --image-size=L --prefix "SAN9PK_WIN_FL"
-    ./dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FaceS.s9  -t SAN9S   --image-size=S --prefix "SAN9_WIN_FS"
-    ./dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FacSPK.s9 -t SAN9PKS --image-size=S --prefix "SAN9PK_WIN_FS"
-    ./dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FaceT.s9  -t SAN9T   --image-size=T --prefix "SAN9_WIN_FT"
-    ./dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FacTPK.s9 -t SAN9PKT --image-size=T --prefix "SAN9PK_WIN_FT"
-    """
-    image_size_spec = {"L": (240, 240), "S": (64, 80), "T": (32, 40)}
-    face_w, face_h = image_size_spec[image_size]
-    palette = load_palette(palette_file, start_pos=44)
-    face_images = san9_load_face(face_file, palette, face_h=face_h, face_w=face_w, start_pos=4)
-    save_faces(face_images, face_w, face_h, prefix, out_dir=tag)
-
-
-@click.command()
-def san9_person():
-    pass
-
-
-@click.command(help="顏CG解析")
 @click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
 @click.option('-t', '--tag', 'tag', default='SAN10', help='')
 @click.option('--count', 'count', default=9999, help='')
@@ -834,8 +758,6 @@ def san13_face(data_file, tag, prefix, count):
         #     print(idx, img_sp, img_sz, start_pos+img_sp)
 
 
-san9.add_command(san9_face, "face")
-san9.add_command(san9_person, "person")
 san10.add_command(san10_face, "face")
 san11.add_command(san11_face, "face")
 san12.add_command(san12_face, "face")
@@ -846,6 +768,8 @@ dekoei.add_command(san3)
 dekoei.add_command(san4)
 dekoei.add_command(san5)
 dekoei.add_command(san6)
+dekoei.add_command(san7)
+dekoei.add_command(san8)
 dekoei.add_command(san9)
 dekoei.add_command(san10)
 dekoei.add_command(san11)

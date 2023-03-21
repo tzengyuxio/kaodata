@@ -1,8 +1,5 @@
 import click
-from collections import namedtuple
-from struct import unpack
 from rich.console import Console
-from rich.table import Table
 from utils import *
 from san_person import *
 
@@ -319,10 +316,18 @@ def san6():
 
 @click.command(help='顏 CG 解析')
 @click.option('-d', '--dir', 'game_dir', help="遊戲目錄")
+@click.option('-f', '--face', 'face_file', help="頭像檔案")
 @click.option('-p', '--palette', 'palette_file', default='Palette.S6', help="色盤檔案")
 @click.option('--out_dir', 'out_dir', default='_output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
-def san6_face(game_dir, palette_file, out_dir, prefix):
+def san6_face(game_dir, face_file, palette_file, out_dir, prefix):
+    """
+    ./dekoei.py san6 face -d /Volumes/common/San6WPK/
+    """
+    if game_dir is not None:
+        palette_file = os.path.join(game_dir, 'Palette.S6')
+        face_file = os.path.join(game_dir, 'Kaodata.s6')
+
     palette: list
     with open(palette_file, 'rb') as f:
         f.read(4)  # 0x00030001
@@ -332,7 +337,7 @@ def san6_face(game_dir, palette_file, out_dir, prefix):
     face_w, face_h = 96, 120
 
     def loader() -> bytes:
-        with open('KAO/SAN6_KAODATA.S6', 'rb') as f:
+        with open(face_file, 'rb') as f:
             """
             KAODATA.S6
 
@@ -365,24 +370,35 @@ def san7():
 
 @click.command(help='顏 CG 解析')
 @click.option('-d', '--dir', 'game_dir', help="遊戲目錄")
-@click.option('-p', '--palette', 'palette_file', default='Palette.S6', help="色盤檔案")
+@click.option('-f', '--face', 'face_file', help="頭像檔案")
+@click.option('-p', '--palette', 'palette_file', default='P_Kao.s7', help="色盤檔案")
 @click.option('--out_dir', 'out_dir', default='_output', help='output directory')
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
-def san7_face(game_dir, palette_file, out_dir, prefix):
+def san7_face(game_dir, face_file, palette_file, out_dir, prefix):
+    """
+    P_Kao.s7    Palette file
+    Kaodata.s7  KAO file
+
+    ./dekoei.py san7 face -d /Volumes/common/San7WPK/
+    """
+    if game_dir is not None:
+        palette_file = os.path.join(game_dir, 'P_Kao.s7')
+        face_file = os.path.join(game_dir, 'Kaodata.s7')
+
     palette: list
     with open(palette_file, 'rb') as f:
-        f.read(4)  # TODO: what is this?
+        f.read(4)  # 0x00030001
         raw_data = f.read(1024)
         palette = list(grouper(raw_data, 4))
 
     face_w, face_h = 96, 120
 
     def loader() -> bytes:
-        with open('KAO/san7_KAODATA.S6', 'rb') as f:
+        with open(face_file, 'rb') as f:
             """
-            KAODATA.S6
+            KAODATA.S7
 
-            CNT             4       bytes
+            CNT             4       bytes  # 0xA602 = 678
             OFFSET INFO     16*CNT  bytes
                 POS             4   bytes
                 SZ              4   bytes
@@ -399,3 +415,148 @@ def san7_face(game_dir, palette_file, out_dir, prefix):
 
 
 san7.add_command(san7_face, 'face')
+
+##############################################################################
+
+
+@click.group()
+def san8():
+    """三國志VIII"""
+    pass
+
+
+@click.command(help='顏 CG 解析')
+@click.option('-d', '--dir', 'game_dir', help="遊戲目錄")
+@click.option('-f', '--face', 'face_file', help="頭像檔案")
+@click.option('-p', '--palette', 'palette_file', default='P_Kao.s7', help="色盤檔案")
+@click.option('-s', '--size', 'size', default='small', help="頭像大小 (small, large)")
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+def san8_face(game_dir, face_file, palette_file, size, out_dir, prefix):
+    """
+    P_MAIN.S8       Palette file
+    g_maindy.s8     Kao file
+
+    ./dekoei.py san8 face -d /Volumes/common/San8WPK/
+    """
+    is_large = True if size.lower() == 'large' else False
+
+    if game_dir is not None:
+        palette_file = os.path.join(game_dir, 'P_MAIN.S8')
+        face_file = os.path.join(game_dir, 'g_maindy.s8')
+
+    palette: list
+    with open(palette_file, 'rb') as f:
+        """
+        P_MAIN.S8
+
+        MAGIC WORD      8       bytes  # 0x4B4F4549 = 'KOEI'
+        OFFSET          8       bytes  # 0x4C06 = 1612
+        SIZE            8       bytes  # size of BOFFSETS (block offsets), 0x3406 = 1588
+        BOFFSETS        4x397   bytes  # 397 = SIZE / 4
+        UNKNOWN        12       bytes  # 0xFFFFFFFF 0x00000000 0x00000000
+
+        BLOCK N      1024       bytes  # offset = OFFSET + BOFFSETS[N] + 12
+                                       # size = BOFFSETS[N+1] - BOFFSETS[N]
+
+        KAO PALETTE = BLOCK 4 (0-base)
+        """
+        f.seek(5720)  # 4096(BOFFSETS[4]) + 1612 + 12
+        raw_data = f.read(1024)
+        palette = list(grouper(raw_data, 4))
+
+    face_w, face_h = 64, 80  # 小頭像
+    offset = 24374192  # 9380 + 24364800 + 12 = 24,374,192
+    if is_large:
+        face_w, face_h = 160, 180  # 大頭像
+        offset = 9380+12
+
+    def loader() -> bytes:
+        with open(face_file, 'rb') as f:
+            count = 846
+            f.seek(offset)
+            return f.read(face_w * face_h * count)
+
+    extract_images('', face_w, face_h, palette, out_dir, prefix, data_loader=loader)
+
+
+san8.add_command(san8_face, 'face')
+
+##############################################################################
+
+
+@click.group()
+def san9():
+    """三國志IX
+
+    \b
+    File List:
+        G_FaceL.s9
+        G_FaceS.s9
+        G_FaceT.s9
+        G_FacLPK.s9
+        G_FacSPK.s9
+        G_FacTPK.s9
+        P_Face.s9
+    """
+    pass
+
+
+@click.command(help="顏CG解析")
+@click.option('-d', '--dir', 'game_dir', help="遊戲目錄")
+@click.option('-p', '--palette', 'palette_file', help="色盤", required=True)
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+@click.option('--image-size',
+              type=click.Choice(['L', 'S', 'T'], case_sensitive=False),
+              help='頭像尺寸 L 240x240,\n S:  64x 80,\n T: 32x40')
+def san9_face(game_dir, palette_file, face_file, image_size, out_dir, prefix):
+    """三國志 IX 頭像解析
+
+    dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FaceL.s9  -t SAN9L   --image-size=L --prefix "SAN9_WIN_FL"
+    dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FacLPK.s9 -t SAN9PKL --image-size=L --prefix "SAN9PK_WIN_FL"
+    dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FaceS.s9  -t SAN9S   --image-size=S --prefix "SAN9_WIN_FS"
+    dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FacSPK.s9 -t SAN9PKS --image-size=S --prefix "SAN9PK_WIN_FS"
+    dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FaceT.s9  -t SAN9T   --image-size=T --prefix "SAN9_WIN_FT"
+    dekoei.py san9 face -p KAO/SAN9_P_Face.s9 -f KAO/SAN9_G_FacTPK.s9 -t SAN9PKT --image-size=T --prefix "SAN9PK_WIN_FT"
+
+    ./dekoei.py san9 face -p /Volumes/common/San9WPK/P_Face.s9 -f /Volumes/common/San9WPK/G_FaceS.s9 --image-size=S
+    ./dekoei.py san9 face -p /Volumes/common/San9WPK/P_Face.s9 -f /Volumes/common/San9WPK/G_FaceL.s9 --image-size=L
+    """
+    palette: list
+    with open(palette_file, 'rb') as f:
+        f.seek(44)
+        raw_data = f.read(1024)
+        palette = list(grouper(raw_data, 4))
+
+    image_size_spec = {"L": (240, 240), "S": (64, 80), "T": (32, 40)}
+    face_w, face_h = image_size_spec[image_size]
+
+    # TODO(yuxioz):
+    #   - [ ] loader 應該改用 iterator/generator 方式重寫過，不要一次回傳一大塊 bytes
+    #   - [ ] 改使用 game_dir, 指定色盤與頭像檔太繁瑣
+    #   - [ ] 將 6,7,8,9 的 load palette 抽出
+    def loader() -> bytes:
+        with open(face_file, 'rb') as f:
+            data_size = face_w * face_h
+            file_size = os.stat(face_file).st_size
+            count = file_size // data_size
+
+            f.seek(4)  # skip header
+            face_data = bytearray()
+            for _ in range(count):
+                f.read(16)  # skip info(block_size, ?, width, height)
+                face_data.extend(f.read(data_size))
+            return bytes(face_data)
+
+    extract_images('', face_w, face_h, palette, out_dir, prefix, data_loader=loader)
+
+
+@click.command()
+def san9_person():
+    pass
+
+
+san9.add_command(san9_face, "face")
+san9.add_command(san9_person, "person")
