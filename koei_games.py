@@ -262,6 +262,12 @@ def lempe():
         "France", "Holland", "Bavaria", "Denmark", "Turkey", "Italy", "Venice", "Naples",
         "Portugal", "Sweden", "Spain", "Prussia", "Russia", "Austria", "England", "Dublin"
     ]
+
+    "places": {
+        "start_pos": 7404,
+        "data_size": 34,
+        "data_count": 45 # 1-46?
+    },
     """
     pass
 
