@@ -488,7 +488,7 @@ def san9():
         G_FacLPK.s9
         G_FacSPK.s9
         G_FacTPK.s9
-        P_Face.s9
+        P_Face.s9       武將CG色盤
     """
     pass
 
@@ -515,13 +515,17 @@ def san9_face(game_dir, palette_file, face_file, image_size, out_dir, prefix):
     ./dekoei.py san9 face -p /Volumes/common/San9WPK/P_Face.s9 -f /Volumes/common/San9WPK/G_FaceS.s9 --image-size=S
     ./dekoei.py san9 face -p /Volumes/common/San9WPK/P_Face.s9 -f /Volumes/common/San9WPK/G_FaceL.s9 --image-size=L
     """
-    palette = load_palette_from_file(palette_file, 44)
-
     image_size_spec = {"L": (240, 240), "S": (64, 80), "T": (32, 40)}
+    # face_filenames = {"L": "G_FaceL.s9", "S": "G_FaceS.s9", "T": "G_FaceT.s9"}
+    pk_face_filenames = {"L": "G_FacLPK.s9", "S": "G_FacSPK.s9", "T": "G_FacTPK.s9"}
+
+    if game_dir is not None:
+        palette_file = os.path.join(game_dir, 'P_FACE.s9')
+        face_file = os.path.join(game_dir, pk_face_filenames[image_size])
+
+    palette = load_palette_from_file(palette_file, 44)
     face_w, face_h = image_size_spec[image_size]
 
-    # TODO(yuxioz):
-    #   - [ ] 改使用 game_dir, 指定色盤與頭像檔太繁瑣
     def stream() -> typing.Generator[bytes, None, None]:
         with open(face_file, 'rb') as f:
             data_size = face_w * face_h
