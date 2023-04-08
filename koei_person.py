@@ -9,6 +9,74 @@ from utils import H, to_unicode_name, kao2str
 # - `~table_title`
 # - `~headers`
 
+
+##############################################################################
+# 項劉紀
+#
+# MAIN.EXE:264260
+#
+# 8D808948000000 BAB3B30000000000 1A 27  # 項羽
+# 97AB964D000000 D8ADB3CEB3000000 29 DB  # 劉邦
+# EA7C957A000000 B9DEB2CC00000000 27 0E  # 黥布
+# ^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^ ^^ ^^
+# name(7bytes)   kana(8bytes)     歲(206BC 時歲數)
+#
+# SNDT1.KR1
+#
+# 000000 6464 64 54 50 0004  # 項羽 (外交C)
+# 100005 4343 38 63 43 001B  # 劉邦
+# 20000B 5A5A 5B 4A 49 003A  # 黥布 (外交D)
+# 190006 5151 51 5D 60 002B  # 韓信 (外交C)
+# 090000 2727 16 57 5C 0010  # 范增 (外交B)
+#                            # 項莊 (外交D)
+#        ^^^^ ^^ ^^ ^^   ^^
+#        体力  |  |  |    前半在劇本1只有 0-5,F 七種值
+#    Stamina  |  |  用兵力 Intel
+#             |  統率力 Charm
+#             戰鬥力 Skill
+#
+# 其他可能欄位: 所屬勢力
+
+kohryuki_format = '<7s8sBxxxxBBBBBxB'  # 17+10 bytes
+
+KOHRYUKIPersonRaw = namedtuple(
+    'KOHRYUKIPersonRaw', 'name kana age stamina stamina2 skill charm intel mask')
+
+
+class KOHRYUKIPerson(KOHRYUKIPersonRaw):
+    id: int
+
+    # 下列字超出了 Shift_JIS 的範圍，KOEI 有自行造字
+    # 但解碼時需先使用 shift_jis_2004 以避免錯誤，解碼後再轉換為對應字
+    extends = {'浘': '卬', '洱': '噲', '浥': '靳', '洹': '芮', '洮': '酈', '櫧': '蒯'}
+
+    def __getitem__(self, key):
+        if key == 'name':
+            kanji = self.name.decode('shift_jis_2004')
+            for k, v in self.extends.items():
+                kanji = kanji.replace(k, v)
+            return kanji
+        if key == 'face':
+            return str(self.id)
+        if key == 'kana':
+            return self.kana.decode('shift_jis')
+        if hasattr(self, key):
+            return str(getattr(self, key))
+        else:
+            raise KeyError(key)
+
+
+kohryuki_table_title = '項劉記 人物表'
+kohryuki_headers = [H('id', 'ID', 'id'), H('name', '姓名', 'name'), H('face', '顏', 'face'),
+                    H('kana', '假名', 'base'),
+                    H('age', '齡', 'base'),
+                    H('stamina', '體力', 'base'),
+                    H('skill', '戰鬥力', 'base'),
+                    H('charm', '統率力', 'base'),
+                    H('intel', '用兵力', 'base'),
+                    ]
+
+
 ##############################################################################
 # 拿破崙
 #

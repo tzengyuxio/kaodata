@@ -1,5 +1,5 @@
 from collections import namedtuple
-from utils import H, to_unicode_name, kao2str
+from utils import H, to_unicode_name, kao2str, grouper
 
 ##############################################################################
 # Common data
@@ -124,6 +124,9 @@ class S2Person(S2PersonRawTaiki):
     def __getitem__(self, key):
         if key == 'name':
             return to_unicode_name(self.name)
+        if key == 'name_code':
+            name_code = self.name.hex().upper().replace('00', '')
+            return ' '.join([name_code[i:i+4] for i in range(0, len(name_code), 4)])
         if key == 'face':
             return kao2str(self.face, 220, True)
         if hasattr(self, key):
@@ -134,6 +137,7 @@ class S2Person(S2PersonRawTaiki):
 
 s2_table_title = '三國志II 人物表'
 s2_headers = [H('id', 'ID', 'id'), H('name', '姓名', 'name'), H('face', '顏', 'face'),
+            #   H('name_code', '姓名編碼', 'name'),
               H('intl', '才智', 'base'),
               H('war', '戰力', 'base'),
               H('chrm', '號召', 'base'),

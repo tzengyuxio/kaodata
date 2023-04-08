@@ -56,7 +56,40 @@ def kohryuki_face(face_file, out_dir, prefix):
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix)
 
 
+@click.command(help='人物資料解析')
+@click.option('-d', '--dir', 'game_dir', help="遊戲目錄", required=True)
+def kohryuki_person(game_dir):
+    """
+    人物資料解析
+
+    MAIN.EXE    人名 (offset: 264260, 17bytes)
+    SNDT1.KR1   劇本1
+    SNDT2.KR1   劇本2
+    SNDT3.KR1   劇本3
+    SNDT4.KR1   劇本4
+
+    ./dekoei.py lempe person -d ~/DOSBox/kanso/
+    """
+    main_exe = os.path.join(game_dir, 'MAIN.EXE')
+    def person_loader(main_exe, scenario=0):
+        sn_file = os.path.join(game_dir, 'SNDT{}.KR1'.format(scenario+1))
+        with open(main_exe, 'rb') as fmain, open(sn_file, 'rb') as fsn:
+            fmain.seek(264260)
+            fsn.seek(4)
+            person_data = []
+            for _ in range(92):
+                d1 = fmain.read(17)
+                d2 = fsn.read(10)
+                person_data.append(b''.join([d1, d2]))
+        return person_data
+    person_data = person_loader(main_exe)
+
+    persons = load_person(person_data, kohryuki_format, KOHRYUKIPerson)
+    print_table(kohryuki_table_title, kohryuki_headers, persons)
+
+
 kohryuki.add_command(kohryuki_face, 'face')
+kohryuki.add_command(kohryuki_person, 'person')
 
 ##############################################################################
 
