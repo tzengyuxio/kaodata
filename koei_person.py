@@ -124,6 +124,20 @@ LEMPEPersonRaw = namedtuple(
 class LEMPEPerson(LEMPEPersonRaw):
     id: int
     lookups = {0: 'D', 1: 'C', 2: 'B', 3: 'A'}
+    nations = [('France', '法蘭西'), ('Holland', '荷蘭'), ('Bavaria', '巴伐利亞'), ('Denmark', '丹麥'), ('Turkey', '土耳其'), ('Italy', '意大利'), ('Venice', '威尼斯'),
+               ('Naples', '那普斯'), ('Portugal', '葡萄牙'), ('Sweden', '瑞典'), ('Spain', '西班牙'), ('Prussia', '普魯士'), ('Russia', '俄羅斯'), ('Austria', '奧地利'), ('England', '英格蘭')]
+    cities = [('Dublin', '都柏林'), ('Edinburgh', '愛丁堡'), ('Liverpool', '利物浦'), ('Bristol', '布里斯托爾'),
+              ('London', '倫敦'), ('Christiana', '奧斯陸'), ('Stockholm', '斯德哥爾摩'), ('Copenhagen', '哥本哈根'),
+              ('Amsterdam', '阿姆斯特丹'), ('Lubeck', '魯貝克'), ('Berlin', '柏林'), ('Warsaw', '華沙'),
+              ('Konigsberg', '柯尼斯堡'), ('St.Petersburg', '聖彼得堡'), ('Minsk', '明斯克'), ('Smolensk', '斯摩棱斯克'),
+              ('Moscow', '莫斯科'), ('Kiev', '基輔'), ('Klausenburg', '克勞森堡'), ('Bucharest', '布加勒斯特'),
+              ('Budapest', '布達佩斯'), ('Vienna', '維也納'), ('Prague', '布拉格'), ('Munich', '慕尼黑'),
+              ('Frankfurt', '法蘭克福'), ('Lille', '里爾'), ('St.Malo', '聖美祿'), ('Paris', '巴黎'),
+              ('Bordeaux', '布倫'), ('Lyon', '里昂'), ('Marseilles', '馬賽'), ('Milano', '米蘭'),
+              ('Florence', '佛羅倫斯'), ('Venice', '威尼斯'), ('Sarajevo', '薩拉耶沃'), ('Belgrade', '貝爾格萊德'),
+              ('Rome', '羅馬'), ('Naples', '那不勒斯'), ('Istanbul', '伊斯坦堡'), ('Athens', '雅典'),
+              ('Corunna', '克魯納'), ('Lisbon', '里斯本'), ('Gibraltar', '直布羅陀'), ('Madrid', '馬德里'),
+              ('Saragossa', '薩拉戈薩'), ('Barcelona', '巴塞羅那')]
 
     def __getitem__(self, key):
         if key == 'name':
@@ -166,6 +180,10 @@ class LEMPEPerson(LEMPEPersonRaw):
         if key == 'luck':
             v = (self.masks & 0b00000100)
             return '幸運' if v else ''
+        if key == 'city':
+            return self.cities[self.city][1]
+        if key == 'nation':
+            return self.nations[self.nation][1]
         if hasattr(self, key):
             return str(getattr(self, key))
         else:

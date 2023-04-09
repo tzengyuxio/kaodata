@@ -10,6 +10,7 @@ from PIL import Image
 from rich.console import Console
 from rich.progress import track
 from rich.table import Table
+from pytablewriter import JsonTableWriter, MarkdownTableWriter
 from ls11 import ls11_decode, LS11_MAGIC
 
 console = Console()
@@ -397,7 +398,7 @@ def to_unicode_name(s: bytes) -> str:
     """
     if 32 <= s[0] <= 126:
         try:
-            return s.decode('ascii')
+            return s.decode('ascii').strip('\x00')
         except UnicodeDecodeError:
             print('decode error: {}'.format(s))
     global cns11643_unicode_table
@@ -418,7 +419,8 @@ def kao2str(face: int, upper_limit: int = -1, one_base: bool = False) -> str:
         return hex(face)[2:].upper()
 
     face = face - 1 if one_base else face
-    return '[red]'+str(face)
+    # return '[red]'+str(face)
+    return str(face)
 
 
 def build_table(title: str, headers: list[H]) -> Table:
@@ -435,22 +437,41 @@ def build_table(title: str, headers: list[H]) -> Table:
 def load_person(data: list[bytes], format: str, ptype: typing.Type) -> list:
     persons = []
     for idx, pd in enumerate(data):
-        p = ptype._make(struct.unpack(format, pd))
-        p.id = idx
-        persons.append(p)
+        try:
+            p = ptype._make(struct.unpack(format, pd))
+            p.id = idx
+            persons.append(p)
+        except struct.error:
+            print('struct error: [{}]{}'.format(idx, pd))
     return persons
 
 
-def print_csv(headers: list, persons: list) -> None:
+def print_table(title: str, headers: list, persons: list, to: str = 'rich') -> None:
     """
-    Print a list of persons in csv format.
+    Print a list of persons in table format.
     """
-    print(','.join([h.text for h in headers]))
-    for p in persons:
-        print(','.join([p[h.name] for h in headers]))
+    if to == 'csv':
+        print(','.join([h.text for h in headers]))
+        for p in persons:
+            print(','.join([p[h.name] for h in headers]))
+        return
+    elif to == 'json':
+        writer = JsonTableWriter(
+            table_name=title,
+            headers=[h.text for h in headers],
+            value_matrix=[[p[h.name] for h in headers] for p in persons],
+        )
+        writer.write_table()
+        return
+    elif to == 'markdown' or to == 'md':
+        writer = MarkdownTableWriter(
+            table_name=title,
+            headers=[h.text for h in headers],
+            value_matrix=[[p[h.name] for h in headers] for p in persons],
+        )
+        writer.write_table()
+        return
 
-
-def print_table(title: str, headers: list, persons: list) -> None:
     table = build_table(title, headers)
     for p in persons:
         table.add_row(*[p[h.name] for h in headers])

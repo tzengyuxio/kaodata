@@ -58,7 +58,8 @@ def kohryuki_face(face_file, out_dir, prefix):
 
 @click.command(help='人物資料解析')
 @click.option('-d', '--dir', 'game_dir', help="遊戲目錄", required=True)
-def kohryuki_person(game_dir):
+@click.option('-t', '--to', 'to', help="Specify output format", default='rich', type=click.Choice(['rich', 'csv', 'json', 'markdown', 'md']))
+def kohryuki_person(game_dir, to):
     """
     人物資料解析
 
@@ -71,6 +72,7 @@ def kohryuki_person(game_dir):
     ./dekoei.py lempe person -d ~/DOSBox/kanso/
     """
     main_exe = os.path.join(game_dir, 'MAIN.EXE')
+
     def person_loader(main_exe, scenario=0):
         sn_file = os.path.join(game_dir, 'SNDT{}.KR1'.format(scenario+1))
         with open(main_exe, 'rb') as fmain, open(sn_file, 'rb') as fsn:
@@ -85,7 +87,7 @@ def kohryuki_person(game_dir):
     person_data = person_loader(main_exe)
 
     persons = load_person(person_data, kohryuki_format, KOHRYUKIPerson)
-    print_table(kohryuki_table_title, kohryuki_headers, persons)
+    print_table(kohryuki_table_title, kohryuki_headers, persons, to)
 
 
 kohryuki.add_command(kohryuki_face, 'face')
@@ -319,7 +321,8 @@ def lempe_face(face_file, out_dir, prefix):
 
 @click.command(help='人物資料解析')
 @click.option('-f', '--file', 'file', help="劇本檔案", required=True)
-def lempe_person(file):
+@click.option('-t', '--to', 'to', help="Specify output format", default='rich', type=click.Choice(['rich', 'csv', 'json', 'markdown', 'md']))
+def lempe_person(file, to):
     """
     人物資料解析
     TODO:
@@ -334,8 +337,8 @@ def lempe_person(file):
     ./dekoei.py lempe person -f ~/DOSBox/lempereur/NPDATA.CIM
     """
     def person_loader(file, scenario=0):
-        offsets1 = [8934]
-        offsets2 = [13274]
+        offsets1 = [8934, 22204, 35474, 48744, 62014]
+        offsets2 = [x-8930 for x in offsets1]  # offsets2 = [4, 13274, 26544, 39814, 53084]
         read_count, read_size1, read_size2 = 255, 17, 15
         person_data = []
         with open(file, 'rb') as f:
@@ -346,10 +349,10 @@ def lempe_person(file):
                 d2 = f.read(read_size2)
                 person_data.append(b''.join([d1, d2]))
         return person_data
-    person_data = person_loader(file)
+    person_data = person_loader(file, scenario=0)
 
     persons = load_person(person_data, lempe_format, LEMPEPerson)
-    print_table(lempe_table_title, lempe_headers, persons)
+    print_table(lempe_table_title, lempe_headers, persons, to)
 
 
 lempe.add_command(lempe_face, 'face')

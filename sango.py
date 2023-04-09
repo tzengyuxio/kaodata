@@ -45,7 +45,8 @@ def san1_face(face_file, out_dir, prefix):
 @click.command(help='人物資料解析')
 @click.option('-f', '--file', 'file', help="劇本檔案", required=True)
 @click.option('-s', '--scenario', 'scenario', help="劇本", default=0)
-def san1_person(file, scenario):
+@click.option('-t', '--to', 'to', help="Specify output format", default='rich', type=click.Choice(['rich', 'csv', 'json', 'markdown', 'md']))
+def san1_person(file, scenario, to):
     """
     人物資料解析
 
@@ -63,7 +64,7 @@ def san1_person(file, scenario):
     person_data = person_loader(file, scenario)
 
     persons = load_person(person_data, s1_format, S1Person)
-    print_table(s1_table_title, s1_headers, persons)
+    print_table(s1_table_title, s1_headers, persons, to)
 
 
 san1.add_command(san1_face, 'face')
@@ -114,7 +115,8 @@ def san2_face(face_file, out_dir, prefix):
 @click.command(help='人物資料解析')
 @click.option('-f', '--file', 'file', help="劇本檔案", required=True)
 @click.option('-t', '--taiki-file', 'taiki_file', help="待機檔案", required=True)
-def san2_person(file, taiki_file):
+@click.option('--to', 'to', help="Specify output format", default='rich', type=click.Choice(['rich', 'csv', 'json', 'markdown', 'md']))
+def san2_person(file, taiki_file, to):
     """
     人物資料解析
 
@@ -151,8 +153,7 @@ def san2_person(file, taiki_file):
     person_data = person_loader(file, taiki_file)
 
     persons = load_person(person_data, s2_format_taiki, S2Person)
-    # print_csv(s2_headers, persons)
-    print_table(s2_table_title, s2_headers, persons)
+    print_table(s2_table_title, s2_headers, persons, to)
 
 
 san2.add_command(san2_face, 'face')
@@ -210,7 +211,8 @@ def san3_face(face_file, out_dir, prefix):
 
 @click.command(help='人物資料解析')
 @click.option('-f', '--file', 'file', help="劇本檔案", required=True)
-def san3_person(file):
+@click.option('--to', 'to', help="Specify output format", default='rich', type=click.Choice(['rich', 'csv', 'json', 'markdown', 'md']))
+def san3_person(file, to):
     """
     人物資料解析
 
@@ -230,7 +232,7 @@ def san3_person(file):
     person_data = person_loader(file)
 
     persons = load_person(person_data, s3_format, S3Person)
-    print_table(s3_table_title, s3_headers, persons)
+    print_table(s3_table_title, s3_headers, persons, to)
 
 
 san3.add_command(san3_face, 'face')

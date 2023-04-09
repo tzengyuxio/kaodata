@@ -1,3 +1,6 @@
+# Notes of Koei Games
+
+雜七雜八的都記在這邊
 
 ## 獨立戰爭
 
@@ -19,3 +22,9 @@
 | EVENT.IDX    | 22 (0x16)  | 92 (0x5C)    | 92           | 88                 |                        |
 | FACE.IDX     | 43 (0x2B)  | 1200 (0x4B0) | --           | 1196               | 1200 處是 0x40005000LE |
 | GRAPHICS.IDX | 142 (0x8E) | 572 (0x23C)  | --           | 568                | 572 處是 0x04001800LE  |
+
+## 魔眼邪神
+
+- 日: ケルトの聖戦 (日文 wiki 好像找不到條目?)
+- 英: Celtic Tales: Balor of the Evil Eye
+- [魔眼邪神存檔分析 \- KPHEROS\# \- lechi的創作 \- 巴哈姆特](https://home.gamer.com.tw/artwork.php?sn=5227637)
