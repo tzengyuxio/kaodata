@@ -144,37 +144,37 @@ class LEMPEPerson(LEMPEPersonRaw):
             return to_unicode_name(self.name)
         if key == 'face':
             return kao2str(self.face, 255)
-        if key == 'pol':  # politics
-            v = (self.ability1 & 0b11000000) >> 6
-            return self.lookups[v]
-        if key == 'eco':  # economics
-            v = (self.ability1 & 0b00110000) >> 4
-            return self.lookups[v]
-        if key == 'sup':  # support
-            v = (self.ability1 & 0b00001100) >> 2
-            return self.lookups[v]
-        if key == 'bld':  # building
+        if key == 'pol':  # 政治 Politics
             v = (self.ability1 & 0b00000011)
             return self.lookups[v]
-        if key == 'cmd':
-            v = (self.ability2 & 0b11000000) >> 6
+        if key == 'fin':  # 財政 Finance
+            v = (self.ability1 & 0b00001100) >> 2
             return self.lookups[v]
-        if key == 'inf':  # infantry
-            v = (self.ability2 & 0b00110000) >> 4
+        if key == 'sup':  # 補給 Supplyy
+            v = (self.ability1 & 0b00110000) >> 4
             return self.lookups[v]
-        if key == 'cav':  # cavalry
+        if key == 'bui':  # 建設 Build
+            v = (self.ability1 & 0b11000000) >> 6
+            return self.lookups[v]
+        if key == 'ldr':  # 指揮 Leader
+            v = (self.ability2 & 0b00000011)
+            return self.lookups[v]
+        if key == 'inf':  # 步兵 Infantry
             v = (self.ability2 & 0b00001100) >> 2
             return self.lookups[v]
-        if key == 'arty':  # artillery
-            v = (self.ability2 & 0b00000011)
+        if key == 'cav':  # 騎兵 Cavalry
+            v = (self.ability2 & 0b00110000) >> 4
+            return self.lookups[v]
+        if key == 'art':  # 砲兵 Artillry
+            v = (self.ability2 & 0b11000000) >> 6
             return self.lookups[v]
         if key == 'calm':
             v = (self.masks & 0b11000000)
             return '冷靜' if v == 0b01000000 else '單純' if v == 0b10000000 else ''
-        if key == 'brv':
+        if key == 'brave':
             v = (self.masks & 0b00110000)
-            return '勇氣' if v == 0b00010000 else '膽小' if v == 0b00100000 else ''
-        if key == 'chrm':
+            return '勇猛' if v == 0b00010000 else '臆病' if v == 0b00100000 else ''
+        if key == 'charm':
             v = (self.masks & 0b00001000)
             return '魅力' if v else ''
         if key == 'luck':
@@ -193,16 +193,16 @@ class LEMPEPerson(LEMPEPersonRaw):
 lempe_table_title = '拿破崙 人物表'  # "L'Empereur Person Data Table"
 lempe_headers = [H('id', 'ID', 'id'), H('name', '姓名', 'name'), H('face', '顏', 'face'),
                  H('pol', '政治', 'base'),
-                 H('eco', '經濟', 'base'),
+                 H('fin', '財政', 'base'),
                  H('sup', '補給', 'base'),
-                 H('bld', '建設', 'base'),
-                 H('cmd', '統帥', 'base'),
+                 H('bui', '建設', 'base'),
+                 H('ldr', '指揮', 'base'),
                  H('inf', '步兵', 'base'),
                  H('cav', '騎兵', 'base'),
-                 H('arty', '砲兵', 'base'),
+                 H('art', '砲兵', 'base'),
                  H('calm', '冷靜', 'mask'),
-                 H('brv', '勇敢', 'mask'),
-                 H('chrm', '魅力', 'mask'),
+                 H('brave', '勇敢', 'mask'),
+                 H('charm', '魅力', 'mask'),
                  H('luck', '幸運', 'mask'),
                  H('city', '城市', 'state'),
                  H('nation', '國籍', 'state'),

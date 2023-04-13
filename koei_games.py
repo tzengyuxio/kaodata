@@ -322,7 +322,8 @@ def lempe_face(face_file, out_dir, prefix):
 @click.command(help='人物資料解析')
 @click.option('-f', '--file', 'file', help="劇本檔案", required=True)
 @click.option('-t', '--to', 'to', help="Specify output format", default='rich', type=click.Choice(['rich', 'csv', 'json', 'markdown', 'md']))
-def lempe_person(file, to):
+@click.option('-s', '--scenario', 'scenario', help="Specify scenario number (starts from 1)", default=0)
+def lempe_person(file, to, scenario):
     """
     人物資料解析
     TODO:
@@ -335,8 +336,10 @@ def lempe_person(file, to):
     NPDATA.CIM
 
     ./dekoei.py lempe person -f ~/DOSBox/lempereur/NPDATA.CIM
+    ./dekoei.py lempe person -f ~/DOSBox/empereur/NPDATA.CIM --to csv --scenario 2 > lempe-persons-s2-en.csv
+    ./dekoei.py lempe person -f ~/DOSBox/lempereur/NPDATA.CIM --to csv --scenario 4 > lempe-persons-s4-zh.csv
     """
-    def person_loader(file, scenario=0):
+    def person_loader(file, scenario=scenario-1):
         offsets1 = [8934, 22204, 35474, 48744, 62014]
         offsets2 = [x-8930 for x in offsets1]  # offsets2 = [4, 13274, 26544, 39814, 53084]
         read_count, read_size1, read_size2 = 255, 17, 15
