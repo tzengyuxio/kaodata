@@ -70,15 +70,22 @@ def kohryuki_person(game_dir, to, scenario):
     SNDT3.KR1   劇本3
     SNDT4.KR1   劇本4
 
+    TODO(yuxioz): 中日文版差異
+        - main.exe filename
+        - main.exe offset
+        - decode name with different encoding
+
     ./dekoei.py kohryuki person -d ~/DOSBox/kanso/
     ./dekoei.py kohryuki person -d ~/DOSBox/kanso/ --to csv > PERSONS_TABLE/kohryuki-persons-s1.csv
     """
-    main_exe = os.path.join(game_dir, 'MAIN.EXE')
+    # main_exe = os.path.join(game_dir, 'MAIN.EXE')
+    main_exe = os.path.join(game_dir, 'output.000.exe')
 
     def person_loader(main_exe, scenario=scenario):
         sn_file = os.path.join(game_dir, 'SNDT{}.KR1'.format(scenario+1))
         with open(main_exe, 'rb') as fmain, open(sn_file, 'rb') as fsn:
-            fmain.seek(264260)
+            # fmain.seek(264260) # 日文版
+            fmain.seek(276180) # 中文版
             fsn.seek(4)
             person_data = []
             for _ in range(92):

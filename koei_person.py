@@ -13,7 +13,7 @@ from utils import H, to_unicode_name, kao2str
 ##############################################################################
 # 項劉紀
 #
-# MAIN.EXE:264260
+# MAIN.EXE:264260(日文版), 276180(中文版, depklite)
 #
 # 8D808948000000 BAB3B30000000000 1A 27  # 項羽
 # 97AB964D000000 D8ADB3CEB3000000 29 DB  # 劉邦
@@ -52,6 +52,8 @@ class KOHRYUKIPerson(KOHRYUKIPersonRaw):
 
     def __getitem__(self, key):
         if key == 'name':
+            return to_unicode_name(self.name[:6])
+        if key == 'name-ja':
             kanji = self.name.decode('shift_jis_2004').strip('\x00')
             for k, v in self.extends.items():
                 kanji = kanji.replace(k, v)
