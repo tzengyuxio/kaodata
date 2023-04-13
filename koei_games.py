@@ -59,7 +59,8 @@ def kohryuki_face(face_file, out_dir, prefix):
 @click.command(help='人物資料解析')
 @click.option('-d', '--dir', 'game_dir', help="遊戲目錄", required=True)
 @click.option('-t', '--to', 'to', help="Specify output format", default='rich', type=click.Choice(['rich', 'csv', 'json', 'markdown', 'md']))
-def kohryuki_person(game_dir, to):
+@click.option('-s', '--scenario', 'scenario', help="Specify scenario number (starts from 1)", default=0)
+def kohryuki_person(game_dir, to, scenario):
     """
     人物資料解析
 
@@ -69,11 +70,12 @@ def kohryuki_person(game_dir, to):
     SNDT3.KR1   劇本3
     SNDT4.KR1   劇本4
 
-    ./dekoei.py lempe person -d ~/DOSBox/kanso/
+    ./dekoei.py kohryuki person -d ~/DOSBox/kanso/
+    ./dekoei.py kohryuki person -d ~/DOSBox/kanso/ --to csv > PERSONS_TABLE/kohryuki-persons-s1.csv
     """
     main_exe = os.path.join(game_dir, 'MAIN.EXE')
 
-    def person_loader(main_exe, scenario=0):
+    def person_loader(main_exe, scenario=scenario):
         sn_file = os.path.join(game_dir, 'SNDT{}.KR1'.format(scenario+1))
         with open(main_exe, 'rb') as fmain, open(sn_file, 'rb') as fsn:
             fmain.seek(264260)
@@ -328,10 +330,7 @@ def lempe_person(file, to, scenario):
     人物資料解析
     TODO:
       - [ ] check names of following person in game
-        - [019] 圣西里
         - [183] 默函特二世
-      - [ ] 同時處理中英文姓名
-      - [ ] 處理國名與地名
 
     NPDATA.CIM
 

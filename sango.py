@@ -51,6 +51,8 @@ def san1_person(file, scenario, to):
     人物資料解析
 
     SINADATA.DAT
+
+    ./dekoei.py san1 person -s 1 -f ~/dosbox/san1/SINADATA.DAT --to csv > PERSONS_TABLE/san1_persons_s1.csv
     """
     def person_loader(file, scenario=0):
         offsets = [4326, 16816, 29306, 41796, 54286]
@@ -217,6 +219,9 @@ def san3_person(file, to):
     人物資料解析
 
     SNDATA1B.CIM
+
+    ./dekoei.py san3 person -f ~/dosbox/SAN3/SNDATA1B.CIM --to csv > PERSONS_TABLE/san3_persons_s1.csv
+    ./dekoei.py san3 person -f ~/dosbox/SAN3/SNDATA6B.CIM --to csv > PERSONS_TABLE/san3_persons_s6.csv
     """
 
     def person_loader(file):

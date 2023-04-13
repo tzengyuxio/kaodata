@@ -52,14 +52,14 @@ class KOHRYUKIPerson(KOHRYUKIPersonRaw):
 
     def __getitem__(self, key):
         if key == 'name':
-            kanji = self.name.decode('shift_jis_2004')
+            kanji = self.name.decode('shift_jis_2004').strip('\x00')
             for k, v in self.extends.items():
                 kanji = kanji.replace(k, v)
             return kanji
         if key == 'face':
             return str(self.id)
         if key == 'kana':
-            return self.kana.decode('shift_jis')
+            return self.kana.decode('shift_jis').strip('\x00')
         if hasattr(self, key):
             return str(getattr(self, key))
         else:
