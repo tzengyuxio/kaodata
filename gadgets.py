@@ -8,8 +8,61 @@ from pytablewriter import MarkdownTableWriter
 from pytablewriter.style import Style
 from utils import to_unicode_name
 
+
+kohryuki_names = ['項羽', '劉邦', '英布', '韓信', '范增', '章邯', '項莊', '司馬欣', '董翳', '章平',
+                  '趙歇', '陳餘', '張耳', '蕭公角', '田假', '鄭昌', '周殷', '鍾離昧', '夏說', '李左車',
+                  '項聲', '曹咎', '張逸', '武涉', '張良', '陳嬰', '項伯', '夏侯嬰', '蕭何', '周勃',
+                  '盧綰', '曹參', '審食其', '隨何', '周蘭', '陳平', '魏無知', '灌嬰', '紀信', '雍齒',
+                  '周苛', '樅公', '袁生', '鄭忠', '劉賈', '柴武', '楊喜', '呂馬童', '王翳', '楊武',
+                  '呂勝', '季布', '周昌', '叔孫通', '婁敬', '彭越', '孔聚', '陳賀', '楊', '申陽',
+                  '共敖', '張敖', '田榮', '龍且', '王陵', '貫高', '田橫', '田廣', '王吸', '薛歐',
+                  '任敖', '田既', '田光', '田吸', '侯公', '魏豹', '薛公', '丁公', '欒布', '臧荼',
+                  '司馬卬', '樊噲', '靳彊', '吳芮', '酈商', '蒯徹', '酈食其', '呂澤', '陸賈', '樓煩',
+                  '韓王信', '利幾']
+
+
+def kohryuki_combine_persons():
+    CSV_ZH = 'PERSONS_TABLE/kohryuki-persons-s1-zh.csv'
+    CSV_JA = 'PERSONS_TABLE/kohryuki-persons-s1-ja.csv'
+    with open(CSV_ZH, 'r', encoding='utf-8') as fzh, open(CSV_JA, 'r', encoding='utf-8') as fja:
+        csv_zh = csv.reader(fzh)
+        csv_ja = csv.reader(fja)
+
+        header = next(csv_zh)
+        header = header[0:2] + ['中文版', '日文版'] + header[2:]
+        next(csv_ja)
+
+        persons = []
+        for row_zh, row_ja in zip(csv_zh, csv_ja):
+            id = row_zh[0]
+            name = kohryuki_names[int(id)]
+            name_value = f'[{name}](/人物/秦漢之際/{name})'
+            person = [id, name_value] + [row_zh[1], row_ja[1]] + row_ja[2:]
+            persons.append(person)
+
+    writer = MarkdownTableWriter(
+        table_name='項劉記 人物資料',
+        headers=header,
+        value_matrix=persons,
+        column_styles=[
+            Style(),
+            Style(),
+            Style(),
+            Style(),
+            Style(),
+            Style(),
+            Style(),
+            Style(),
+            Style(),
+            Style(),
+            Style(),
+        ]
+    )
+    writer.write_table()
+
 # 18 位帝國元帥之一，但未出現在遊戲中
 # https://zh.wikipedia.org/wiki/纪尧姆·布律纳
+
 
 lempe_persons_wiki = [
     'https://zh.wikipedia.org/wiki/拿破仑一世',  # [0]
@@ -76,7 +129,8 @@ lempe_persons_wiki = [
     'https://zh.wikipedia.org/wiki/小威廉·皮特',
     '',  # 巴紹特, Basaust, バスアースト (1762)
     '',  # 比藍特, Bylandt, ビラント (1763)
-    '',  # [64] 戈登, Gordon, ゴードン (1764), Gordon 太多不知道是誰, https://en.wikipedia.org/wiki/George_Gordon,_5th_Duke_of_Gordon
+    # [64] 戈登, Gordon, ゴードン (1764), Gordon 太多不知道是誰, https://en.wikipedia.org/wiki/George_Gordon,_5th_Duke_of_Gordon
+    '',
     '',  # 奧蘭治, Orange, オレンジ (1766)
     'https://en.wikipedia.org/wiki/John_Moore_(Irish_politician)',
     'https://zh.wikipedia.org/wiki/第一代安格尔西侯爵亨利·佩吉特',  # Uxbridge
@@ -222,5 +276,6 @@ def lempe_list_cities_and_nations():
 
 
 if __name__ == '__main__':
-    lempe_combine_persons()  # 拿破崙 合併中英文人名
+    kohryuki_combine_persons()  # 項劉記 合併中日文人名
+    # lempe_combine_persons()  # 拿破崙 合併中英文人名
     # lempe_list_cities_and_nations()  # 拿破崙 列出所有城市與國家

@@ -48,12 +48,12 @@ class KOHRYUKIPerson(KOHRYUKIPersonRaw):
 
     # 下列字超出了 Shift_JIS 的範圍，KOEI 有自行造字
     # 但解碼時需先使用 shift_jis_2004 以避免錯誤，解碼後再轉換為對應字
-    extends = {'浘': '卬', '洱': '噲', '浥': '靳', '洹': '芮', '洮': '酈', '櫧': '蒯'}
+    extends = {'浘': '卭', '洱': '噲', '浥': '靳', '洹': '芮', '洮': '酈', '櫧': '蒯'}
 
     def __getitem__(self, key):
-        if key == 'name':
+        if key == 'name-zh':
             return to_unicode_name(self.name[:6])
-        if key == 'name-ja':
+        if key == 'name':
             kanji = self.name.decode('shift_jis_2004').strip('\x00')
             for k, v in self.extends.items():
                 kanji = kanji.replace(k, v)
