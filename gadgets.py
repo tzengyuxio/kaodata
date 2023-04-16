@@ -4,7 +4,7 @@ import csv
 import os
 import requests
 from bs4 import BeautifulSoup
-from pytablewriter import MarkdownTableWriter
+from pytablewriter import MarkdownTableWriter, UnicodeTableWriter
 from pytablewriter.style import Style
 from utils import to_unicode_name, to_koeitw
 
@@ -30,6 +30,7 @@ def kohryuki_combine_persons():
 
         header = next(csv_zh)
         header = header[0:2] + ['中文版', '日文版'] + header[2:]
+        # header = header[0:2] + header[2:]
         next(csv_ja)
 
         persons = []
@@ -38,8 +39,11 @@ def kohryuki_combine_persons():
             name = kohryuki_names[int(id)]
             name_value = f'[{name}](/人物/秦漢之際/{name})'
             person = [id, name_value] + [row_zh[1], row_ja[1]] + row_ja[2:]
+            # person = [id, name] + row_ja[2:]
             persons.append(person)
 
+    # header = [h.replace('力', '') if len(h) > 2 else h for h in header]
+    # writer = UnicodeTableWriter(
     writer = MarkdownTableWriter(
         table_name='項劉記 人物資料',
         headers=header,
@@ -278,11 +282,13 @@ def lempe_list_cities_and_nations():
 def encode_text(text: str):
     return to_koeitw(text)
 
+
 def extract_sui_strings():
     HOME_DIR = os.path.expanduser('~')
     with open(HOME_DIR+'/DOSBox/SUI/output.000.exe', 'rb') as f:
-        f.seek(177612)
-        for i in range(34):
+        # f.seek(177612)
+        f.seek(192605)
+        for i in range(2):
             byte = f.read(1)
             result = b''
             while byte != b'' and byte != b'\x00':
@@ -291,15 +297,34 @@ def extract_sui_strings():
             print(i, to_unicode_name(result))
 
 
+def get_name_list(filename: str, count: int):
+    with open(filename, 'r', encoding='utf-8') as f:
+        names = ['' for _ in range(count)]
+        csv_reader = csv.reader(f)
+        header = next(csv_reader)
+        for row in csv_reader:
+            name, kao = row[1], row[2]
+            # test kao is a number or not
+            if kao.isdigit() and len(kao) < 4:
+                try:
+                    names[int(kao)] = name
+                except:
+                    print(kao, name)
+        print(names)
+
+
 if __name__ == '__main__':
-    ## 將中文轉換成 KOEI-TW 編碼
-    # ss = ['曾索', '潘金蓮', '少女', '生意人', '富人']
+    # 將中文轉換成 KOEI-TW 編碼
+    # ss = ['徽宗', '匈奴']
     # kt = [encode_text(s) for s in ss]
     # for s, k in zip(ss, kt):
     #     print('{}: {} -> {}'.format(s, encode_text(s).hex().upper(), to_unicode_name(k)))
 
-    extract_sui_strings()
+    # extract_sui_strings()
 
     # kohryuki_combine_persons()  # 項劉記 合併中日文人名
     # lempe_combine_persons()  # 拿破崙 合併中英文人名
     # lempe_list_cities_and_nations()  # 拿破崙 列出所有城市與國家
+
+    # get_name_list('PERSONS_TABLE/san2_persons.csv', 219) # 三國志II 人物名單
+    get_name_list('PERSONS_TABLE/san3_persons_s1.csv', 307)  # 三國志III 人物名單
