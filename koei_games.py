@@ -84,7 +84,7 @@ def kohryuki_person(game_dir, to, scenario):
     def person_loader(main_exe, scenario=scenario):
         sn_file = os.path.join(game_dir, 'SNDT{}.KR1'.format(scenario+1))
         with open(main_exe, 'rb') as fmain, open(sn_file, 'rb') as fsn:
-            fmain.seek(264260) # 日文版
+            fmain.seek(264260)  # 日文版
             # fmain.seek(276180) # 中文版
             fsn.seek(4)
             person_data = []
@@ -534,8 +534,11 @@ def suikoden_face(face_file, out_dir, prefix):
 
 
 @click.command(help='人物資料解析')
-@click.option('-f', '--file', 'file', help="劇本檔案", required=True)
-def suikoden_person(file):
+@click.option('-d', '--dir', 'game_dir', help="遊戲目錄", required=True)
+@click.option('-t', '--to', 'to', help="Specify output format", default='rich', type=click.Choice(['rich', 'csv', 'json', 'markdown', 'md']))
+@click.option('-s', '--scenario', 'scenario', help="Specify scenario number (starts from 1)", default=0)
+@click.option('-f', '--file', 'file', help="劇本檔案")
+def suikoden_person(game_dir, to, scenario, file):
     """
     人物資料解析
 
@@ -543,7 +546,28 @@ def suikoden_person(file):
     SUIDATA2.CIM
     SUIDATA3.CIM
     SUIDATA4.CIM
+
+    ./dekoei.py suikoden person -d ~/DOSBox/sui/
+    ./dekoei.py suikoden person -d ~/DOSBox/sui/ --to csv > PERSONS_TABLE/suikoden-persons-s1.csv
     """
+    def person_loader(scenario=scenario):
+        sn_file = os.path.join(game_dir, 'SUIDATA{}.CIM'.format(scenario+1))
+        with open(sn_file, 'rb') as fsn:
+            offset1 = 7124  # name
+            offset2 = 4  # ability
+            read_count, read_size1, read_size2 = 255, 45, 22
+            person_data = []
+            for i in range(read_count):
+                fsn.seek(offset1+read_size1*i)
+                d1 = fsn.read(read_size1)
+                fsn.seek(offset2+read_size2*i)
+                d2 = fsn.read(read_size2)
+                person_data.append(b''.join([d1, d2]))
+        return person_data
+    person_data = person_loader(scenario)
+
+    persons = load_person(person_data, suikoden_format, SUIKODENPerson)
+    print_table(suikoden_table_title, suikoden_headers, persons, to)
 
 
 suikoden.add_command(suikoden_face, 'face')

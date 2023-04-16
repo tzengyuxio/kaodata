@@ -1,6 +1,7 @@
 from collections import namedtuple
 import inspect
 import io
+from functools import reduce
 from itertools import zip_longest
 import math
 import os
@@ -15,6 +16,7 @@ from ls11 import ls11_decode, LS11_MAGIC
 
 console = Console()
 cns11643_unicode_table = {}
+unicode_koeitw_table : dict[str, bytes] = {}
 
 BGCOLOR = (55, 55, 55)
 
@@ -363,6 +365,31 @@ def order_of_koei_tw(c: typing.Union[bytes, int]) -> int:
         return -1
 
 
+def reverse_order_of_koei_tw(order: int) -> bytes:
+    """
+    Given a zero-based order, returns the corresponding koei-tw character as bytes.
+    """
+    if order < 0:
+        return b'\x00\x00'
+
+    order += 94  # hi[0x92] starts from 94
+    hi_offset, lo_offset = divmod(order, 188)
+    hi, lo = hi_offset + 0x92, -1
+    if 0 <= lo_offset < 10:
+        lo = 0x30 + lo_offset
+    elif 10 <= lo_offset < 36:
+        lo = 0x41 + lo_offset - 10
+    elif 36 <= lo_offset < 62:
+        lo = 0x61 + lo_offset - 36
+    elif 62 <= lo_offset:
+        lo = 0x80 + lo_offset - 62
+
+    if lo == -1:
+        return b'\x00\x00'
+
+    return bytes([hi, lo])
+
+
 def cns_from_order(n: int) -> str:
     """
     Return the cns11643 code from order.
@@ -406,6 +433,24 @@ def to_unicode_name(s: bytes) -> str:
         cns11643_unicode_table = load_cns11643_unicode_table()
     words = struct.unpack('>' + 'H'*int(len(s)/2), s)
     return ''.join([cns11643_unicode_table[cns_from_order(order_of_koei_tw(w))] for w in words])
+
+
+def to_koeitw(s: str) -> bytes:
+    """
+    Convert a string to koeitw.
+    """
+    global cns11643_unicode_table
+    if len(cns11643_unicode_table) == 0:
+        cns11643_unicode_table = load_cns11643_unicode_table()
+    global unicode_koeitw_table
+    if len(unicode_koeitw_table) == 0:
+        for i in range(5401):
+            u_char = cns11643_unicode_table[cns_from_order(i)]
+            k_char = reverse_order_of_koei_tw(i)
+            # print(i, u_char, k_char.hex())
+            unicode_koeitw_table[u_char] = k_char
+
+    return reduce(lambda x, y: x + y, [unicode_koeitw_table[x] for x in s])
 
 
 def kao2str(face: int, upper_limit: int = -1, one_base: bool = False) -> str:

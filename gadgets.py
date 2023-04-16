@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 from pytablewriter import MarkdownTableWriter
 from pytablewriter.style import Style
-from utils import to_unicode_name
+from utils import to_unicode_name, to_koeitw
 
 
 kohryuki_names = ['項羽', '劉邦', '英布', '韓信', '范增', '章邯', '項莊', '司馬欣', '董翳', '章平',
@@ -275,7 +275,31 @@ def lempe_list_cities_and_nations():
     writer.write_table()
 
 
+def encode_text(text: str):
+    return to_koeitw(text)
+
+def extract_sui_strings():
+    HOME_DIR = os.path.expanduser('~')
+    with open(HOME_DIR+'/DOSBox/SUI/output.000.exe', 'rb') as f:
+        f.seek(177612)
+        for i in range(34):
+            byte = f.read(1)
+            result = b''
+            while byte != b'' and byte != b'\x00':
+                result += byte
+                byte = f.read(1)
+            print(i, to_unicode_name(result))
+
+
 if __name__ == '__main__':
-    kohryuki_combine_persons()  # 項劉記 合併中日文人名
+    ## 將中文轉換成 KOEI-TW 編碼
+    # ss = ['曾索', '潘金蓮', '少女', '生意人', '富人']
+    # kt = [encode_text(s) for s in ss]
+    # for s, k in zip(ss, kt):
+    #     print('{}: {} -> {}'.format(s, encode_text(s).hex().upper(), to_unicode_name(k)))
+
+    extract_sui_strings()
+
+    # kohryuki_combine_persons()  # 項劉記 合併中日文人名
     # lempe_combine_persons()  # 拿破崙 合併中英文人名
     # lempe_list_cities_and_nations()  # 拿破崙 列出所有城市與國家
