@@ -1,0 +1,85 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    box-sizing: border-box;
+    padding: 20px;
+  }
+  
+  .settings {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .drag-drop {
+    border: 1px dashed gray;
+    width: 300px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .result {
+    margin-top: 10px;
+    width: 300px;
+    height: 300px;
+    background-color: #f0f0f0;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
+  .image-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 10px;
+  }
+  
+  .clipboard {
+    position: fixed;
+    top: 120px;
+    right: 20px;
+    width: 300px;
+    border: 1px solid gray;
+    background-color: #f0f0f0;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 150px);
+    grid-gap: 10px;
+    margin-bottom: 10px;
+    overflow-y: auto;
+  }
+  
+  .image-grid img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .clipboard button {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  hr {
+    margin: 0;
+    padding: 0;
+    height: 1px;
+    border: none;
+    border-top: 1px solid gray;
+  }
