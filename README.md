@@ -60,7 +60,7 @@ Early KOEI Games Data Research
 | LEMPE     | 拿破崙                      | 1990 |   DOS    |   ○   |        |                     |
 | ROYAL     | 魔法皇冠                    | 1991 | DOS,PC98 |       |        |                     |
 | (ROYAL2)  | 王國興亡錄                  | 1999 |          |       |        |                     |
-| SUIKODEN  | 水滸傳・天命之誓            | 1989 | DOS,PC98 |       |        |                     |
+| SUIKODEN  | 水滸傳・天命之誓            | 1989 | DOS,PC98 |   ○   |        |                     |
 | TK2       | 提督之決斷II                | 1993 |   DOS    |       |        |                     |
 | WINNING   | 光榮賽馬／賽馬大亨          | 1993 |   DOS    |       |        |                     |
 | (EIKETSU) | 三國志英傑傳                | 1995 |          |       |        |                     |

@@ -310,7 +310,9 @@ def get_name_list(filename: str, count: int):
                     names[int(kao)] = name
                 except:
                     print(kao, name)
-        print(names)
+        # print(names)
+        for x in names:
+            print(x)
 
 
 if __name__ == '__main__':
@@ -327,4 +329,5 @@ if __name__ == '__main__':
     # lempe_list_cities_and_nations()  # 拿破崙 列出所有城市與國家
 
     # get_name_list('PERSONS_TABLE/san2_persons.csv', 219) # 三國志II 人物名單
-    get_name_list('PERSONS_TABLE/san3_persons_s1.csv', 307)  # 三國志III 人物名單
+    # get_name_list('PERSONS_TABLE/san3_persons_s1.csv', 307)  # 三國志III 人物名單
+    get_name_list('PERSONS_TABLE/suikoden_persons_s1.csv', 255)  # 水滸傳 人物名單
