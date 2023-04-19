@@ -22,7 +22,7 @@ export function fileToImageDataArray(
       faceData,
       width,
       height,
-      palette,
+      colors,
       halfHeight
     );
   }
@@ -30,11 +30,11 @@ export function fileToImageDataArray(
   return imageDataArray;
 }
 
-function dataToImage(faceData, width, height, palette, halfHeight) {
+function dataToImage(faceData, width, height, colors, halfHeight) {
   const image = new ImageData(width, height);
   const colorIndexes = toColorIndexes(faceData);
   for (let i = 0; i < colorIndexes.length; i++) {
-    let color = palette[colorIndexes[i]];
+    let color = colors[colorIndexes[i]];
     if (halfHeight) {
       let x = i % width;
       let y = Math.floor(i / width);
