@@ -3,6 +3,29 @@ import getGameInfos from "../data/gameData.js";
 import { fileToImageDataArray } from "../utils.js";
 import "../styles/Editor.css";
 
+function ImageFigure({ imageData }) {
+  const [imgUrl, setImgUrl] = useState(null);
+
+  useEffect(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
+    const ctx = canvas.getContext("2d");
+    ctx.putImageData(imageData, 0, 0);
+    canvas.toBlob((blob) => {
+      const url = URL.createObjectURL(blob);
+      setImgUrl(url);
+    });
+  }, [imageData]);
+
+  return (
+    <figure>
+      {imgUrl && <img src={imgUrl} alt={`Image ${imageData.id}`} />}
+      <figcaption>{`Image ${imageData.id}`}</figcaption>
+    </figure>
+  );
+}
+
 function Editor() {
   const [gameList, setGameList] = useState([]);
   const [selectedGame, setSelectedGame] = useState(null);
@@ -31,6 +54,20 @@ function Editor() {
     setUploadBtnDisabled(false);
   }
 
+  function ImagePreview({ imageDataArray }) {
+    console.log("ImagePreview called");
+    if (!Array.isArray(imageDataArray)) {
+      return null;
+    }
+    return (
+      <div>
+        {imageDataArray.map((imageData) => (
+          <ImageFigure key={imageData.id} imageData={imageData} />
+        ))}
+      </div>
+    );
+  }
+
   const handleFileSelected = (event) => {
     const gameSelect = document.querySelector("#game-select");
     const theGame = getGameInfos()[gameSelect.value];
@@ -52,42 +89,8 @@ function Editor() {
 
       // 在這裡編寫選擇文件後的處理邏輯
       const imageList = document.querySelector("#image-list");
-      let id = 1; // ID 起始值為 1
-      for (const imageData of imageDataArray) {
-        // 建立一個新的 <figure> 標籤元素
-        const figure = document.createElement("figure");
-        figure.setAttribute("id", `image-${id}`);
-
-        // 建立一個新的 <img> 標籤，並將圖片資料設為其 src 屬性
-        // const img = document.createElement("img");
-        // img.src = URL.createObjectURL(
-        //   new Blob([imageData], { type: "image/png" })
-        // );
-        const canvas = document.createElement("canvas");
-        canvas.width = imageData.width;
-        canvas.height = imageData.height;
-        const ctx = canvas.getContext("2d");
-        ctx.putImageData(imageData, 0, 0);
-        canvas.toBlob((blob) => {
-          const url = URL.createObjectURL(blob);
-          const img = new Image();
-          img.src = url;
-          figure.appendChild(img);
-        });
-
-        // 建立一個新的 <figcaption> 標籤，並將圖說設為其內容
-        const caption = document.createElement("figcaption");
-        caption.textContent = `Image ${id}`;
-
-        // 在 <figure> 標籤元素中添加 <img> 和 <figcaption> 子元素
-        // figure.appendChild(img);
-        figure.appendChild(caption);
-
-        // 將 <figure> 標籤元素添加到 image-list 元素中
-        imageList.appendChild(figure);
-
-        id++;
-      }
+      // let id = 1; // ID 起始值為 1
+      imageList.appendChild(<ImagePreview imageDataArray={imageDataArray} />);
     };
   };
 
