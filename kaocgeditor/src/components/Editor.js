@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import getGameInfos from "../data/gameData.js";
 import { fileToImageDataArray } from "../utils.js";
 import "../styles/Editor.css";
+import UploadImage from "./UploadImage.js";
 
 function GameSelect(props) {
   const handleChange = (e) => {
@@ -44,7 +45,13 @@ function ImageFigure(props) {
 
   console.log("Rendering ImageFigure");
   return (
-    <figure id={`face-${props.imageKey + 1}`}>
+    <figure
+      id={`face-${props.imageKey + 1}`}
+      className={`image-figure ${props.selected ? "selected" : ""} ${
+        props.modified ? "modified" : ""
+      }`}
+      onClick={props.onClick}
+    >
       {imgUrl && <img src={imgUrl} alt={`Image ${faceIndex}`} />}
       <figcaption>
         {faceIndex}
@@ -56,6 +63,28 @@ function ImageFigure(props) {
 }
 
 function FaceList(props) {
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [modified, setModified] = useState([]);
+
+  function handleFigureClick(e, index) {
+    e.stopPropagation();
+    if (selectedIndex === index) {
+      setSelectedIndex(null);
+    } else {
+      setSelectedIndex(index);
+      setModified(modified => [...modified.slice(0, index), false, ...modified.slice(index + 1)]);
+    }
+  }
+
+  const handleApplyClick = () => {
+    setModified(modified => [...modified.slice(0, selectedIndex), true, ...modified.slice(selectedIndex + 1)]);
+  };
+
+  const handleSaveClick = () => {
+    setModified(modified => modified.map(() => false));
+    setSelectedIndex(null);
+  };
+
   if (!props.imageDataArray) {
     return (
       <div className="image-list" id="image-list">
@@ -65,15 +94,37 @@ function FaceList(props) {
   }
   return (
     <div className="image-list">
+      <Apply disabled={selectedIndex === null} onClick={handleApplyClick} />
+      <Save disabled={!modified.some(val => val)} onClick={handleSaveClick} />
+      <br />
       {props.imageDataArray.map((imageData, index) => (
         <ImageFigure
           key={index}
           imageKey={index}
           imageData={imageData}
           selectedGame={props.selectedGame}
+          selected={selectedIndex == index}
+          modified={modified[index]}
+          onClick={e => handleFigureClick(e, index)}
         ></ImageFigure>
       ))}
     </div>
+  );
+}
+
+function Apply({ disabled, onClick }) {
+  return (
+    <button className="apply-btn" disabled={disabled} onClick={onClick}>
+      Apply
+    </button>
+  );
+}
+
+function Save({ disabled, onClick }) {
+  return (
+    <button className="save-btn" disabled={disabled} onClick={onClick}>
+      Save
+    </button>
   );
 }
 
@@ -82,6 +133,7 @@ function Editor() {
   const [selectedGame, setSelectedGame] = useState(null);
   const [UploadBtnDisabled, setUploadBtnDisabled] = useState(true);
   const [imageDataArray, setImageDataArray] = useState(() => null);
+  const [selectedFace, setSelectedFace] = useState(() => null);
 
   useEffect(() => {
     // 從 gameData.js 文件中取得遊戲數據
@@ -153,11 +205,7 @@ function Editor() {
         />
       </div>
       <div className="preview">
-        <div className="drag-drop">
-          <p>拖放圖像到此區域或</p>
-          <button>選擇圖像</button>
-        </div>
-        <div className="result"></div>
+        <UploadImage></UploadImage> →<div className="result"></div>
         <button className="apply">Apply</button>
       </div>
       <hr />
