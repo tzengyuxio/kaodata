@@ -1,11 +1,11 @@
-import { createSlice } from "@reduxjs/toolkit";
+import {createSlice} from '@reduxjs/toolkit';
 
 export const editorSlice = createSlice({
-  name: "editor",
+  name: 'editor',
   initialState: {
     gameInfos: {},
-    currentGame: "",
-    selectedFace: "",
+    currentGame: '',
+    selectedFace: '',
     modifiedFace: [],
   },
   reducers: {
@@ -27,6 +27,7 @@ export const editorSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { selectGame, selectFace, modifyFace, clearModified } = editorSlice.actions;
+export const {selectGame, selectFace, modifyFace, clearModified} =
+  editorSlice.actions;
 
 export default editorSlice.reducer;

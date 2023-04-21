@@ -1,16 +1,16 @@
 export function fileToImageDataArray(
-  buffer,
-  width,
-  height,
-  palette,
-  halfHeight,
-  count
+    buffer,
+    width,
+    height,
+    palette,
+    halfHeight,
+    count,
 ) {
   const imageDataArray = [];
 
-  const faceDataSize = halfHeight
-    ? (width * height * 3) / 8 / 2
-    : (width * height * 3) / 8;
+  const faceDataSize = halfHeight ?
+    (width * height * 3) / 8 / 2 :
+    (width * height * 3) / 8;
 
   const faceCount =
     count === -1 ? Math.floor(buffer.byteLength / faceDataSize) : count;
@@ -19,11 +19,11 @@ export function fileToImageDataArray(
   for (let i = 0; i < faceCount; i++) {
     const faceData = buffer.slice(i * faceDataSize, (i + 1) * faceDataSize);
     imageDataArray[i] = dataToImage(
-      faceData,
-      width,
-      height,
-      colors,
-      halfHeight
+        faceData,
+        width,
+        height,
+        colors,
+        halfHeight,
     );
   }
 
@@ -34,10 +34,10 @@ function dataToImage(faceData, width, height, colors, halfHeight) {
   const image = new ImageData(width, height);
   const colorIndexes = toColorIndexes(faceData);
   for (let i = 0; i < colorIndexes.length; i++) {
-    let color = colors[colorIndexes[i]];
+    const color = colors[colorIndexes[i]];
     if (halfHeight) {
-      let x = i % width;
-      let y = Math.floor(i / width);
+      const x = i % width;
+      const y = Math.floor(i / width);
       let idx = (2 * y * width + x) * 4;
       image.data[idx] = color[0];
       image.data[idx + 1] = color[1];
@@ -62,9 +62,9 @@ function toColorIndexes(data) {
   const groups = grouper(data, 3);
   const indexes = [];
 
-  groups.forEach(function (element) {
+  groups.forEach(function(element) {
     for (let i = 7; i >= 0; --i) {
-      let n =
+      const n =
         (((element[0] >> i) & 1) << 2) |
         (((element[1] >> i) & 1) << 1) |
         ((element[2] >> i) & 1);

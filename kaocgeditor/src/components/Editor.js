@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
-import getGameInfos from "../data/gameData.js";
-import { fileToImageDataArray } from "../utils.js";
-import "../styles/Editor.css";
-import UploadImage from "./UploadImage.js";
-import { useDispatch, useSelector } from "react-redux";
-import { selectGame, selectFace, modifyFace, clearModified } from "../reducers.js";
+import React, {useState, useEffect} from 'react';
+import getGameInfos from '../data/gameData.js';
+import {fileToImageDataArray} from '../utils.js';
+import '../styles/Editor.css';
+import UploadImage from './UploadImage.js';
+import {useDispatch, useSelector} from 'react-redux';
+import {selectGame, modifyFace, clearModified} from '../reducers.js';
+import PropTypes from 'prop-types';
 
 function GameSelect(props) {
   const dispatch = useDispatch();
@@ -13,7 +14,7 @@ function GameSelect(props) {
     props.setImageDataArray(null);
     dispatch(selectGame(gameId));
     props.setUploadBtnDisabled(false);
-    dispatch(clearModified())
+    dispatch(clearModified());
   };
   return (
     <select id="game-select" onChange={handleChange}>
@@ -26,15 +27,25 @@ function GameSelect(props) {
     </select>
   );
 }
+GameSelect.propTypes = {
+  gameList: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+      }),
+  ).isRequired,
+  setImageDataArray: PropTypes.func.isRequired,
+  setUploadBtnDisabled: PropTypes.func.isRequired,
+};
 
 function ImageFigure(props) {
   const [imgUrl, setImgUrl] = useState(null);
 
   useEffect(() => {
-    const canvas = document.createElement("canvas");
+    const canvas = document.createElement('canvas');
     canvas.width = props.imageData.width;
     canvas.height = props.imageData.height;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     ctx.putImageData(props.imageData, 0, 0);
     canvas.toBlob((blob) => {
       const url = URL.createObjectURL(blob);
@@ -42,18 +53,19 @@ function ImageFigure(props) {
     });
   }, [props.imageData]);
 
-  let faceIndex = props.imageKey + 1;
+  const faceIndex = props.imageKey + 1;
 
   const currentGame = useSelector((state) => state.editor.currentGame);
-  let names = getGameInfos()[currentGame].names;
-  let name = names[props.imageKey] === "" ? "(未命名)" : names[props.imageKey];
+  const names = getGameInfos()[currentGame].names;
+  const name =
+    names[props.imageKey] === '' ? '(未命名)' : names[props.imageKey];
 
-  console.log("Rendering ImageFigure");
+  console.log('Rendering ImageFigure');
   return (
     <figure
       id={`face-${props.imageKey + 1}`}
-      className={`image-figure ${props.selected ? "selected" : ""} ${
-        props.modified ? "modified" : ""
+      className={`image-figure ${props.selected ? 'selected' : ''} ${
+        props.modified ? 'modified' : ''
       }`}
       onClick={props.onClick}
     >
@@ -66,6 +78,13 @@ function ImageFigure(props) {
     </figure>
   );
 }
+ImageFigure.propTypes = {
+  imageKey: PropTypes.number.isRequired,
+  imageData: PropTypes.object.isRequired,
+  selected: PropTypes.bool.isRequired,
+  modified: PropTypes.bool.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
 
 function FaceList(props) {
   const dispatch = useDispatch();
@@ -87,7 +106,7 @@ function FaceList(props) {
   };
 
   const handleSaveClick = () => {
-    dispatch(clearModified())
+    dispatch(clearModified());
     setSelectedIndex(null);
   };
 
@@ -117,22 +136,33 @@ function FaceList(props) {
     </div>
   );
 }
+FaceList.propTypes = {
+  imageDataArray: PropTypes.arrayOf(PropTypes.object),
+};
 
-function Apply({ disabled, onClick }) {
+function Apply({disabled, onClick}) {
   return (
     <button className="apply-btn" disabled={disabled} onClick={onClick}>
       Apply
     </button>
   );
 }
+Apply.propTypes = {
+  disabled: PropTypes.bool,
+  onClick: PropTypes.func,
+};
 
-function Save({ disabled, onClick }) {
+function Save({disabled, onClick}) {
   return (
     <button className="save-btn" disabled={disabled} onClick={onClick}>
       Save
     </button>
   );
 }
+Save.propTypes = {
+  disabled: PropTypes.bool,
+  onClick: PropTypes.func,
+};
 
 function Editor() {
   const [gameList, setGameList] = useState([]);
@@ -141,36 +171,17 @@ function Editor() {
 
   useEffect(() => {
     // 從 gameData.js 文件中取得遊戲數據
-    const game_infos = getGameInfos();
+    const gameInfos = getGameInfos();
     // 根據數據建立選項
-    const list = Object.values(game_infos).map((game) => ({
+    const list = Object.values(gameInfos).map((game) => ({
       id: game.id,
       name: game.name,
     }));
     setGameList(list);
   }, []);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // 在這裡編寫提交表單的邏輯
-  };
-
-  function ImagePreview({ imageDataArray }) {
-    console.log("ImagePreview called");
-    if (!Array.isArray(imageDataArray)) {
-      return null;
-    }
-    return (
-      <div>
-        {imageDataArray.map((imageData) => (
-          <ImageFigure key={imageData.id} imageData={imageData} />
-        ))}
-      </div>
-    );
-  }
-
   const handleFileSelected = (event) => {
-    const gameSelect = document.querySelector("#game-select");
+    const gameSelect = document.querySelector('#game-select');
     const theGame = getGameInfos()[gameSelect.value];
     setImageDataArray(null);
 
@@ -180,12 +191,12 @@ function Editor() {
     reader.onload = (event) => {
       const uint8Buffer = new Uint8Array(event.target.result);
       const imageDataArray = fileToImageDataArray(
-        uint8Buffer,
-        theGame.width,
-        theGame.height,
-        theGame.palette,
-        theGame.halfHeight,
-        theGame.count
+          uint8Buffer,
+          theGame.width,
+          theGame.height,
+          theGame.palette,
+          theGame.halfHeight,
+          theGame.count,
       );
 
       setImageDataArray(imageDataArray);

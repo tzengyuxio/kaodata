@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from 'react';
 
 function UploadImage() {
   const [image, setImage] = useState(null);
@@ -12,7 +12,7 @@ function UploadImage() {
   }
 
   function handleFile(file) {
-    if (file && file.type.startsWith("image/")) {
+    if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = () => {
@@ -22,9 +22,9 @@ function UploadImage() {
   }
 
   function handleButtonClick() {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
     input.onchange = (e) => {
       const file = e.target.files[0];
       setImageFile(file);
@@ -33,6 +33,11 @@ function UploadImage() {
     input.click();
   }
 
+  /**
+   * Handle the drag over event.
+   * @param {React.DragEvent<HTMLDivElement>} e The drag over event.
+   * @return {void}
+   */
   function handleDragOver(e) {
     e.preventDefault();
   }
