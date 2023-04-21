@@ -3,12 +3,15 @@ import getGameInfos from "../data/gameData.js";
 import { fileToImageDataArray } from "../utils.js";
 import "../styles/Editor.css";
 import UploadImage from "./UploadImage.js";
+import { useDispatch, useSelector } from "react-redux";
+import { selectGame, selectFace } from "../reducers.js";
 
 function GameSelect(props) {
+  const dispatch = useDispatch();
   const handleChange = (e) => {
     const gameId = e.target.value;
     props.setImageDataArray(null);
-    props.setSelectedGame(gameId);
+    dispatch(selectGame(gameId));
     props.setUploadBtnDisabled(false);
   };
   return (
@@ -40,7 +43,8 @@ function ImageFigure(props) {
 
   let faceIndex = props.imageKey + 1;
 
-  let names = getGameInfos()[props.selectedGame].names;
+  const currentGame = useSelector((state) => state.editor.currentGame);
+  let names = getGameInfos()[currentGame].names;
   let name = names[props.imageKey] === "" ? "(未命名)" : names[props.imageKey];
 
   console.log("Rendering ImageFigure");
@@ -72,16 +76,26 @@ function FaceList(props) {
       setSelectedIndex(null);
     } else {
       setSelectedIndex(index);
-      setModified(modified => [...modified.slice(0, index), false, ...modified.slice(index + 1)]);
+      setModified((modified) => [
+        ...modified.slice(0, index),
+        false,
+        ...modified.slice(index + 1),
+      ]);
     }
   }
 
+  // This function is called when the user clicks the Apply button. It sets the
+  // modified state for the selected index to true.
   const handleApplyClick = () => {
-    setModified(modified => [...modified.slice(0, selectedIndex), true, ...modified.slice(selectedIndex + 1)]);
+    setModified((modified) => [
+      ...modified.slice(0, selectedIndex),
+      true,
+      ...modified.slice(selectedIndex + 1),
+    ]);
   };
 
   const handleSaveClick = () => {
-    setModified(modified => modified.map(() => false));
+    setModified((modified) => modified.map(() => false));
     setSelectedIndex(null);
   };
 
@@ -95,17 +109,16 @@ function FaceList(props) {
   return (
     <div className="image-list">
       <Apply disabled={selectedIndex === null} onClick={handleApplyClick} />
-      <Save disabled={!modified.some(val => val)} onClick={handleSaveClick} />
+      <Save disabled={!modified.some((val) => val)} onClick={handleSaveClick} />
       <br />
       {props.imageDataArray.map((imageData, index) => (
         <ImageFigure
           key={index}
           imageKey={index}
           imageData={imageData}
-          selectedGame={props.selectedGame}
           selected={selectedIndex == index}
           modified={modified[index]}
-          onClick={e => handleFigureClick(e, index)}
+          onClick={(e) => handleFigureClick(e, index)}
         ></ImageFigure>
       ))}
     </div>
@@ -130,7 +143,6 @@ function Save({ disabled, onClick }) {
 
 function Editor() {
   const [gameList, setGameList] = useState([]);
-  const [selectedGame, setSelectedGame] = useState(null);
   const [UploadBtnDisabled, setUploadBtnDisabled] = useState(true);
   const [imageDataArray, setImageDataArray] = useState(() => null);
   const [selectedFace, setSelectedFace] = useState(() => null);
@@ -194,7 +206,6 @@ function Editor() {
         <GameSelect
           gameList={gameList}
           setImageDataArray={setImageDataArray}
-          setSelectedGame={setSelectedGame}
           setUploadBtnDisabled={setUploadBtnDisabled}
         ></GameSelect>
         <input
@@ -209,10 +220,7 @@ function Editor() {
         <button className="apply">Apply</button>
       </div>
       <hr />
-      <FaceList
-        imageDataArray={imageDataArray}
-        selectedGame={selectedGame}
-      ></FaceList>
+      <FaceList imageDataArray={imageDataArray}></FaceList>
       <div className="clipboard">
         <h2>Clipboard</h2>
         <div className="image-grid"></div>

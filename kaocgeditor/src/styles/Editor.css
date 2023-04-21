@@ -66,12 +66,13 @@
   background-color: #f0f0f0;
   padding: 20px;
   box-sizing: border-box;
+  opacity: 0.2;
 }
 
 .image-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(2, 150px);
+  grid-template-rows: repeat(2, 10px);
   grid-gap: 10px;
   margin-bottom: 10px;
   overflow-y: auto;
