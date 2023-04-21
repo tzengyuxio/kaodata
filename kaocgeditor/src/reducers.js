@@ -10,14 +10,23 @@ export const editorSlice = createSlice({
   },
   reducers: {
     selectGame: (state, action) => {
-        state.currentGame = action.payload;
+      state.currentGame = action.payload;
     },
     selectFace: (state) => {},
-    modifyFace: (state) => {},
+    modifyFace: (state, action) => {
+      state.modifiedFace = [
+        ...state.modifiedFace.slice(0, action.payload),
+        true,
+        ...state.modifiedFace.slice(action.payload + 1),
+      ];
+    },
+    clearModified: (state) => {
+      state.modifiedFace = Array(1024).fill(false);
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { selectGame, selectFace, modifyFace } = editorSlice.actions;
+export const { selectGame, selectFace, modifyFace, clearModified } = editorSlice.actions;
 
 export default editorSlice.reducer;

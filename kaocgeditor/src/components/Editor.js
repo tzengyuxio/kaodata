@@ -4,7 +4,7 @@ import { fileToImageDataArray } from "../utils.js";
 import "../styles/Editor.css";
 import UploadImage from "./UploadImage.js";
 import { useDispatch, useSelector } from "react-redux";
-import { selectGame, selectFace } from "../reducers.js";
+import { selectGame, selectFace, modifyFace, clearModified } from "../reducers.js";
 
 function GameSelect(props) {
   const dispatch = useDispatch();
@@ -13,6 +13,7 @@ function GameSelect(props) {
     props.setImageDataArray(null);
     dispatch(selectGame(gameId));
     props.setUploadBtnDisabled(false);
+    dispatch(clearModified())
   };
   return (
     <select id="game-select" onChange={handleChange}>
@@ -67,8 +68,8 @@ function ImageFigure(props) {
 }
 
 function FaceList(props) {
+  const dispatch = useDispatch();
   const [selectedIndex, setSelectedIndex] = useState(null);
-  const [modified, setModified] = useState([]);
 
   function handleFigureClick(e, index) {
     e.stopPropagation();
@@ -76,29 +77,21 @@ function FaceList(props) {
       setSelectedIndex(null);
     } else {
       setSelectedIndex(index);
-      setModified((modified) => [
-        ...modified.slice(0, index),
-        false,
-        ...modified.slice(index + 1),
-      ]);
     }
   }
 
   // This function is called when the user clicks the Apply button. It sets the
   // modified state for the selected index to true.
   const handleApplyClick = () => {
-    setModified((modified) => [
-      ...modified.slice(0, selectedIndex),
-      true,
-      ...modified.slice(selectedIndex + 1),
-    ]);
+    dispatch(modifyFace(selectedIndex));
   };
 
   const handleSaveClick = () => {
-    setModified((modified) => modified.map(() => false));
+    dispatch(clearModified())
     setSelectedIndex(null);
   };
 
+  const modified = useSelector((state) => state.editor.modifiedFace);
   if (!props.imageDataArray) {
     return (
       <div className="image-list" id="image-list">
@@ -145,7 +138,6 @@ function Editor() {
   const [gameList, setGameList] = useState([]);
   const [UploadBtnDisabled, setUploadBtnDisabled] = useState(true);
   const [imageDataArray, setImageDataArray] = useState(() => null);
-  const [selectedFace, setSelectedFace] = useState(() => null);
 
   useEffect(() => {
     // 從 gameData.js 文件中取得遊戲數據
