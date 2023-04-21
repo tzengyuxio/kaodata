@@ -147,3 +147,24 @@ figcaption {
 .save-btn:hover:not(:disabled) {
   opacity: 0.8;
 }
+
+.bench-player {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /*水平置中對齊*/
+  align-items: center; /*垂直置中對齊*/
+  width: 72px;
+}
+.bench-player-box {
+  background-color: gray;
+  width: 64px;
+  height: 80px;
+}
+.bench-player-img {
+  width: 64px;
+  height: 80px;
+}
+.sub-button {
+  /*其他按鈕樣式*/
+  margin-top: 8px;
+}

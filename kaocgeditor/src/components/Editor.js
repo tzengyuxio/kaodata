@@ -1,20 +1,28 @@
 import React, {useState, useEffect} from 'react';
 import getGameInfos from '../data/gameData.js';
-import {fileToImageDataArray} from '../utils.js';
+import {dataToImage, hexToRgb} from '../utils.js';
 import '../styles/Editor.css';
 import UploadImage from './UploadImage.js';
 import {useDispatch, useSelector} from 'react-redux';
-import {selectGame, modifyFace, clearModified} from '../reducers.js';
+import {
+  selectGame,
+  modifyFace,
+  clearModified,
+  selectFace,
+  setKaoData,
+} from '../reducers.js';
 import PropTypes from 'prop-types';
+import BenchPlayer from './BenchPlayer.js';
+import {base64DecToArr, base64EncArr} from '../base64.js';
 
 function GameSelect(props) {
   const dispatch = useDispatch();
   const handleChange = (e) => {
     const gameId = e.target.value;
-    props.setImageDataArray(null);
     dispatch(selectGame(gameId));
     props.setUploadBtnDisabled(false);
     dispatch(clearModified());
+    dispatch(selectFace(null));
   };
   return (
     <select id="game-select" onChange={handleChange}>
@@ -34,7 +42,6 @@ GameSelect.propTypes = {
         name: PropTypes.string.isRequired,
       }),
   ).isRequired,
-  setImageDataArray: PropTypes.func.isRequired,
   setUploadBtnDisabled: PropTypes.func.isRequired,
 };
 
@@ -86,49 +93,52 @@ ImageFigure.propTypes = {
   onClick: PropTypes.func.isRequired,
 };
 
-function FaceList(props) {
+function FaceList() {
   const dispatch = useDispatch();
-  const [selectedIndex, setSelectedIndex] = useState(null);
 
-  function handleFigureClick(e, index) {
+  const handleFigureClick = (e, index) => {
     e.stopPropagation();
-    if (selectedIndex === index) {
-      setSelectedIndex(null);
-    } else {
-      setSelectedIndex(index);
-    }
+    dispatch(selectFace(index));
+  };
+
+  const selectedIndex = useSelector((state) => state.editor.selectedFace);
+  const modified = useSelector((state) => state.editor.modifiedFace);
+  const kaoData = useSelector((state) => state.editor.kaoData);
+
+  const currentGame = useSelector((state) => state.editor.currentGame);
+  let theGame = null;
+  let colors = [];
+  let width = -1;
+  let height = -1;
+  let halfHeight = false;
+  if (currentGame !== '') {
+    theGame = getGameInfos()[currentGame];
+    colors = theGame.palette.map(hexToRgb);
+    width = theGame.width;
+    height = theGame.height;
+    halfHeight = theGame.halfHeight;
   }
 
-  // This function is called when the user clicks the Apply button. It sets the
-  // modified state for the selected index to true.
-  const handleApplyClick = () => {
-    dispatch(modifyFace(selectedIndex));
-  };
-
-  const handleSaveClick = () => {
-    dispatch(clearModified());
-    setSelectedIndex(null);
-  };
-
-  const modified = useSelector((state) => state.editor.modifiedFace);
-  if (!props.imageDataArray) {
+  if (kaoData.length === 0) {
     return (
       <div className="image-list" id="image-list">
         請先選擇遊戲，並上傳檔案
       </div>
     );
   }
+  const imgDataArray = kaoData.map((kao) => {
+    const buffer = base64DecToArr(kao);
+    return dataToImage(buffer, width, height, colors, halfHeight);
+  });
   return (
     <div className="image-list">
-      <Apply disabled={selectedIndex === null} onClick={handleApplyClick} />
-      <Save disabled={!modified.some((val) => val)} onClick={handleSaveClick} />
       <br />
-      {props.imageDataArray.map((imageData, index) => (
+      {imgDataArray.map((imageData, index) => (
         <ImageFigure
           key={index}
           imageKey={index}
           imageData={imageData}
-          selected={selectedIndex == index}
+          selected={selectedIndex === index}
           modified={modified[index]}
           onClick={(e) => handleFigureClick(e, index)}
         ></ImageFigure>
@@ -136,9 +146,6 @@ function FaceList(props) {
     </div>
   );
 }
-FaceList.propTypes = {
-  imageDataArray: PropTypes.arrayOf(PropTypes.object),
-};
 
 function Apply({disabled, onClick}) {
   return (
@@ -167,7 +174,7 @@ Save.propTypes = {
 function Editor() {
   const [gameList, setGameList] = useState([]);
   const [UploadBtnDisabled, setUploadBtnDisabled] = useState(true);
-  const [imageDataArray, setImageDataArray] = useState(() => null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     // 從 gameData.js 文件中取得遊戲數據
@@ -180,35 +187,57 @@ function Editor() {
     setGameList(list);
   }, []);
 
-  const handleFileSelected = (event) => {
-    const gameSelect = document.querySelector('#game-select');
-    const theGame = getGameInfos()[gameSelect.value];
-    setImageDataArray(null);
+  const currentGame = useSelector((state) => state.editor.currentGame);
+  const theGame = getGameInfos()[currentGame];
 
+  const handleFileSelected = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
     reader.readAsArrayBuffer(file);
     reader.onload = (event) => {
       const uint8Buffer = new Uint8Array(event.target.result);
-      const imageDataArray = fileToImageDataArray(
-          uint8Buffer,
-          theGame.width,
-          theGame.height,
-          theGame.palette,
-          theGame.halfHeight,
-          theGame.count,
-      );
 
-      setImageDataArray(imageDataArray);
+      // prepare KaoDataArray
+      const faceDataSize = theGame.halfHeight ?
+        (theGame.width * theGame.height * 3) / 8 / 2 :
+        (theGame.width * theGame.height * 3) / 8;
+
+      const faceCount =
+        theGame.count === -1 ?
+          Math.floor(uint8Buffer.byteLength / faceDataSize) :
+          theGame.count;
+
+      const kaoDataArray = new Array(faceCount);
+      for (let i = 0; i < faceCount; i++) {
+        const faceData = uint8Buffer.slice(
+            i * faceDataSize,
+            (i + 1) * faceDataSize,
+        );
+        kaoDataArray[i] = base64EncArr(faceData);
+      }
+      dispatch(setKaoData(kaoDataArray));
     };
   };
+
+  // This function is called when the user clicks the Apply button. It sets the
+  // modified state for the selected index to true.
+  const handleApplyClick = () => {
+    dispatch(modifyFace(selectedIndex));
+  };
+
+  const handleSaveClick = () => {
+    dispatch(clearModified());
+    dispatch(selectFace(null));
+  };
+
+  const selectedIndex = useSelector((state) => state.editor.selectedFace);
+  const modified = useSelector((state) => state.editor.modifiedFace);
 
   return (
     <div className="container">
       <div className="settings">
         <GameSelect
           gameList={gameList}
-          setImageDataArray={setImageDataArray}
           setUploadBtnDisabled={setUploadBtnDisabled}
         ></GameSelect>
         <input
@@ -219,11 +248,15 @@ function Editor() {
         />
       </div>
       <div className="preview">
-        <UploadImage></UploadImage> →<div className="result"></div>
-        <button className="apply">Apply</button>
+        <UploadImage></UploadImage> →<BenchPlayer></BenchPlayer>
+        <Apply disabled={selectedIndex === null} onClick={handleApplyClick} />
+        <Save
+          disabled={!modified.some((val) => val)}
+          onClick={handleSaveClick}
+        />
       </div>
       <hr />
-      <FaceList imageDataArray={imageDataArray}></FaceList>
+      <FaceList></FaceList>
       <div className="clipboard">
         <h2>Clipboard</h2>
         <div className="image-grid"></div>

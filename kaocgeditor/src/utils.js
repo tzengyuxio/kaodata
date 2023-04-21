@@ -6,7 +6,7 @@ export function fileToImageDataArray(
     halfHeight,
     count,
 ) {
-  const imageDataArray = [];
+  const imageDataArray = []; // list of ImageData
 
   const faceDataSize = halfHeight ?
     (width * height * 3) / 8 / 2 :
@@ -30,7 +30,7 @@ export function fileToImageDataArray(
   return imageDataArray;
 }
 
-function dataToImage(faceData, width, height, colors, halfHeight) {
+export function dataToImage(faceData, width, height, colors, halfHeight) {
   const image = new ImageData(width, height);
   const colorIndexes = toColorIndexes(faceData);
   for (let i = 0; i < colorIndexes.length; i++) {
@@ -88,7 +88,7 @@ function grouper(arr, size, fillValue = null) {
   return groups;
 }
 
-function hexToRgb(hex) {
+export function hexToRgb(hex) {
   const r = parseInt(hex.substring(1, 3), 16);
   const g = parseInt(hex.substring(3, 5), 16);
   const b = parseInt(hex.substring(5, 7), 16);
