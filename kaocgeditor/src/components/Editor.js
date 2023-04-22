@@ -21,8 +21,6 @@ function GameSelect(props) {
     const gameId = e.target.value;
     dispatch(selectGame(gameId));
     props.setUploadBtnDisabled(false);
-    dispatch(clearModified());
-    dispatch(selectFace(null));
   };
   return (
     <select id="game-select" onChange={handleChange}>
@@ -174,6 +172,8 @@ Save.propTypes = {
 function Editor() {
   const [gameList, setGameList] = useState([]);
   const [UploadBtnDisabled, setUploadBtnDisabled] = useState(true);
+  const [image, setImage] = useState(null); // drag-and-drop 的圖片
+  const [subFace, setSubFace] = useState(null); // rgbQuant 的結果
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -248,7 +248,13 @@ function Editor() {
         />
       </div>
       <div className="preview">
-        <UploadImage></UploadImage> →<BenchPlayer></BenchPlayer>
+        <UploadImage
+          image={image}
+          setImage={setImage}
+          setSubFace={setSubFace}
+        />
+        →
+        <BenchPlayer subFace={subFace} />
         <Apply disabled={selectedIndex === null} onClick={handleApplyClick} />
         <Save
           disabled={!modified.some((val) => val)}

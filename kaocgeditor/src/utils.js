@@ -1,3 +1,5 @@
+import RgbQuant from 'rgbquant';
+
 export function fileToImageDataArray(
     buffer,
     width,
@@ -93,4 +95,34 @@ export function hexToRgb(hex) {
   const g = parseInt(hex.substring(3, 5), 16);
   const b = parseInt(hex.substring(5, 7), 16);
   return [r, g, b];
+}
+
+export function imageUrlToKaoImage(imgUrl, w, h, palette) {
+  // imgUrl -> canvas
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const image = new Image();
+  image.src = imgUrl;
+  canvas.width = w;
+  canvas.height = h;
+  ctx.drawImage(image, 0, 0, w, h);
+
+  // canvas -> ImageData
+  // const imageData = ctx.getImageData(0, 0, w, h);
+
+  // rgb quantization
+  const opts = {
+    colors: 8,
+    method: 1,
+    dithKern: 'Sierra', // 'Atkinson',
+    palette: palette,
+  };
+
+  const q = new RgbQuant(opts);
+  const out = q.reduce(canvas);
+  // `out` is a Uint8ClampedArray
+  const carr = new Uint8ClampedArray(out.buffer);
+  const newImageData = new ImageData(carr, w, h);
+
+  return newImageData;
 }

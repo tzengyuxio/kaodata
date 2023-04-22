@@ -1,8 +1,41 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
+// import {useDispatch} from 'react-redux';
+// import {updateSubFace} from '../reducers.js';
+import PropTypes from 'prop-types';
+import {hexToRgb, imageUrlToKaoImage} from '../utils';
+import {useSelector} from 'react-redux';
 
-function UploadImage() {
-  const [image, setImage] = useState(null);
+function UploadImage(props) {
   const [imageFile, setImageFile] = useState(null);
+  // const dispatch = useDispatch();
+  const gameInfos = useSelector((state) => state.editor.gameInfos);
+  const currentGame = useSelector((state) => state.editor.currentGame);
+  let palette = [
+    '#000000',
+    '#55FF55',
+    '#FF5555',
+    '#FFFF55',
+    '#5555FF',
+    '#55FFFF',
+    '#FF55FF',
+    '#FFFFFF',
+  ];
+  if (gameInfos[currentGame]) {
+    palette = gameInfos[currentGame].palette;
+  }
+
+  useEffect(() => {
+    if (!props.image) {
+      return;
+    }
+    const newImageData = imageUrlToKaoImage(
+        props.image,
+        64,
+        80,
+        palette.map(hexToRgb),
+    );
+    props.setSubFace(newImageData);
+  }, [props.image]);
 
   function handleDrop(e) {
     e.preventDefault();
@@ -16,7 +49,9 @@ function UploadImage() {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = () => {
-        setImage(reader.result);
+        props.setImage(reader.result);
+        // dispatch(updateSubFace(reader.result));
+        // reader.result is ArrayBuffer
       };
     }
   }
@@ -45,11 +80,12 @@ function UploadImage() {
   return (
     <div
       className="upload-container"
+      id="drop-area"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
     >
       <div className="upload-image">
-        {image && (
+        {props.image && (
           <img
             src={URL.createObjectURL(imageFile)}
             alt="uploaded"
@@ -57,7 +93,7 @@ function UploadImage() {
             height="100%"
           />
         )}
-        {!image && (
+        {!props.image && (
           <div className="upload-text">
             <p>拖放圖像到此區域或</p>
             <button onClick={handleButtonClick}>選擇圖像</button>
@@ -67,5 +103,10 @@ function UploadImage() {
     </div>
   );
 }
+UploadImage.propTypes = {
+  image: PropTypes.string,
+  setImage: PropTypes.func.isRequired,
+  setSubFace: PropTypes.func.isRequired,
+};
 
 export default UploadImage;
