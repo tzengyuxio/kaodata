@@ -1,10 +1,18 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {hexToRgb} from '../utils';
 import {useSelector} from 'react-redux';
 import RgbQuant from 'rgbquant';
 
-function resizeImage(fileResult, newWidth, newHeight, palette, setSubFace) {
+function resizeImage(
+    fileResult,
+    newWidth,
+    newHeight,
+    palette,
+    setResizedImage,
+    setSubFace,
+    needSave,
+) {
   const img = new Image();
 
   img.onload = function() {
@@ -22,9 +30,14 @@ function resizeImage(fileResult, newWidth, newHeight, palette, setSubFace) {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(img, sx, sy, width, height, 0, 0, newWidth, newHeight);
 
-    // Get new image data
+    // Get resized image data
     const imageData = ctx.getImageData(0, 0, newWidth, newHeight);
+    if (needSave) {
+      // NOTE: resizedImage 是否可改用 imageData? 是的話最後 img.src 要怎麼改?
+      setResizedImage(canvas.toDataURL('image/png'));
+    }
 
+    // Rgb Quant
     const opts = {
       colors: 8,
       method: 1,
@@ -46,6 +59,7 @@ function resizeImage(fileResult, newWidth, newHeight, palette, setSubFace) {
 function UploadImage(props) {
   const [imageFile, setImageFile] = useState(null);
   const [image, setImage] = useState(null); // drag-and-drop 的圖片
+  const [resizedImage, setResizedImage] = useState(null); // 調整大小後的圖片
   const gameInfos = useSelector((state) => state.editor.gameInfos);
   const currentGame = useSelector((state) => state.editor.currentGame);
 
@@ -62,6 +76,19 @@ function UploadImage(props) {
       '#FFFFFF',
     ].map(hexToRgb);
 
+  useEffect(() => {
+    console.log('useEffect: currentGame changed', currentGame);
+    resizeImage(
+        resizedImage,
+        64,
+        80,
+        palette,
+        setResizedImage,
+        props.setSubFace,
+        false,
+    );
+  }, [currentGame]);
+
   function handleDrop(e) {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
@@ -75,7 +102,15 @@ function UploadImage(props) {
       reader.readAsDataURL(file);
       reader.onloadend = () => {
         setImage(reader.result);
-        resizeImage(reader.result, 64, 80, palette, props.setSubFace);
+        resizeImage(
+            reader.result,
+            64,
+            80,
+            palette,
+            setResizedImage,
+            props.setSubFace,
+            true,
+        );
       };
     }
   }

@@ -8,13 +8,12 @@ import {useDispatch, useSelector} from 'react-redux';
  * @param {Object} props - 組件的屬性。
  * @param {Blob} props.image - 從遊戲中讀取的圖片。
  * @param {function} props.onSubButtonClick - img 元素重繪完成後需要執行的回調函數。
- * @return {JSX.Element} ImageWithButton 組件。
+ * @return {JSX.Element} BenchPlayer 組件。
  */
 function BenchPlayer(props) {
   const [imageUrl, setImageUrl] = useState(null);
   const [isSubButtonDisabled, setIsSubButtonDisabled] = useState(true);
   const dispatch = useDispatch();
-  const currentGame = useSelector((state) => state.editor.currentGame);
   const selectedIndex = useSelector((state) => state.editor.selectedFace);
 
   useEffect(() => {
@@ -32,10 +31,6 @@ function BenchPlayer(props) {
       console.log('useEffect: props.subFace is null');
     }
   }, [props.subFace]);
-
-  useEffect(() => {
-    console.log('useEffect: currentGame changed', currentGame);
-  }, [currentGame]);
 
   const handleSubButtonClick = () => {
     dispatch(modeifyFace(selectedIndex));
