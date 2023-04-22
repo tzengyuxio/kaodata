@@ -10,6 +10,16 @@ export const editorSlice = createSlice({
     selectedFace: null,
     modifiedFace: [],
     subFace: null, // 用來放替換頭像的 base64 data
+    defaultPalette: [
+      '#000000',
+      '#55FF55',
+      '#FF5555',
+      '#FFFF55',
+      '#5555FF',
+      '#55FFFF',
+      '#FF55FF',
+      '#FFFFFF',
+    ],
   },
   reducers: {
     selectGame: (state, action) => {

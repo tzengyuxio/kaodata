@@ -42,6 +42,22 @@ GameSelect.propTypes = {
   setUploadBtnDisabled: PropTypes.func.isRequired,
 };
 
+function DithKernSelect({options, onChange}) {
+  return (
+    <select onChange={onChange}>
+      {options.map((value) => (
+        <option key={value} value={value}>
+          {value}
+        </option>
+      ))}
+    </select>
+  );
+}
+DithKernSelect.propTypes = {
+  options: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onChange: PropTypes.func.isRequired,
+};
+
 function ImageFigure(props) {
   const [imgUrl, setImgUrl] = useState(null);
 
@@ -160,6 +176,7 @@ function Editor() {
   const [gameList, setGameList] = useState([]);
   const [UploadBtnDisabled, setUploadBtnDisabled] = useState(true);
   const [subFace, setSubFace] = useState(null); // rgbQuant 的結果
+  const [dithKern, setDithKern] = useState('FloydSteinberg');
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -210,7 +227,22 @@ function Editor() {
     dispatch(selectFace(null));
   };
 
+  const handleDithKernSelectChange = (event) => {
+    setDithKern(event.target.value);
+  };
+
   const modified = useSelector((state) => state.editor.modifiedFace);
+  const dithKernList = [
+    'FloydSteinberg',
+    'FalseFloydSteinberg',
+    'Stucki',
+    'Atkinson',
+    'Jarvis',
+    'Burkes',
+    'Sierra',
+    'TwoSierra',
+    'SierraLite',
+  ];
 
   return (
     <div className="container">
@@ -225,9 +257,13 @@ function Editor() {
           onChange={handleFileSelected}
           //   accept="image/*"
         />
+        <DithKernSelect
+          options={dithKernList}
+          onChange={handleDithKernSelectChange}
+        />
       </div>
       <div className="preview">
-        <UploadImage setSubFace={setSubFace} />
+        <UploadImage dithKern={dithKern} setSubFace={setSubFace} />
         →
         <BenchPlayer subFace={subFace} />
         <Save
