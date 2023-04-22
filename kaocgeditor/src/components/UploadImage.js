@@ -1,29 +1,43 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
-// import {hexToRgb} from '../utils';
-// import {useSelector} from 'react-redux';
-// import RgbQuant from 'rgbquant';
+import {hexToRgb} from '../utils';
+import {useSelector} from 'react-redux';
+import RgbQuant from 'rgbquant';
 
-function resizeImage(fileResult, newWidth, newHeight, setSubFace) {
+function resizeImage(fileResult, newWidth, newHeight, palette, setSubFace) {
   const img = new Image();
 
   img.onload = function() {
     // Determine new dimensions within max size
-    const ratio = Math.min(newWidth / img.width, newHeight / img.height);
-    const width = img.width * ratio;
-    const height = img.height * ratio;
+    const ratio = Math.min(img.width / newWidth, img.height / newHeight);
+    const width = ratio === 1 ? img.width : newWidth * ratio;
+    const height = ratio === 1 ? img.height : newHeight * ratio;
+    const sx = (img.width - width) / 2;
+    const sy = (img.height - height) / 2;
 
     // Draw image on canvas
     const canvas = document.createElement('canvas');
     canvas.width = newWidth;
     canvas.height = newHeight;
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, width, height, 0, 0, newWidth, newHeight);
+    ctx.drawImage(img, sx, sy, width, height, 0, 0, newWidth, newHeight);
 
     // Get new image data
     const imageData = ctx.getImageData(0, 0, newWidth, newHeight);
 
-    setSubFace(imageData);
+    const opts = {
+      colors: 8,
+      method: 1,
+      dithKern: 'FloydSteinberg', // 'Atkinson',
+      palette: palette,
+    };
+
+    const q = new RgbQuant(opts);
+    const out = q.reduce(imageData);
+    const carr = new Uint8ClampedArray(out.buffer);
+    const newImageData = new ImageData(carr, newWidth, newHeight);
+
+    setSubFace(newImageData);
   };
 
   img.src = fileResult;
@@ -32,56 +46,21 @@ function resizeImage(fileResult, newWidth, newHeight, setSubFace) {
 function UploadImage(props) {
   const [imageFile, setImageFile] = useState(null);
   const [image, setImage] = useState(null); // drag-and-drop 的圖片
-  // const gameInfos = useSelector((state) => state.editor.gameInfos);
-  // const currentGame = useSelector((state) => state.editor.currentGame);
+  const gameInfos = useSelector((state) => state.editor.gameInfos);
+  const currentGame = useSelector((state) => state.editor.currentGame);
 
-  // const palette = gameInfos[currentGame] ?
-  //   gameInfos[currentGame].palette.map(hexToRgb) :
-  //   [
-  //     '#000000',
-  //     '#55FF55',
-  //     '#FF5555',
-  //     '#FFFF55',
-  //     '#5555FF',
-  //     '#55FFFF',
-  //     '#FF55FF',
-  //     '#FFFFFF',
-  //   ].map(hexToRgb);
-
-  useEffect(() => {
-    if (!image) {
-      return;
-    }
-    console.log('----useEffect of image: ', image);
-    // const kaoImage = imageUrlToKaoImage(image, 64, 80, palette);
-    // imgUrl -> canvas
-    /*
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    img.onload = function() {
-      ctx.drawImage(img, 0, 0, 64, 80);
-      console.log('img:', img.width, img);
-      const opts = {
-        colors: 8,
-        method: 1,
-        dithKern: 'FloydSteinberg', // 'Atkinson',
-        palette: palette,
-      };
-
-      const q = new RgbQuant(opts);
-      const out = q.reduce(canvas);
-      const carr = new Uint8ClampedArray(out.buffer);
-      console.log('out:', out);
-      console.log('carr:', carr);
-      const newImageData = new ImageData(carr, 64, 80);
-      props.setSubFace(newImageData);
-    };
-    img.src = image;
-    */
-    // console.log('----size of kaoImage: ', kaoImage.data.length, kaoImage);
-    // props.setSubFace(kaoImage);
-  }, [image]);
+  const palette = gameInfos[currentGame] ?
+    gameInfos[currentGame].palette.map(hexToRgb) :
+    [
+      '#000000',
+      '#55FF55',
+      '#FF5555',
+      '#FFFF55',
+      '#5555FF',
+      '#55FFFF',
+      '#FF55FF',
+      '#FFFFFF',
+    ].map(hexToRgb);
 
   function handleDrop(e) {
     e.preventDefault();
@@ -96,7 +75,7 @@ function UploadImage(props) {
       reader.readAsDataURL(file);
       reader.onloadend = () => {
         setImage(reader.result);
-        resizeImage(reader.result, 64, 80, props.setSubFace);
+        resizeImage(reader.result, 64, 80, palette, props.setSubFace);
       };
     }
   }

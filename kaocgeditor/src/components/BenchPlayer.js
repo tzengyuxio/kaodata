@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
-// import {useSelector} from 'react-redux';
 
 /**
  * 可替補上場的頭像，一個包含圖片和「替換」按鈕的 React 組件。
