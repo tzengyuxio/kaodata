@@ -6,7 +6,6 @@ import UploadImage from './UploadImage.js';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   selectGame,
-  modifyFace,
   clearModified,
   selectFace,
   setKaoData,
@@ -145,18 +144,6 @@ function FaceList() {
   );
 }
 
-function Apply({disabled, onClick}) {
-  return (
-    <button className="apply-btn" disabled={disabled} onClick={onClick}>
-      Apply
-    </button>
-  );
-}
-Apply.propTypes = {
-  disabled: PropTypes.bool,
-  onClick: PropTypes.func,
-};
-
 function Save({disabled, onClick}) {
   return (
     <button className="save-btn" disabled={disabled} onClick={onClick}>
@@ -218,18 +205,11 @@ function Editor() {
     };
   };
 
-  // This function is called when the user clicks the Apply button. It sets the
-  // modified state for the selected index to true.
-  const handleApplyClick = () => {
-    dispatch(modifyFace(selectedIndex));
-  };
-
   const handleSaveClick = () => {
     dispatch(clearModified());
     dispatch(selectFace(null));
   };
 
-  const selectedIndex = useSelector((state) => state.editor.selectedFace);
   const modified = useSelector((state) => state.editor.modifiedFace);
 
   return (
@@ -250,7 +230,6 @@ function Editor() {
         <UploadImage setSubFace={setSubFace} />
         →
         <BenchPlayer subFace={subFace} />
-        <Apply disabled={selectedIndex === null} onClick={handleApplyClick} />
         <Save
           disabled={!modified.some((val) => val)}
           onClick={handleSaveClick}

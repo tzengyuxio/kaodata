@@ -132,18 +132,18 @@ figcaption {
 }
 
 /* apply and save button */
-.apply-btn,
+.sub-button,
 .save-btn {
   margin-top: 10px;
 }
 
-.apply-btn:disabled,
+.sub-button:disabled,
 .save-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.apply-btn:hover:not(:disabled),
+.sub-button:hover:not(:disabled),
 .save-btn:hover:not(:disabled) {
   opacity: 0.8;
 }

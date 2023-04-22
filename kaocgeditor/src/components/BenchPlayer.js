@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
+import {useDispatch, useSelector} from 'react-redux';
 
 /**
  * 可替補上場的頭像，一個包含圖片和「替換」按鈕的 React 組件。
@@ -12,6 +13,9 @@ import PropTypes from 'prop-types';
 function BenchPlayer(props) {
   const [imageUrl, setImageUrl] = useState(null);
   const [isSubButtonDisabled, setIsSubButtonDisabled] = useState(true);
+  const dispatch = useDispatch();
+  const currentGame = useSelector((state) => state.editor.currentGame);
+  const selectedIndex = useSelector((state) => state.editor.selectedFace);
 
   useEffect(() => {
     if (props.subFace) {
@@ -22,11 +26,6 @@ function BenchPlayer(props) {
       const ctx = canvas.getContext('2d');
       ctx.putImageData(props.subFace, 0, 0);
       const url = canvas.toDataURL();
-      if (url.length < 512) {
-        console.log('url too short: ', url.length, props.subFace);
-      } else {
-        console.log('url size: ', url.length, props.subFace);
-      }
       setImageUrl(url);
       setIsSubButtonDisabled(false);
     } else {
@@ -34,7 +33,12 @@ function BenchPlayer(props) {
     }
   }, [props.subFace]);
 
+  useEffect(() => {
+    console.log('useEffect: currentGame changed', currentGame);
+  }, [currentGame]);
+
   const handleSubButtonClick = () => {
+    dispatch(modeifyFace(selectedIndex));
     onSubButtonClick();
     // copy self image to selected face
   };
@@ -47,7 +51,7 @@ function BenchPlayer(props) {
       {!imageUrl && <div className="bench-player-box"></div>}
       <button
         className="sub-button"
-        disabled={isSubButtonDisabled}
+        disabled={isSubButtonDisabled || !selectedIndex}
         onClick={handleSubButtonClick}
       >
         替補
