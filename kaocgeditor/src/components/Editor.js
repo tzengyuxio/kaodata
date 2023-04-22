@@ -172,7 +172,6 @@ Save.propTypes = {
 function Editor() {
   const [gameList, setGameList] = useState([]);
   const [UploadBtnDisabled, setUploadBtnDisabled] = useState(true);
-  const [image, setImage] = useState(null); // drag-and-drop 的圖片
   const [subFace, setSubFace] = useState(null); // rgbQuant 的結果
   const dispatch = useDispatch();
 
@@ -248,11 +247,7 @@ function Editor() {
         />
       </div>
       <div className="preview">
-        <UploadImage
-          image={image}
-          setImage={setImage}
-          setSubFace={setSubFace}
-        />
+        <UploadImage setSubFace={setSubFace} />
         →
         <BenchPlayer subFace={subFace} />
         <Apply disabled={selectedIndex === null} onClick={handleApplyClick} />

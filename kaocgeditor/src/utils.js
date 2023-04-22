@@ -102,10 +102,12 @@ export function imageUrlToKaoImage(imgUrl, w, h, palette) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   const image = new Image();
+  image.onload = function() {
+    ctx.drawImage(image, 0, 0, w, h);
+  };
   image.src = imgUrl;
-  canvas.width = w;
-  canvas.height = h;
-  ctx.drawImage(image, 0, 0, w, h);
+  // canvas.width = w;
+  // canvas.height = h;
 
   // canvas -> ImageData
   // const imageData = ctx.getImageData(0, 0, w, h);
@@ -114,13 +116,16 @@ export function imageUrlToKaoImage(imgUrl, w, h, palette) {
   const opts = {
     colors: 8,
     method: 1,
-    dithKern: 'Sierra', // 'Atkinson',
+    dithKern: 'FloydSteinberg', // 'Atkinson',
     palette: palette,
   };
 
   const q = new RgbQuant(opts);
   const out = q.reduce(canvas);
   // `out` is a Uint8ClampedArray
+  console.log('w h imgUrl', w, h, imgUrl, canvas.width, canvas.height);
+  console.log('canvas', ctx.getImageData(0, 0, canvas.width, canvas.height));
+  console.log('out', out);
   const carr = new Uint8ClampedArray(out.buffer);
   const newImageData = new ImageData(carr, w, h);
 

@@ -13,21 +13,25 @@ import PropTypes from 'prop-types';
 function BenchPlayer(props) {
   const [imageUrl, setImageUrl] = useState(null);
   const [isSubButtonDisabled, setIsSubButtonDisabled] = useState(true);
-  //   const [subFace] = useState(null);
-  //   const subFace = useSelector((state) => state.subFace);
 
   useEffect(() => {
     if (props.subFace) {
+      console.log('useEffect: props.subFace has value');
       const canvas = document.createElement('canvas');
       canvas.width = props.subFace.width;
       canvas.height = props.subFace.height;
       const ctx = canvas.getContext('2d');
       ctx.putImageData(props.subFace, 0, 0);
-      setImageUrl(canvas.toDataURL());
-      //   setImageUrl(URL.createObjectURL());
-      if (setIsSubButtonDisabled != null) {
-        setIsSubButtonDisabled(false);
+      const url = canvas.toDataURL();
+      if (url.length < 512) {
+        console.log('url too short: ', url.length, props.subFace);
+      } else {
+        console.log('url size: ', url.length, props.subFace);
       }
+      setImageUrl(url);
+      setIsSubButtonDisabled(false);
+    } else {
+      console.log('useEffect: props.subFace is null');
     }
   }, [props.subFace]);
 
