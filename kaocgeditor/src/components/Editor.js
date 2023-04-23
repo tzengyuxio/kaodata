@@ -79,9 +79,10 @@ function Editor() {
   const [dithKern, setDithKern] = useState('FloydSteinberg');
   const dispatch = useDispatch();
   const b64strings = useSelector((state) => state.editor.kaoData);
-  const filename = useSelector(
-      (state) => state.editor.gameInfos[state.editor.currentGame].filename,
-  );
+  const filename = useSelector((state) => {
+    const info = state.editor.gameInfos[state.editor.currentGame];
+    return info ? info.filename : 'KAODATA.DAT';
+  });
 
   useEffect(() => {
     // 從 gameData.js 文件中取得遊戲數據

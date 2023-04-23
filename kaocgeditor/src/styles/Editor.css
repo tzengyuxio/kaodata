@@ -67,7 +67,7 @@
   background-color: #f0f0f0;
   padding: 20px;
   box-sizing: border-box;
-  opacity: 0.2;
+  opacity: 0; /* 0.2; */
 }
 
 .image-grid {
