@@ -58,6 +58,56 @@ export function dataToImage(faceData, width, height, colors, halfHeight) {
   return image;
 }
 
+/**
+ * 將 ImageData 轉換成 FaceData(索引值陣列)
+ * @param {ImageData} imageData
+ * @param {Array} colors
+ * @return {Uint8Array}
+ */
+export function imageToData(imageData, colors) {
+  const indexData = [];
+
+  for (let i = 0; i < imageData.data.length; i += 4) {
+    const r = imageData.data[i];
+    const g = imageData.data[i + 1];
+    const b = imageData.data[i + 2];
+    const colorIndex = colors.findIndex(
+        ([rc, gc, bc]) => rc === r && gc === g && bc === b,
+    );
+    indexData.push(colorIndex != -1 ? colorIndex : 0);
+  }
+
+  // 將 indexData 轉換成 3 bytes FaceData
+  const bytes = new Uint8Array((indexData.length / 8) * 3);
+
+  for (let i = 0; i < indexData.length; i += 8) {
+    const byteOffset = (i / 8) * 3;
+    let byte1 = 0;
+    let byte2 = 0;
+    let byte3 = 0;
+
+    for (let j = 0; j < 8; j++) {
+      const bit = (indexData[i + j] & 0b100) >> 2; // 取第一個 bit
+      byte1 += bit << (7 - j); // 注意 byte1 需要反轉過來
+    }
+    bytes[byteOffset] = byte1;
+
+    for (let j = 0; j < 8; j++) {
+      const bit = (indexData[i + j] & 0b010) >> 1; // 取第二個 bit
+      byte2 += bit << (7 - j);
+    }
+    bytes[byteOffset + 1] = byte2;
+
+    for (let j = 0; j < 8; j++) {
+      const bit = indexData[i + j] & 0b001; // 取第三個 bit
+      byte3 += bit << (7 - j);
+    }
+    bytes[byteOffset + 2] = byte3;
+  }
+
+  return bytes;
+}
+
 function toColorIndexes(data) {
   const groups = grouper(data, 3);
   const indexes = [];
@@ -93,4 +143,13 @@ export function hexToRgb(hex) {
   const g = parseInt(hex.substring(3, 5), 16);
   const b = parseInt(hex.substring(5, 7), 16);
   return [r, g, b];
+}
+
+export function usedColorsOfImageData(imageData) {
+  const colors = new Set();
+  for (let i = 0; i < imageData.data.length; i += 4) {
+    const color = imageData.data.slice(i, i + 3);
+    colors.add(color.toString());
+  }
+  return colors;
 }

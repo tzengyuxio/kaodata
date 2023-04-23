@@ -12,7 +12,7 @@ import {
 } from '../reducers.js';
 import PropTypes from 'prop-types';
 import BenchPlayer from './BenchPlayer.js';
-import {base64EncArr} from '../base64.js';
+import {base64DecToArr, base64EncArr} from '../base64.js';
 import FaceFigureContainer from './FaceFigureContainer.js';
 import {dataToImage, hexToRgb} from '../utils.js';
 
@@ -78,6 +78,10 @@ function Editor() {
   const [subFace, setSubFace] = useState(null); // rgbQuant 的結果
   const [dithKern, setDithKern] = useState('FloydSteinberg');
   const dispatch = useDispatch();
+  const b64strings = useSelector((state) => state.editor.kaoData);
+  const filename = useSelector(
+      (state) => state.editor.gameInfos[state.editor.currentGame].filename,
+  );
 
   useEffect(() => {
     // 從 gameData.js 文件中取得遊戲數據
@@ -144,6 +148,26 @@ function Editor() {
   };
 
   const handleSaveClick = () => {
+    const bytes = new Uint8Array(b64strings.length * 1920);
+
+    for (let i = 0, offset = 0; i < b64strings.length; i++, offset += 1920) {
+      const data = base64DecToArr(b64strings[i]);
+      bytes.set(data, offset);
+    }
+
+    const now = new Date();
+    const dateString = now.toISOString().replace(/[:-]/g, '').replace('.', '');
+    const newFilename = filename.replace(/(\.[^.]+)$/, `_${dateString}$1`);
+
+    const blob = new Blob([bytes], {type: 'application/octet-stream'});
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = newFilename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // clear other states
     dispatch(clearModified());
     dispatch(selectFace(null));
   };

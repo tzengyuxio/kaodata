@@ -7,7 +7,7 @@ export const editorSlice = createSlice({
     gameInfos: getGameInfos(),
     currentGame: '',
     fileLoaded: false,
-    kaoData: [], // 用來放每個頭像的 base64 data
+    kaoData: [], // 用來放每個頭像(koei 8色編碼, 960 or 1920 bytes)的 base64 data
     kaoImgUrl: [], // 用來放每個頭像的 img url
     selectedFace: -1,
     modifiedFace: [],
@@ -25,7 +25,7 @@ export const editorSlice = createSlice({
   reducers: {
     selectGame: (state, action) => {
       state.currentGame = action.payload;
-      state.selectedFace = null;
+      state.selectedFace = -1;
       state.fileLoaded = false;
       const gameInfo = state.gameInfos[action.payload];
       const faceCount = gameInfo ? gameInfo.names.length : 0;
@@ -50,9 +50,6 @@ export const editorSlice = createSlice({
     clearModified: (state) => {
       state.modifiedFace = Array(1024).fill(false);
     },
-    setKaoData: (state, action) => {
-      state.kaoData = action.payload;
-    },
     updateKao: (state, action) => {
       state.kaoData[action.payload.index] = action.payload.kao;
       state.kaoImgUrl[action.payload.index] = action.payload.url;
@@ -70,7 +67,6 @@ export const {
   selectFace,
   modifyFace,
   clearModified,
-  setKaoData,
   updateKao,
   loadFileDone,
 } = editorSlice.actions;

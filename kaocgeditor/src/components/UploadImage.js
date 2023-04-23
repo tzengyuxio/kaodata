@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
-import {hexToRgb} from '../utils';
+import {hexToRgb, usedColorsOfImageData} from '../utils';
 import {useSelector} from 'react-redux';
 import RgbQuant from 'rgbquant';
 
@@ -89,6 +89,10 @@ function UploadImage(props) {
         // NOTE: resizedImage 是否可改用 imageData? 是的話最後 img.src 要怎麼改?
         setResizedImage(canvas.toDataURL('image/png'));
       }
+
+      // used colors of imageData
+      const usedColors = usedColorsOfImageData(imageData);
+      console.log('usedColors', usedColors);
 
       // Rgb Quant
       const opts = {

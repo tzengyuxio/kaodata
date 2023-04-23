@@ -1,6 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {useDispatch, useSelector} from 'react-redux';
+import {modifyFace, updateKao} from '../reducers';
+import {imageToData, hexToRgb} from '../utils';
+import {base64EncArr} from '../base64.js';
 
 /**
  * 可替補上場的頭像，一個包含圖片和「替換」按鈕的 React 組件。
@@ -15,10 +18,15 @@ function BenchPlayer(props) {
   const [isSubButtonDisabled, setIsSubButtonDisabled] = useState(true);
   const dispatch = useDispatch();
   const selectedIndex = useSelector((state) => state.editor.selectedFace);
+  const colors = useSelector((state) => {
+    const info = state.editor.gameInfos[state.editor.currentGame];
+    return info ?
+      info.palette.map(hexToRgb) :
+      state.editor.defaultPalette.map(hexToRgb);
+  });
 
   useEffect(() => {
     if (props.subFace) {
-      console.log('useEffect: props.subFace has value');
       const canvas = document.createElement('canvas');
       canvas.width = props.subFace.width;
       canvas.height = props.subFace.height;
@@ -33,9 +41,16 @@ function BenchPlayer(props) {
   }, [props.subFace]);
 
   const handleSubButtonClick = () => {
-    dispatch(modeifyFace(selectedIndex));
-    onSubButtonClick();
+    dispatch(modifyFace(selectedIndex));
     // copy self image to selected face
+    const faceData = imageToData(props.subFace, colors);
+    dispatch(
+        updateKao({
+          index: selectedIndex,
+          kao: base64EncArr(faceData),
+          url: imageUrl,
+        }),
+    );
   };
 
   return (
@@ -46,7 +61,7 @@ function BenchPlayer(props) {
       {!imageUrl && <div className="bench-player-box"></div>}
       <button
         className="sub-button"
-        disabled={isSubButtonDisabled || !selectedIndex}
+        disabled={isSubButtonDisabled || selectedIndex < 0}
         onClick={handleSubButtonClick}
       >
         替補
@@ -57,7 +72,6 @@ function BenchPlayer(props) {
 BenchPlayer.propTypes = {
   image: PropTypes.string,
   subFace: PropTypes.object,
-  onSubButtonClick: PropTypes.func.isRequired,
 };
 
 export default BenchPlayer;
