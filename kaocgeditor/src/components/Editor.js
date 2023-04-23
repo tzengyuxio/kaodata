@@ -63,7 +63,7 @@ DithKernSelect.propTypes = {
 function Save({disabled, onClick}) {
   return (
     <button className="save-btn" disabled={disabled} onClick={onClick}>
-      Save
+      下載更新
     </button>
   );
 }
@@ -82,6 +82,10 @@ function Editor() {
   const filename = useSelector((state) => {
     const info = state.editor.gameInfos[state.editor.currentGame];
     return info ? info.filename : 'KAODATA.DAT';
+  });
+  const halfHeight = useSelector((state) => {
+    const info = state.editor.gameInfos[state.editor.currentGame];
+    return info ? info.halfHeight : false;
   });
 
   useEffect(() => {
@@ -213,7 +217,7 @@ function Editor() {
         →
         <BenchPlayer subFace={subFace} />
         <Save
-          disabled={!modified.some((val) => val)}
+          disabled={!modified.some((val) => val) || halfHeight}
           onClick={handleSaveClick}
         />
       </div>
