@@ -6,10 +6,11 @@ export const editorSlice = createSlice({
   initialState: {
     gameInfos: getGameInfos(),
     currentGame: '',
+    fileLoaded: false,
     kaoData: [], // 用來放每個頭像的 base64 data
-    selectedFace: null,
+    kaoImgUrl: [], // 用來放每個頭像的 img url
+    selectedFace: -1,
     modifiedFace: [],
-    subFace: null, // 用來放替換頭像的 base64 data
     defaultPalette: [
       '#000000',
       '#55FF55',
@@ -24,13 +25,17 @@ export const editorSlice = createSlice({
   reducers: {
     selectGame: (state, action) => {
       state.currentGame = action.payload;
-      state.kaoData = [];
       state.selectedFace = null;
-      state.modifiedFace = Array(1024).fill(false);
+      state.fileLoaded = false;
+      const gameInfo = state.gameInfos[action.payload];
+      const faceCount = gameInfo ? gameInfo.names.length : 0;
+      state.modifiedFace = Array(faceCount).fill(false);
+      state.kaoData = Array(faceCount).fill('');
+      state.kaoImgUrl = Array(faceCount).fill('');
     },
     selectFace: (state, action) => {
       if (action.payload === state.selectedFace) {
-        state.selectedFace = '';
+        state.selectedFace = -1;
       } else {
         state.selectedFace = action.payload;
       }
@@ -49,7 +54,11 @@ export const editorSlice = createSlice({
       state.kaoData = action.payload;
     },
     updateKao: (state, action) => {
-      state.kaoData[action.payload.index] = action.payload.data;
+      state.kaoData[action.payload.index] = action.payload.kao;
+      state.kaoImgUrl[action.payload.index] = action.payload.url;
+    },
+    loadFileDone: (state) => {
+      state.fileLoaded = true;
     },
   },
 });
@@ -63,6 +72,7 @@ export const {
   clearModified,
   setKaoData,
   updateKao,
+  loadFileDone,
 } = editorSlice.actions;
 
 export default editorSlice.reducer;
