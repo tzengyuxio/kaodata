@@ -1,8 +1,9 @@
-import React, {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
-import {hexToRgb, usedColorsOfImageData} from '../utils';
+import React, {useEffect, useState} from 'react';
 import {useSelector} from 'react-redux';
 import RgbQuant from 'rgbquant';
+
+import {hexToRgb, usedColorsOfImageData} from '../utils';
 
 function UploadImage(props) {
   const [imageFile, setImageFile] = useState(null);
@@ -13,8 +14,8 @@ function UploadImage(props) {
   const defaultPalette = useSelector((state) => state.editor.defaultPalette);
 
   const palette = gameInfos[currentGame] ?
-    gameInfos[currentGame].palette.map(hexToRgb) :
-    defaultPalette.map(hexToRgb);
+        gameInfos[currentGame].palette.map(hexToRgb) :
+        defaultPalette.map(hexToRgb);
 
   useEffect(() => {
     console.log('useEffect: currentGame changed', currentGame);
@@ -57,10 +58,10 @@ function UploadImage(props) {
   }
 
   /**
-   * Handle the drag over event.
-   * @param {React.DragEvent<HTMLDivElement>} e The drag over event.
-   * @return {void}
-   */
+     * Handle the drag over event.
+     * @param {React.DragEvent<HTMLDivElement>} e The drag over event.
+     * @return {void}
+     */
   function handleDragOver(e) {
     e.preventDefault();
   }
@@ -70,7 +71,10 @@ function UploadImage(props) {
 
     img.onload = function() {
       // Determine new dimensions within max size
-      const ratio = Math.min(img.width / newWidth, img.height / newHeight);
+      const ratio = Math.min(
+          img.width / newWidth,
+          img.height / newHeight,
+      );
       const width = ratio === 1 ? img.width : newWidth * ratio;
       const height = ratio === 1 ? img.height : newHeight * ratio;
       const sx = (img.width - width) / 2;
@@ -81,7 +85,17 @@ function UploadImage(props) {
       canvas.width = newWidth;
       canvas.height = newHeight;
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, sx, sy, width, height, 0, 0, newWidth, newHeight);
+      ctx.drawImage(
+          img,
+          sx,
+          sy,
+          width,
+          height,
+          0,
+          0,
+          newWidth,
+          newHeight,
+      );
 
       // Get resized image data
       const imageData = ctx.getImageData(0, 0, newWidth, newHeight);

@@ -1,9 +1,10 @@
-import React, {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
+import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {modifyFace, updateKao} from '../reducers';
-import {imageToData, hexToRgb} from '../utils';
+
 import {base64EncArr} from '../base64.js';
+import {modifyFace, updateKao} from '../reducers';
+import {hexToRgb, imageToData} from '../utils';
 
 /**
  * 可替補上場的頭像，一個包含圖片和「替換」按鈕的 React 組件。
@@ -21,8 +22,8 @@ function BenchPlayer(props) {
   const colors = useSelector((state) => {
     const info = state.editor.gameInfos[state.editor.currentGame];
     return info ?
-      info.palette.map(hexToRgb) :
-      state.editor.defaultPalette.map(hexToRgb);
+            info.palette.map(hexToRgb) :
+            state.editor.defaultPalette.map(hexToRgb);
   });
 
   useEffect(() => {
@@ -64,7 +65,7 @@ function BenchPlayer(props) {
         disabled={isSubButtonDisabled || selectedIndex < 0}
         onClick={handleSubButtonClick}
       >
-        替補
+                替補
       </button>
     </div>
   );

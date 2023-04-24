@@ -1,20 +1,21 @@
-import React, {useState, useEffect} from 'react';
-import getGameInfos from '../data/gameData.js';
-import '../styles/Editor.css';
-import UploadImage from './UploadImage.js';
-import {useDispatch, useSelector} from 'react-redux';
-import {
-  selectGame,
-  clearModified,
-  selectFace,
-  updateKao,
-  loadFileDone,
-} from '../reducers.js';
 import PropTypes from 'prop-types';
-import BenchPlayer from './BenchPlayer.js';
+import React, {useEffect, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+
 import {base64DecToArr, base64EncArr} from '../base64.js';
-import FaceFigureContainer from './FaceFigureContainer.js';
+import getGameInfos from '../data/gameData.js';
+import {
+  clearModified,
+  loadFileDone,
+  selectFace,
+  selectGame,
+  updateKao,
+} from '../reducers.js';
+import '../styles/Editor.css';
 import {dataToImage, hexToRgb} from '../utils.js';
+import BenchPlayer from './BenchPlayer.js';
+import FaceFigureContainer from './FaceFigureContainer.js';
+import UploadImage from './UploadImage.js';
 
 function GameSelect(props) {
   const dispatch = useDispatch();
@@ -63,7 +64,7 @@ DithKernSelect.propTypes = {
 function Save({disabled, onClick}) {
   return (
     <button className="save-btn" disabled={disabled} onClick={onClick}>
-      下載更新
+            下載更新
     </button>
   );
 }
@@ -112,13 +113,13 @@ function Editor() {
 
       // prepare KaoDataArray
       const faceDataSize = gameInfo.halfHeight ?
-        (gameInfo.width * gameInfo.height * 3) / 8 / 2 :
-        (gameInfo.width * gameInfo.height * 3) / 8;
+                (gameInfo.width * gameInfo.height * 3) / 8 / 2 :
+                (gameInfo.width * gameInfo.height * 3) / 8;
 
       const faceCount =
-        gameInfo.count === -1 ?
-          Math.floor(uint8Buffer.byteLength / faceDataSize) :
-          gameInfo.count;
+                gameInfo.count === -1 ?
+                    Math.floor(uint8Buffer.byteLength / faceDataSize) :
+                    gameInfo.count;
 
       const color = gameInfo.palette.map(hexToRgb);
 
@@ -144,7 +145,11 @@ function Editor() {
         canvas.toBlob((blob) => {
           const url = URL.createObjectURL(blob);
           dispatch(
-              updateKao({index: i, kao: base64EncArr(faceData), url: url}),
+              updateKao({
+                index: i,
+                kao: base64EncArr(faceData),
+                url: url,
+              }),
           );
         });
       });
@@ -155,13 +160,20 @@ function Editor() {
   const handleSaveClick = () => {
     const bytes = new Uint8Array(b64strings.length * 1920);
 
-    for (let i = 0, offset = 0; i < b64strings.length; i++, offset += 1920) {
+    for (
+      let i = 0, offset = 0;
+      i < b64strings.length;
+      i++, offset += 1920
+    ) {
       const data = base64DecToArr(b64strings[i]);
       bytes.set(data, offset);
     }
 
     const now = new Date();
-    const dateString = now.toISOString().replace(/[:-]/g, '').replace('.', '');
+    const dateString = now
+        .toISOString()
+        .replace(/[:-]/g, '')
+        .replace('.', '');
     const newFilename = filename.replace(/(\.[^.]+)$/, `_${dateString}$1`);
 
     const blob = new Blob([bytes], {type: 'application/octet-stream'});
@@ -214,7 +226,7 @@ function Editor() {
       </div>
       <div className="preview">
         <UploadImage dithKern={dithKern} setSubFace={setSubFace} />
-        →
+                →
         <BenchPlayer subFace={subFace} />
         <Save
           disabled={!modified.some((val) => val) || halfHeight}

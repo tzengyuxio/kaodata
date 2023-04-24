@@ -1,22 +1,26 @@
-import React, {useState, useEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
 import PropTypes from 'prop-types';
-import {selectFace} from '../reducers.js';
+import React, {useEffect, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+
 import {store} from '../app/store.js';
+import {selectFace} from '../reducers.js';
 
 export function FaceFigure(props) {
   const [imgUrl, setImgUrl] = useState(null);
   const dispatch = useDispatch();
 
   const name = useSelector((state) => {
-    const n = state.editor.gameInfos[state.editor.currentGame].names[props.id];
+    const n =
+            state.editor.gameInfos[state.editor.currentGame].names[props.id];
     return n === '' ? '(未命名)' : n;
   });
 
   const selected = useSelector(
       (state) => state.editor.selectedFace == props.id,
   );
-  const modified = useSelector((state) => state.editor.modifiedFace[props.id]);
+  const modified = useSelector(
+      (state) => state.editor.modifiedFace[props.id],
+  );
 
   const handleFigureClick = (e, index) => {
     e.stopPropagation();
@@ -38,7 +42,7 @@ export function FaceFigure(props) {
     <figure
       id={`face-${props.id}`}
       className={`face-figure ${selected ? 'selected' : ''} ${
-        modified ? 'modified' : ''
+                modified ? 'modified' : ''
       }`}
       onClick={(e) => handleFigureClick(e, props.id)}
     >

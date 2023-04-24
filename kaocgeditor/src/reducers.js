@@ -1,4 +1,5 @@
 import {createSlice} from '@reduxjs/toolkit';
+
 import getGameInfos from './data/gameData';
 
 export const editorSlice = createSlice({
