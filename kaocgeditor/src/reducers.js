@@ -12,16 +12,6 @@ export const editorSlice = createSlice({
     kaoImgUrl: [], // 用來放每個頭像的 img url
     selectedFace: -1,
     modifiedFace: [],
-    defaultPalette: [
-      '#000000',
-      '#55FF55',
-      '#FF5555',
-      '#FFFF55',
-      '#5555FF',
-      '#55FFFF',
-      '#FF55FF',
-      '#FFFFFF',
-    ],
   },
   reducers: {
     selectGame: (state, action) => {
@@ -58,6 +48,9 @@ export const editorSlice = createSlice({
     loadFileDone: (state) => {
       state.fileLoaded = true;
     },
+    applyPalette: (state, action) => {
+      // do nothing
+    },
   },
 });
 
@@ -70,6 +63,7 @@ export const {
   clearModified,
   updateKao,
   loadFileDone,
+  applyPalette,
 } = editorSlice.actions;
 
 export default editorSlice.reducer;

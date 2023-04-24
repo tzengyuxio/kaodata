@@ -3,6 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {base64EncArr} from '../base64.js';
+import palettes from '../data/palettes.js';
 import {modifyFace, updateKao} from '../reducers';
 import {hexToRgb, imageToData} from '../utils';
 
@@ -23,7 +24,7 @@ function BenchPlayer(props) {
     const info = state.editor.gameInfos[state.editor.currentGame];
     return info ?
             info.palette.map(hexToRgb) :
-            state.editor.defaultPalette.map(hexToRgb);
+            palettes.default.codes.map(hexToRgb);
   });
 
   useEffect(() => {

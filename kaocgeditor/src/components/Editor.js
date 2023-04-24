@@ -3,7 +3,6 @@ import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {base64DecToArr, base64EncArr} from '../base64.js';
-import getGameInfos from '../data/gameData.js';
 import {
   clearModified,
   loadFileDone,
@@ -88,10 +87,9 @@ function Editor() {
     const info = state.editor.gameInfos[state.editor.currentGame];
     return info ? info.halfHeight : false;
   });
+  const gameInfos = useSelector((state) => state.editor.gameInfos);
 
   useEffect(() => {
-    // 從 gameData.js 文件中取得遊戲數據
-    const gameInfos = getGameInfos();
     // 根據數據建立選項
     const list = Object.values(gameInfos).map((game) => ({
       id: game.id,
@@ -233,6 +231,7 @@ function Editor() {
           onClick={handleSaveClick}
         />
       </div>
+      {/* <ColorPalette /> */}
       <hr />
       <FaceFigureContainer />
       <div className="clipboard">

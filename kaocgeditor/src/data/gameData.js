@@ -1,3 +1,5 @@
+import palettes from './palettes';
+
 const gameInfos = {
   san2: {
     id: 'san2',
@@ -5,16 +7,7 @@ const gameInfos = {
     filename: 'kaodata.dat',
     width: 64,
     height: 80,
-    palette: [
-      '#000000',
-      '#55FF55',
-      '#FF5555',
-      '#FFFF55',
-      '#5555FF',
-      '#55FFFF',
-      '#FF55FF',
-      '#FFFFFF',
-    ],
+    palette: palettes.default.codes,
     count: -1,
     halfHeight: true,
     names: [
@@ -245,16 +238,7 @@ const gameInfos = {
     filename: 'kaodata.dat',
     width: 64,
     height: 80,
-    palette: [
-      '#000000',
-      '#10B251',
-      '#F35100',
-      '#F3E300',
-      '#0041F3',
-      '#00C3F3',
-      '#F351D3',
-      '#F3F3F3',
-    ],
+    palette: palettes.san3.codes,
     count: -1,
     halfHeight: false,
     names: [
@@ -573,16 +557,7 @@ const gameInfos = {
     filename: 'kao.kr1',
     width: 64,
     height: 80,
-    palette: [
-      '#000000',
-      '#418200',
-      '#C34100',
-      '#E3A251',
-      '#0030A2',
-      '#71A2B2',
-      '#B27171',
-      '#F3E3D3',
-    ],
+    palette: palettes.kohryuki.codes,
     count: -1,
     halfHeight: false,
     names: [
@@ -691,16 +666,7 @@ const gameInfos = {
     filename: 'kaoibm.dat',
     width: 64,
     height: 80,
-    palette: [
-      '#000000',
-      '#55FF55',
-      '#FF5555',
-      '#FFFF55',
-      '#5555FF',
-      '#55FFFF',
-      '#FF55FF',
-      '#FFFFFF',
-    ],
+    palette: palettes.default.codes,
     count: -1,
     halfHeight: true,
     names: [

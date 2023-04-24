@@ -3,6 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {useSelector} from 'react-redux';
 import RgbQuant from 'rgbquant';
 
+import palettes from '../data/palettes';
 import {hexToRgb, usedColorsOfImageData} from '../utils';
 
 function UploadImage(props) {
@@ -11,11 +12,10 @@ function UploadImage(props) {
   const [resizedImage, setResizedImage] = useState(null); // 調整大小後的圖片
   const gameInfos = useSelector((state) => state.editor.gameInfos);
   const currentGame = useSelector((state) => state.editor.currentGame);
-  const defaultPalette = useSelector((state) => state.editor.defaultPalette);
 
   const palette = gameInfos[currentGame] ?
         gameInfos[currentGame].palette.map(hexToRgb) :
-        defaultPalette.map(hexToRgb);
+        palettes.default.codes.map(hexToRgb);
 
   useEffect(() => {
     console.log('useEffect: currentGame changed', currentGame);
