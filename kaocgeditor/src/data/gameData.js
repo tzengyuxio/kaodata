@@ -551,6 +551,28 @@ const gameInfos = {
       '貂蟬',
     ],
   },
+  san4: {
+    id: 'san4',
+    name: '三國志IV',
+    filename: 'kaodatap.s4',
+    width: 64,
+    height: 80,
+    palette: palettes.san4.codes,
+    count: -1, // 701 or 818
+    halfHeight: false,
+    names: [],
+  },
+  san5: {
+    id: 'san5',
+    name: '三國志V',
+    filename: 'kaodata.s5',
+    width: 64,
+    height: 80,
+    palette: palettes.san5.codes,
+    count: -1,
+    halfHeight: false,
+    names: [],
+  },
   kohryuki: {
     id: 'kohryuki',
     name: '項劉記',
