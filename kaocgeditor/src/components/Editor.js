@@ -13,6 +13,7 @@ import {
 import '../styles/Editor.css';
 import {dataToImage, hexToRgb} from '../utils.js';
 import BenchPlayer from './BenchPlayer.js';
+import CreditInfo from './CreditInfo.js';
 import FaceFigureContainer from './FaceFigureContainer.js';
 import UploadImage from './UploadImage.js';
 
@@ -60,14 +61,14 @@ DithKernSelect.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
-function Save({disabled, onClick}) {
+function SaveFaceFile({disabled, onClick}) {
   return (
     <button className="save-btn" disabled={disabled} onClick={onClick}>
             下載更新
     </button>
   );
 }
-Save.propTypes = {
+SaveFaceFile.propTypes = {
   disabled: PropTypes.bool,
   onClick: PropTypes.func,
 };
@@ -206,32 +207,45 @@ function Editor() {
 
   return (
     <div className="container">
-      <div className="settings">
-        <GameSelect
-          gameList={gameList}
-          setUploadBtnDisabled={setUploadBtnDisabled}
-        ></GameSelect>
-        <input
-          type="file"
-          disabled={UploadBtnDisabled}
-          onChange={handleFileSelected}
-          //   accept="image/*"
-        />
-        <DithKernSelect
-          options={dithKernList}
-          onChange={handleDithKernSelectChange}
-        />
+      <div className="grid-container parent">
+        <div id="settings" className="settings outline-block">
+          <div className="tab-label">遊戲</div>
+          <GameSelect
+            gameList={gameList}
+            setUploadBtnDisabled={setUploadBtnDisabled}
+          />
+          <input
+            type="file"
+            className="load-face-file"
+            disabled={UploadBtnDisabled}
+            onChange={handleFileSelected}
+            //   accept="image/*"
+          />
+          <SaveFaceFile
+            className="save-face-file"
+            disabled={!modified.some((val) => val) || halfHeight}
+            onClick={handleSaveClick}
+          />
+        </div>
+        <div className="configuration outline-block child">
+          <div className="tab-label">色彩</div>
+          <span>抖色演算法：</span>
+          <br />
+          <DithKernSelect
+            options={dithKernList}
+            onChange={handleDithKernSelectChange}
+          />
+          {/* <ColorPalette /> */}
+        </div>
+        <div className="preview outline-block">
+          <div className="tab-label">替換</div>
+          <UploadImage dithKern={dithKern} setSubFace={setSubFace} />
+                    →
+          <BenchPlayer subFace={subFace} />
+        </div>
+        {/* <div className="grid-item one"></div> */}
+        <CreditInfo />
       </div>
-      <div className="preview">
-        <UploadImage dithKern={dithKern} setSubFace={setSubFace} />
-                →
-        <BenchPlayer subFace={subFace} />
-        <Save
-          disabled={!modified.some((val) => val) || halfHeight}
-          onClick={handleSaveClick}
-        />
-      </div>
-      {/* <ColorPalette /> */}
       <hr />
       <FaceFigureContainer />
       <div className="clipboard">

@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {useDispatch} from 'react-redux';
 
-import {applyPalette} from '../reducers';
 import palettes from '../data/palettes';
+import {applyPalette} from '../reducers';
 
 export default function ColorPalette() {
   const [selectedPreset, setSelectedPreset] = useState(
@@ -42,13 +42,15 @@ export default function ColorPalette() {
 
   const colorInputs = colors.map((color, index) => {
     return (
-      <input
-        key={index}
-        type="color"
-        value={color}
-        disabled
-        onChange={(e) => handleColorChange(index, e)}
-      />
+      <React.Fragment key={index}>
+        <input
+          type="color"
+          value={color}
+          disabled
+          onChange={(e) => handleColorChange(index, e)}
+        />
+        {(index + 1) % 4 === 0 && <br />}
+      </React.Fragment>
     );
   });
 
@@ -57,8 +59,9 @@ export default function ColorPalette() {
       <select value={selectedPreset} onChange={handlePresetChange}>
         {presetOptions}
       </select>
-      {colorInputs}
       <button onClick={handleReset}>Reset</button>
+      <br />
+      {colorInputs}
     </div>
   );
 }

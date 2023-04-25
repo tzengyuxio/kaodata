@@ -6,18 +6,73 @@
   padding: 20px;
 }
 
+.grid-container {
+  display: grid;
+  grid-template-columns: 256px 1fr 192px;
+  grid-template-rows: repeat(2, 1fr);
+  display: grid;
+  gap: 10px;
+  width: 800px;
+  height: 320px;
+}
+
+.outline-block {
+  outline: 2px dashed #666;
+  border-radius: 8px;
+  padding: 8px;
+}
+
 .settings {
+  grid-area: 1/1/2/2;
   display: flex;
+  flex-flow: column wrap;
   /* justify-content: space-between; */
+  align-items: center;
+  margin-bottom: 20px;
+  height: 100px;
+}
+
+.load-face-file input[type='file'] {
+  flex-direction: column;
   align-items: center;
   margin-bottom: 20px;
 }
 
+.load-face-file label {
+  cursor: pointer;
+  display: block;
+  /* display as block to allow filename display in next line */
+}
+
+#preview {
+  margin-top: 10px;
+  /* add space between label and filename display */
+}
+
+.save-face-file {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.configuration {
+  grid-area: 2/1/3/2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+  height: 100px;
+  width: 240px;
+}
+
 .preview {
+  grid-area: 1/2/3/3;
   display: flex;
   flex-direction: row;
   align-items: center;
   margin-bottom: 20px;
+  position: inherit;
 }
 
 .drag-drop {
@@ -37,6 +92,7 @@
   justify-content: center;
   align-items: center;
   /* background-color: #f0f0f0; */
+  margin: 8px;
 }
 
 .result {
@@ -67,7 +123,8 @@
   background-color: #f0f0f0;
   padding: 20px;
   box-sizing: border-box;
-  opacity: 0; /* 0.2; */
+  opacity: 0;
+  /* 0.2; */
 }
 
 .image-grid {
@@ -104,8 +161,10 @@ hr {
   flex-basis: 64px 128px;
   margin: 10px;
   display: inline-block;
-  vertical-align: top; /* 選擇一個垂直對齊方式 */
-  margin-inline: 0.5em; /* 選擇一個內邊距 */
+  vertical-align: top;
+  /* 選擇一個垂直對齊方式 */
+  margin-inline: 0.5em;
+  /* 選擇一個內邊距 */
   border: 2px solid whitesmoke;
 }
 
@@ -157,20 +216,78 @@ figcaption {
 .bench-player {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center; /*水平置中對齊*/
-  align-items: center; /*垂直置中對齊*/
+  justify-content: center;
+  /*水平置中對齊*/
+  align-items: center;
+  /*垂直置中對齊*/
   width: 72px;
 }
+
 .bench-player-box {
   background-color: gray;
   width: 64px;
   height: 80px;
 }
+
 .bench-player-img {
   width: 64px;
   height: 80px;
 }
+
 .sub-button {
   /*其他按鈕樣式*/
   margin-top: 8px;
+}
+
+#credit-info {
+  grid-area: 1/3/3/4;
+  text-align: right;
+  width: 192px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
+a {
+  color: #0066cc;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+
+a:hover {
+  color: #ff6600;
+  text-decoration: none;
+}
+
+.one {
+  grid-area: 1/3/2/4;
+}
+
+.two {
+  grid-area: two;
+}
+
+.parent {
+  position: relative;
+  /* height: 300px; */
+  /* 父元素高度固定，可以自行調整 */
+}
+
+.child {
+  position: absolute;
+  bottom: 0;
+}
+
+.tab-label {
+  position: absolute;
+  top: -25px;
+  left: 12px;
+  background-color: white;
+  padding: 2px 7px 2px 7px;
+  border: 1px solid black;
+  border-bottom: none;
+  border-radius: 4px 4px 0px 0px;
+  font-size: small;
+  color: #444;
 }
