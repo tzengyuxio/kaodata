@@ -106,54 +106,61 @@ function Editor() {
   const handleFileSelected = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
-    reader.readAsArrayBuffer(file);
-    reader.onload = (event) => {
-      const uint8Buffer = new Uint8Array(event.target.result);
+    if (file instanceof Blob) {
+      reader.onload = (event) => {
+        const uint8Buffer = new Uint8Array(event.target.result);
 
-      // prepare KaoDataArray
-      const faceDataSize = gameInfo.halfHeight ?
-                (gameInfo.width * gameInfo.height * 3) / 8 / 2 :
-                (gameInfo.width * gameInfo.height * 3) / 8;
+        // prepare KaoDataArray
+        const faceDataSize = gameInfo.halfHeight ?
+                    (gameInfo.width * gameInfo.height * 3) / 8 / 2 :
+                    (gameInfo.width * gameInfo.height * 3) / 8;
 
-      const faceCount =
-                gameInfo.count === -1 ?
-                    Math.floor(uint8Buffer.byteLength / faceDataSize) :
-                    gameInfo.count;
+        const faceCount =
+                    gameInfo.count === -1 ?
+                        Math.floor(uint8Buffer.byteLength / faceDataSize) :
+                        gameInfo.count;
 
-      const color = gameInfo.palette.map(hexToRgb);
+        const color = gameInfo.palette.map(hexToRgb);
 
-      [...Array(faceCount)].map((_, i) => {
-        const faceData = uint8Buffer.slice(
-            i * faceDataSize,
-            (i + 1) * faceDataSize,
-        );
-        // faceData to imageData
-        const imageData = dataToImage(
-            faceData,
-            gameInfo.width,
-            gameInfo.height,
-            color,
-            gameInfo.halfHeight,
-        );
-        // imgUrl
-        const canvas = document.createElement('canvas');
-        canvas.width = gameInfo.width;
-        canvas.height = gameInfo.height;
-        const ctx = canvas.getContext('2d');
-        ctx.putImageData(imageData, 0, 0);
-        canvas.toBlob((blob) => {
-          const url = URL.createObjectURL(blob);
-          dispatch(
-              updateKao({
-                index: i,
-                kao: base64EncArr(faceData),
-                url: url,
-              }),
+        [...Array(faceCount)].map((_, i) => {
+          const faceData = uint8Buffer.slice(
+              i * faceDataSize,
+              (i + 1) * faceDataSize,
           );
+          // faceData to imageData
+          const imageData = dataToImage(
+              faceData,
+              gameInfo.width,
+              gameInfo.height,
+              color,
+              gameInfo.halfHeight,
+          );
+          // imgUrl
+          const canvas = document.createElement('canvas');
+          canvas.width = gameInfo.width;
+          canvas.height = gameInfo.height;
+          const ctx = canvas.getContext('2d');
+          ctx.putImageData(imageData, 0, 0);
+          canvas.toBlob((blob) => {
+            const url = URL.createObjectURL(blob);
+            dispatch(
+                updateKao({
+                  index: i,
+                  kao: base64EncArr(faceData),
+                  url: url,
+                }),
+            );
+          });
         });
-      });
-      dispatch(loadFileDone());
-    };
+        dispatch(loadFileDone());
+      };
+      reader.onerror = (error) => {
+        console.error(error);
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      console.error('The selected file isn\'t a Blob object.');
+    }
   };
 
   const handleSaveClick = () => {
