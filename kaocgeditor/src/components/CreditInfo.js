@@ -1,8 +1,10 @@
 import React from 'react';
+import Changelog from './Changelog.js';
 
 export default function CreditInfo() {
   return (
     <div id="credit-info" className="outline-block child">
+      <Changelog />
       <div id="credits">
                 設計製作
         <br />

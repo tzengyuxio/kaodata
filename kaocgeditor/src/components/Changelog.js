@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 
-function Changelog() {
+export default function Changelog() {
   const [logs, setLogs] = useState([]);
   const [open, setOpen] = useState(false);
 
@@ -20,7 +20,9 @@ function Changelog() {
     width: '300px',
     overflow: 'auto',
     display: open ? 'block' : 'none',
-    backgroundColor: '#ffffff',
+    opacity: .84,
+    backgroundColor: '#fffff0',
+    border: '1px solid #00000f',
   };
 
   return (
