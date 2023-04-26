@@ -111,12 +111,18 @@ function UploadImage(props) {
       // Rgb Quant
       const opts = {
         colors: 8,
-        method: 1,
-        dithKern: props.dithKern, // 'Atkinson',
+        method: 2, // histogram method
+        boxSize: [4, 4], // if method = 2
+        boxPxls: 0.1, // if method = 2
+        initColors: 32, // if method = 1
+        dithKern: props.dithKern === 'None' ? null : props.dithKern,
+        dithDelta: 0.1,
         palette: palette,
+        // palette: palettes.default.codes.map(hexToRgb),
       };
 
       const q = new RgbQuant(opts);
+      // q.sample(imageData);
       const out = q.reduce(imageData);
       const carr = new Uint8ClampedArray(out.buffer);
       const newImageData = new ImageData(carr, newWidth, newHeight);

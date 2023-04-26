@@ -201,6 +201,7 @@ function Editor() {
 
   const modified = useSelector((state) => state.editor.modifiedFace);
   const dithKernList = [
+    'None',
     'FloydSteinberg',
     'FalseFloydSteinberg',
     'Stucki',
@@ -237,7 +238,6 @@ function Editor() {
         <div className="configuration outline-block child">
           <div className="tab-label">色彩</div>
           <span>抖色演算法：</span>
-          <br />
           <DithKernSelect
             options={dithKernList}
             onChange={handleDithKernSelectChange}
