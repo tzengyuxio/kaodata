@@ -84,7 +84,7 @@ s1_headers = [H('id', 'ID', 'id'), H('name', '姓名', 'name'), H('face', '顏',
 #
 # 0x00  BYTE    debut_year  登場年份 (0xBE = 190)
 # 0x01  BYTE    debut_with  登場依附武將 (0xFF = 無登場條件, 其他值 = 對應武將顏CG編號)
-# 0x02  BYTE    debug_city  登場城市
+# 0x02  BYTE    debut_city  登場城市
 # 0x03  WORD    next        次席
 # 0x05  WORD    status      狀態 (死亡, 移動, 內應, 生病 per 4 bits)
 # 0x07  BYTE    intl        才智
@@ -154,7 +154,7 @@ s2_headers = [H('id', 'ID', 'id'), H('name', '姓名', 'name'), H('face', '顏',
 ##############################################################################
 # 三國志III
 #
-# 0x0000 顏 次席 士兵 寶物 MASK STATUS ABILITY 相性 義理 忠誠 城市 勢力 仕官 裡所屬士官 親族 訓練 士氣 無 生年 工作 餘月 無 姓名
+# 0x0000 顏 次席 士兵 寶物 MASK STATUS ABILITY 相性 義理 忠誠 城市 勢力 仕官 裡所屬仕官 親族 訓練 士氣 無 生年 工作 餘月 無 姓名
 # xx     H  H   H   H   H    BBBBB  BBBBBB   B   B   B   B   B   B    BB       B   B   B   xxx B   B   B   xxx 6s
 #
 # STATUS: 行動 疾病 壽命 埋伏 身份 (action disease lifespan undercover position)
@@ -180,6 +180,12 @@ class S3Person(S3PersonRaw):
             return str((self.mask & 0b00001100) >> 2)
         if key == 'bravery':
             return str((self.mask & 0b00000011) >> 0)
+        if key == 'attrkey':
+            war = self.war if self.war < 100 else 'A0'
+            intl = self.intl if self.intl < 100 else 'A0'
+            pol = self.pol if self.pol < 100 else 'A0'
+            chrm = self.chrm if self.chrm < 100 else 'A0'
+            return f'S03_{war:>02}{intl:>02}{pol:>02}{chrm:>02}'
         if hasattr(self, key):
             return str(getattr(self, key))
         else:

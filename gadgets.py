@@ -2,11 +2,13 @@
 
 import csv
 import os
+import struct
 import requests
 from bs4 import BeautifulSoup
 from pytablewriter import MarkdownTableWriter, UnicodeTableWriter
 from pytablewriter.style import Style
 from utils import to_unicode_name, to_koeitw
+from san_person import *
 
 
 kohryuki_names = ['項羽', '劉邦', '英布', '韓信', '范增', '章邯', '項莊', '司馬欣', '董翳', '章平',
@@ -315,9 +317,86 @@ def get_name_list(filename: str, count: int):
             print(x)
 
 
+def get_san3_scenario_name_list(game_dir: str):
+    """
+    列出三國志三每個劇本的武將名稱作為勘誤
+    """
+    namekey = {}
+    with open('namekey.csv',  'r') as f:
+        csv_reader = csv.reader(f)
+        for row in csv_reader:
+            namekey[row[0]] = row[1]
+
+    persons = {}  # {key: [name, s1, s2, s3, s4, s5, s6]}
+    cities = {}  # {key: [name, s1, s2, s3, s4, s5, s6]}
+    for i in range(6):
+        filename = '{}/SNDATA{}B.CIM'.format(game_dir, i+1)
+        read_count, read_size = 600, struct.calcsize(s3_format)
+        with open(filename, 'rb') as f:
+            for _ in range(read_count):
+                pd = f.read(read_size)
+                if pd[43:] == b'\x00\x00\x00\x00\x00\x00':
+                    continue
+                p = S3Person._make(struct.unpack(s3_format, pd))
+                attrkey = p['attrkey']
+                if attrkey not in namekey:
+                    print(attrkey, p['name'], 'senario:', i+1)
+                    continue
+                if attrkey not in persons:
+                    persons[attrkey] = [namekey[attrkey], '', '', '', '', '', '']
+                    cities[attrkey] = [namekey[attrkey], '', '', '', '', '', '']
+                persons[attrkey][i+1] = p['name']
+                cities[attrkey][i+1] = int(p['city']) + 1
+    # for key, value in persons.items():
+    #     print(key, value)
+
+    memo = {
+        '辛毗': '毘：同「毗」',
+        '蔡邕': '蔡陽為「過五關斬六將」時人物',
+        '孔伷': '孔秀為「過五關斬六將」時人物',
+        '桓階': '演義有時誤寫為「桓楷」',
+        '范彊': '演義把「彊」誤寫為「疆」',
+        '金環三結': '遊戲中姓名字數上限為三',
+        '朵思大王': '遊戲中姓名字數上限為三',
+        '張闓': '「張闓」為陶謙部將',
+        '張顗': '「張顗」為袁尚部下',
+        '橋瑁': '演義作「喬瑁」',
+    }
+
+    # output markdown table to s3_scenario_name_list.md
+    headers = ['人物', '劇本一', '劇本二', '劇本三', '劇本四', '劇本五', '劇本六', 'Memo']
+    name_matrix = []
+    for key, value in persons.items():
+        full_name = value[0]
+        name = full_name.split(' ')[0]
+        name = name.replace('脩', '修')
+        row = [f'[{name}](/人物/三國/{full_name})']
+        for i in range(1, 7):
+            if value[i] == '':
+                row.append('')
+            elif value[i] == name:
+                city = f'({cities[key][i]})' if cities[key][i] < 200 else ''
+                row.append(f'{name} {city}')
+            else:
+                city = f'({cities[key][i]})' if cities[key][i] < 200 else ''
+                row.append(f'*{value[i]}* {city}')
+        row.append('')
+        if name in memo:
+            row[-1] = memo[name]
+        else:
+            row[-1] = ''
+        name_matrix.append(row)
+    writer = MarkdownTableWriter(
+        table_name='三國志三 武將名稱勘誤',
+        headers=headers,
+        value_matrix=name_matrix,
+    )
+    writer.write_table()
+
+
 if __name__ == '__main__':
     # 將中文轉換成 KOEI-TW 編碼
-    # ss = ['徽宗', '匈奴']
+    # ss = ['徽沍', '匈奴']
     # kt = [encode_text(s) for s in ss]
     # for s, k in zip(ss, kt):
     #     print('{}: {} -> {}'.format(s, encode_text(s).hex().upper(), to_unicode_name(k)))
@@ -330,4 +409,6 @@ if __name__ == '__main__':
 
     # get_name_list('PERSONS_TABLE/san2_persons.csv', 219) # 三國志II 人物名單
     # get_name_list('PERSONS_TABLE/san3_persons_s1.csv', 307)  # 三國志III 人物名單
-    get_name_list('PERSONS_TABLE/suikoden_persons_s1.csv', 255)  # 水滸傳 人物名單
+    # get_name_list('PERSONS_TABLE/suikoden_persons_s1.csv', 255)  # 水滸傳 人物名單
+
+    get_san3_scenario_name_list('/Users/tzengyuxio/DOSBox/SAN3')
