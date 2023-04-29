@@ -10,8 +10,8 @@ export function FaceFigure(props) {
   const dispatch = useDispatch();
 
   const name = useSelector((state) => {
-    const n =
-            state.editor.gameInfos[state.editor.currentGame].names[props.id];
+    const info = state.editor.gameInfos[state.editor.currentGame];
+    const n = info.faceNames[props.id];
     return n === '' ? '(未命名)' : n;
   });
 

@@ -7,7 +7,7 @@ export default function FaceFigureContainer() {
   const currentGame = useSelector((state) => state.editor.currentGame);
   const faceCount = useSelector((state) => {
     const info = state.editor.gameInfos[state.editor.currentGame];
-    return info ? info.names.length : -1;
+    return info ? info.faceNames.length : -1;
   });
   const kaoFile = useSelector((state) => {
     const info = state.editor.gameInfos[state.editor.currentGame];
