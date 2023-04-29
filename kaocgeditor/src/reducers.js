@@ -1,6 +1,6 @@
 import {createSlice} from '@reduxjs/toolkit';
 
-import getGameInfos from './data/gameData';
+import getGameInfos from './data/gameInfos';
 
 export const editorSlice = createSlice({
   name: 'editor',
