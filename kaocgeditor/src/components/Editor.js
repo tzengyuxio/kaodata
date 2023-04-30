@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React, {useEffect, useState} from 'react';
+import {useTranslation} from 'react-i18next';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {base64DecToArr, base64EncArr} from '../base64.js';
@@ -24,9 +25,10 @@ function GameSelect(props) {
     dispatch(selectGame(gameId));
     props.setUploadBtnDisabled(false);
   };
+  const {t} = useTranslation();
   return (
     <select id="game-select" onChange={handleChange}>
-      <option value="">--選擇遊戲--</option>
+      <option value="">--{t('select-game')}--</option>
       {props.gameList.map((game) => (
         <option key={game.id} value={game.id}>
           {game.name}
@@ -61,10 +63,29 @@ DithKernSelect.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
+function LanguageSelect() {
+  const {i18n} = useTranslation();
+  const languages = [
+    {id: 'zh_tw', name: '繁體中文'},
+    {id: 'zh_cn', name: '简体中文'},
+    {id: 'ja', name: '日本語'},
+  ];
+  return (
+    <select onChange={(e) => i18n.changeLanguage(e.target.value)}>
+      {languages.map((lang) => (
+        <option key={lang.id} value={lang.id}>
+          {lang.name}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 function SaveFaceFile({disabled, onClick}) {
+  const {t} = useTranslation();
   return (
     <button className="save-btn" disabled={disabled} onClick={onClick}>
-            下載更新
+      {t('button.save')}
     </button>
   );
 }
@@ -89,6 +110,7 @@ function Editor() {
     return info ? info.halfHeight : false;
   });
   const gameInfos = useSelector((state) => state.editor.gameInfos);
+  const {t} = useTranslation();
 
   useEffect(() => {
     // 根據數據建立選項
@@ -216,8 +238,11 @@ function Editor() {
   return (
     <div className="container">
       <div className="grid-container parent">
+        <div className="locale">
+          <LanguageSelect className="locale" />
+        </div>
         <div id="settings" className="settings outline-block">
-          <div className="tab-label">遊戲</div>
+          <div className="tab-label">{t('games')}</div>
           <GameSelect
             gameList={gameList}
             setUploadBtnDisabled={setUploadBtnDisabled}
@@ -236,7 +261,7 @@ function Editor() {
           />
         </div>
         <div className="configuration outline-block child">
-          <div className="tab-label">色彩</div>
+          <div className="tab-label">{t('colors')}</div>
           <span>抖色演算法：</span>
           <DithKernSelect
             options={dithKernList}
@@ -245,7 +270,7 @@ function Editor() {
           {/* <ColorPalette /> */}
         </div>
         <div className="preview outline-block">
-          <div className="tab-label">替換</div>
+          <div className="tab-label">{t('substitute')}</div>
           <UploadImage dithKern={dithKern} setSubFace={setSubFace} />
                     →
           <BenchPlayer subFace={subFace} />

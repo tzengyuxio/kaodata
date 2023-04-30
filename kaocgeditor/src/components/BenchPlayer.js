@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React, {useEffect, useState} from 'react';
+import {useTranslation} from 'react-i18next';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {base64EncArr} from '../base64.js';
@@ -26,6 +27,7 @@ function BenchPlayer(props) {
             info.palette.map(hexToRgb) :
             palettes.default.codes.map(hexToRgb);
   });
+  const {t} = useTranslation();
 
   useEffect(() => {
     if (props.subFace) {
@@ -66,7 +68,7 @@ function BenchPlayer(props) {
         disabled={isSubButtonDisabled || selectedIndex < 0}
         onClick={handleSubButtonClick}
       >
-                替補
+        {t('button.substitute')}
       </button>
     </div>
   );
