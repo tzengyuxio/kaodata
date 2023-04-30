@@ -9,7 +9,7 @@
 .grid-container {
   display: grid;
   grid-template-columns: 256px 1fr 192px;
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-rows: 1fr 2fr;
   display: grid;
   gap: 10px;
   width: 800px;
@@ -29,7 +29,7 @@
   /* justify-content: space-between; */
   align-items: center;
   margin-bottom: 20px;
-  height: 100px;
+  height: 80px;
 }
 
 .load-face-file input[type='file'] {
@@ -290,4 +290,56 @@ a:hover {
   border-radius: 4px 4px 0px 0px;
   font-size: small;
   color: #444;
+}
+
+.changelog-day {
+  margin-bottom: 30px;
+  margin-right: 25px;
+  margin-left: 25px;
+  margin-top: 25px;
+}
+
+.changelog-date {
+  font-size: 18px;
+  /* 24px */
+  margin-bottom: 10px;
+}
+
+.changelog-item {
+  margin-bottom: 10px;
+}
+
+.changelog-title {
+  font-size: 14px;
+  /* 20px */
+  margin-bottom: 3px;
+}
+
+.changelog-description {
+  font-size: 12px;
+  /*16px;*/
+}
+
+.changeLogIcon {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 60px;
+  height: 60px;
+  line-height: 60px;
+  font-size: 24px;
+  text-align: center;
+  background-color: #0071d4;
+  color: white;
+  border-radius: 50%;
+  z-index: 999;
+  transition: transform 0.2s;
+}
+
+.changelog.open {
+  display: block;
+}
+
+.changeLogIcon:hover {
+  transform: scale(1.1);
 }

@@ -1,6 +1,15 @@
 [
     {
-      "id": 1,
-      "content": "2023-04-25 編輯器正式上線"
+        "date": "2023-12-31",
+        "items": [
+            { "title": "加入 Changelog", "description": "" },
+            { "title": "新增遊戲支援", "description": "三國志IV, 三國志V" }
+        ]
+    },
+    {
+        "date": "2023-04-25",
+        "items": [
+            { "title": "編輯器正式上線", "description": "" }
+        ]
     }
-  ]
+]
