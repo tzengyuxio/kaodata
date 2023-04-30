@@ -362,3 +362,8 @@ a:hover {
 .blue {
   color: blue;
 }
+
+h2 {
+  border-bottom: 1px solid #000;
+  margin-right: 16px;
+}

@@ -9,13 +9,15 @@ const resources = {
     translation: {
       'Welcome to React': 'Welcome to React and react-i18next',
       'title': '顏ＣＧ編輯器',
-      'games': '遊戲',
-      'colors': '色彩',
-      'substitute': '替換',
+      'tabs': {
+        game: '遊戲',
+        color: '色彩',
+        substitute: '替換',
+      },
       'select-game': '選擇遊戲',
+      'button.save': '下載更新',
       'button.upload': '選擇檔案',
       'button.substitute': '替換',
-      'button.save': '下載更新',
       'instruction': {
         title: '使用說明：',
         step1: '先在左上角選單選擇遊戲',
@@ -36,9 +38,11 @@ const resources = {
     translation: {
       'Welcome to React': 'Bienvenue à React et react-i18next',
       'title': '颜ＣＧ编辑器',
-      'games': '游戏',
-      'colors': '色彩',
-      'substitute': '替换',
+      'tabs': {
+        game: '游戏',
+        color: '色彩',
+        substitute: '替换',
+      },
       'select-game': '选择游戏',
       'button.save': '下载更新',
       'button.upload': '选择档案',
@@ -63,9 +67,11 @@ const resources = {
     translation: {
       'Welcome to React': 'Bienvenue à React et react-i18next',
       'title': '顔ＣＧエディター',
-      'games': 'ゲーム',
-      'colors': '色',
-      'substitute': '置換',
+      'tabs': {
+        game: 'ゲーム',
+        color: '色',
+        substitute: '置換',
+      },
       'select-game': 'ゲームを選択',
       'button.save': '更新をダウンロード',
       'button.upload': 'ファイルを選択',
@@ -84,7 +90,8 @@ const resources = {
         step8:
                     'ダウンロードしたファイルをゲームフォルダに入れて、ファイル名を置き換えると、' +
                     'ゲームに入って置き換えたアバターが表示されます。',
-        upload_file: 'ゲームファイル `{{filename}}` を選択してください。',
+        upload_file:
+                    'ゲームファイル `{{filename}}` を選択してください。',
         no_download:
                     'このゲームは現在、アバターの閲覧のみをサポートしており、「更新をダウンロード」はサポートしていません。',
         select_game:
