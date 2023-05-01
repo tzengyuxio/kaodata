@@ -3,8 +3,9 @@
         "date": "2023-12-31",
         "items": [
             { "title": "加入 Changelog", "description": "" },
-            { "title": "新增遊戲支援", "description": "三國志IV, 三國志V" },
-            { "title": "新增語言切換", "description": "繁體中文, 简体中文, 日本語" }
+            { "title": "新增遊戲支援", "description": "三國志IV, 三國志V, 拿破崙" },
+            { "title": "新增語言切換", "description": "繁體中文, 简体中文, 日本語" },
+            { "title": "新增色盤顯示", "description": "" }
         ]
     },
     {

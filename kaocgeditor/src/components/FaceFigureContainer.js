@@ -45,7 +45,7 @@ export default function FaceFigureContainer() {
         <div className="no-game-selected" ref={nodeRef}>
           <span ref={nodeRef}>
             {t('instruction.upload_file', {
-              filename: kaoFile,
+              filename: kaoFile.toUpperCase(),
             })}
           </span>
           <br />

@@ -1,7 +1,7 @@
 const palettes = {
   default: {
-    // also known as "san2", "suikoden"
-    name: '預設 (三國志II, 水滸傳)',
+    id: 'default',
+    name: '預設 (DOS)', // also known as "san2", "suikoden", "lempe"
     codes: [
       '#000000', // Black
       '#55FF55', // Lime Green
@@ -14,6 +14,7 @@ const palettes = {
     ],
   },
   san3: {
+    id: 'san3',
     name: '三國志III',
     codes: [
       '#000000', // Black
@@ -27,6 +28,7 @@ const palettes = {
     ],
   },
   san4: {
+    id: 'san4',
     name: '三國志IV',
     codes: [
       '#302000',
@@ -40,6 +42,7 @@ const palettes = {
     ],
   },
   san5: {
+    id: 'san5',
     name: '三國志V',
     codes: [
       '#202010',
@@ -53,6 +56,7 @@ const palettes = {
     ],
   },
   kohryuki: {
+    id: 'kohryuki',
     name: '項劉記',
     codes: [
       '#000000', // Black

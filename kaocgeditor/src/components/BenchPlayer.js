@@ -24,7 +24,7 @@ function BenchPlayer(props) {
   const colors = useSelector((state) => {
     const info = state.editor.gameInfos[state.editor.currentGame];
     return info ?
-            info.palette.map(hexToRgb) :
+            info.palette.codes.map(hexToRgb) :
             palettes.default.codes.map(hexToRgb);
   });
   const {t} = useTranslation();

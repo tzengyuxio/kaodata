@@ -1,6 +1,7 @@
 import {createSlice} from '@reduxjs/toolkit';
 
 import getGameInfos from './data/gameInfos';
+import palettes from './data/palettes';
 
 export const editorSlice = createSlice({
   name: 'editor',
@@ -13,6 +14,7 @@ export const editorSlice = createSlice({
     selectedFace: -1,
     modifiedFace: [],
     dithKern: 'None',
+    paletteId: palettes.default.id,
   },
   reducers: {
     selectGame: (state, action) => {
@@ -25,6 +27,9 @@ export const editorSlice = createSlice({
       state.kaoImgUrl.map((url) => URL.revokeObjectURL(url));
       state.kaoData = Array(faceCount).fill('');
       state.kaoImgUrl = Array(faceCount).fill('');
+      state.paletteId = gameInfo ?
+                gameInfo.palette.id :
+                palettes.default.id;
     },
     selectFace: (state, action) => {
       if (action.payload === state.selectedFace) {

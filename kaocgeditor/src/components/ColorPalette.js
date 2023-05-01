@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import React, {useState} from 'react';
-import {useDispatch} from 'react-redux';
+import React, {useEffect, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 
 import palettes from '../data/palettes';
 import {applyPalette} from '../reducers';
@@ -50,14 +50,20 @@ ColorPicker.propTypes = {
 };
 
 export default function ColorPalette() {
+  const dispatch = useDispatch();
   const [showHex, setShowHex] = useState(false);
   const [hexValue, setHexValue] = useState('#000000');
   const [selectedPreset, setSelectedPreset] = useState(
       Object.keys(palettes)[0],
   );
   const [colors, setColors] = useState(palettes[selectedPreset].codes);
+  const paletteId = useSelector((state) => state.editor.paletteId);
 
-  const dispatch = useDispatch();
+  useEffect(() => {
+    setSelectedPreset(paletteId);
+    setColors(palettes[paletteId].codes);
+    // dispatch(applyPalette(defaultPreset, palettes[defaultPreset].codes));
+  }, [paletteId]);
 
   const handlePresetChange = (e) => {
     const presetKey = e.target.value;
@@ -67,10 +73,9 @@ export default function ColorPalette() {
   };
 
   const handleReset = () => {
-    const defaultPreset = Object.keys(presets)[0];
-    setSelectedPreset(defaultPreset);
-    setColors(presets[defaultPreset]);
-    dispatch(applyPalette(defaultPreset, palettes[defaultPreset].codes));
+    setSelectedPreset(paletteId);
+    setColors(palettes[paletteId].codes);
+    dispatch(applyPalette(paletteId, palettes[paletteId].codes));
   };
 
   function handleMouseLeave() {

@@ -118,7 +118,7 @@ export default function Settings() {
         const h = gameInfo.height;
         const hh = gameInfo.halfHeight;
         const count = gameInfo.count;
-        const colors = gameInfo.palette.map(hexToRgb);
+        const colors = gameInfo.palette.codes.map(hexToRgb);
 
         // prepare KaoDataArray
         const faceDataSize = hh ? (w * h * 3) / 8 / 2 : (w * h * 3) / 8;

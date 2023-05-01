@@ -1,9 +1,13 @@
+html, body {
+  height: 95%;
+}
+
 .container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 90vh;
   box-sizing: border-box;
-  padding: 20px;
+  padding: 20px 20px 0px 20px;
 }
 
 .grid-container {
@@ -110,13 +114,15 @@
   background-repeat: no-repeat;
 }
 
-.image-list,
 .face-figure-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
   align-items: flex-start;
   max-width: 1024px;
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .clipboard {
@@ -161,11 +167,13 @@ hr {
 }
 
 /* image figure component */
-.face-figure,
-.image-figure {
+.face-figure {
   flex-basis: 64px 128px;
   margin: 10px;
-  display: inline-block;
+  /* display: inline-block; */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   vertical-align: top;
   /* 選擇一個垂直對齊方式 */
   margin-inline: 0.5em;
@@ -173,24 +181,24 @@ hr {
   border: 2px solid whitesmoke;
 }
 
-.face-figure:hover,
-.image-figure:hover {
+.face-figure:hover {
   border-color: black;
 }
 
-.face-figure.selected,
-.image-figure.selected {
+.face-figure.selected {
   border-color: red;
 }
 
-.face-figure.modified,
-.image-figure.modified {
+.face-figure.modified {
   background-color: greenYellow;
 }
 
-.face-figure.active,
-.image-figure:active {
+.face-figure:active {
   box-shadow: inset 0 0 10px #000;
+}
+
+.face-figure img {
+  margin: auto;
 }
 
 figcaption {

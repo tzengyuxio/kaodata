@@ -15,7 +15,7 @@ function UploadImage(props) {
   const gameInfos = useSelector((state) => state.editor.gameInfos);
 
   const palette = gameInfos[currentGame] ?
-        gameInfos[currentGame].palette.map(hexToRgb) :
+        gameInfos[currentGame].palette.codes.map(hexToRgb) :
         palettes.default.codes.map(hexToRgb);
 
   useEffect(() => {
