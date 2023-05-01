@@ -18,6 +18,9 @@ const resources = {
       'button.save': '下載更新',
       'button.upload': '選擇檔案',
       'button.substitute': '替換',
+      'label': {
+        'dith-kern': '抖色演算法：',
+      },
       'instruction': {
         title: '使用說明：',
         step1: '先在左上角選單選擇遊戲',
@@ -47,6 +50,9 @@ const resources = {
       'button.save': '下载更新',
       'button.upload': '选择档案',
       'button.substitute': '替补',
+      'label': {
+        'dith-kern': '抖色算法：',
+      },
       'instruction': {
         title: '使用说明：',
         step1: '先在左上角菜单选择游戏',
@@ -76,6 +82,9 @@ const resources = {
       'button.save': '更新をダウンロード',
       'button.upload': 'ファイルを選択',
       'button.substitute': '置換',
+      'label': {
+        'dith-kern': 'ディザリング：',
+      },
       'instruction': {
         title: '使用説明：',
         step1: '左上のメニューでゲームを選択します',

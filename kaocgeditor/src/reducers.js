@@ -12,6 +12,7 @@ export const editorSlice = createSlice({
     kaoImgUrl: [], // 用來放每個頭像的 img url
     selectedFace: -1,
     modifiedFace: [],
+    dithKern: 'None',
   },
   reducers: {
     selectGame: (state, action) => {
@@ -21,6 +22,7 @@ export const editorSlice = createSlice({
       const gameInfo = state.gameInfos[action.payload];
       const faceCount = gameInfo ? gameInfo.faceNames.length : 0;
       state.modifiedFace = Array(faceCount).fill(false);
+      state.kaoImgUrl.map((url) => URL.revokeObjectURL(url));
       state.kaoData = Array(faceCount).fill('');
       state.kaoImgUrl = Array(faceCount).fill('');
     },
@@ -51,6 +53,9 @@ export const editorSlice = createSlice({
     applyPalette: (state, action) => {
       // do nothing
     },
+    setDithKern: (state, action) => {
+      state.dithKern = action.payload;
+    },
   },
 });
 
@@ -64,6 +69,7 @@ export const {
   updateKao,
   loadFileDone,
   applyPalette,
+  setDithKern,
 } = editorSlice.actions;
 
 export default editorSlice.reducer;

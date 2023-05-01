@@ -10,15 +10,16 @@ function UploadImage(props) {
   const [imageFile, setImageFile] = useState(null);
   const [image, setImage] = useState(null); // drag-and-drop 的圖片
   const [resizedImage, setResizedImage] = useState(null); // 調整大小後的圖片
-  const gameInfos = useSelector((state) => state.editor.gameInfos);
   const currentGame = useSelector((state) => state.editor.currentGame);
+  const dithKern = useSelector((state) => state.editor.dithKern);
+  const gameInfos = useSelector((state) => state.editor.gameInfos);
 
   const palette = gameInfos[currentGame] ?
         gameInfos[currentGame].palette.map(hexToRgb) :
         palettes.default.codes.map(hexToRgb);
 
   useEffect(() => {
-    console.log('useEffect: currentGame changed', currentGame);
+    console.log('useEffect: currentGame changed to [' + currentGame + ']');
     resizeImage(resizedImage, 64, 80, palette, false);
   }, [currentGame]);
 
@@ -115,7 +116,7 @@ function UploadImage(props) {
         boxSize: [4, 4], // if method = 2
         boxPxls: 0.1, // if method = 2
         initColors: 32, // if method = 1
-        dithKern: props.dithKern === 'None' ? null : props.dithKern,
+        dithKern: dithKern === 'None' ? null : props.dithKern,
         dithDelta: 0.1,
         palette: palette,
         // palette: palettes.default.codes.map(hexToRgb),

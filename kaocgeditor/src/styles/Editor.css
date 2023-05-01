@@ -59,7 +59,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
 }
 
 .configuration {
@@ -366,4 +366,14 @@ a:hover {
 h2 {
   border-bottom: 1px solid #000;
   margin-right: 16px;
+}
+
+label[for="dithKernSelect"] {
+  display: inline-block;
+  /* width: 150px; 可以设置 label 的宽度 */
+}
+
+#dithKernSelect {
+  display: inline-block;
+  /* width: 200px; 可以设置 select 的宽度 */
 }

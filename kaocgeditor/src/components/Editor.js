@@ -1,29 +1,13 @@
-import PropTypes from 'prop-types';
 import React, {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 
 import '../styles/Editor.css';
 import BenchPlayer from './BenchPlayer.js';
+import Configs from './Configs';
 import CreditInfo from './CreditInfo.js';
 import FaceFigureContainer from './FaceFigureContainer.js';
 import Settings from './Settings.js';
 import UploadImage from './UploadImage.js';
-
-function DithKernSelect({options, onChange}) {
-  return (
-    <select onChange={onChange}>
-      {options.map((value) => (
-        <option key={value} value={value}>
-          {value}
-        </option>
-      ))}
-    </select>
-  );
-}
-DithKernSelect.propTypes = {
-  options: PropTypes.arrayOf(PropTypes.string).isRequired,
-  onChange: PropTypes.func.isRequired,
-};
 
 function LanguageSelect() {
   const {i18n} = useTranslation();
@@ -45,25 +29,7 @@ function LanguageSelect() {
 
 function Editor() {
   const [subFace, setSubFace] = useState(null); // rgbQuant 的結果
-  const [dithKern, setDithKern] = useState('FloydSteinberg');
   const {t} = useTranslation();
-
-  const handleDithKernSelectChange = (event) => {
-    setDithKern(event.target.value);
-  };
-
-  const dithKernList = [
-    'None',
-    'FloydSteinberg',
-    'FalseFloydSteinberg',
-    'Stucki',
-    'Atkinson',
-    'Jarvis',
-    'Burkes',
-    'Sierra',
-    'TwoSierra',
-    'SierraLite',
-  ];
 
   return (
     <div className="container">
@@ -72,18 +38,10 @@ function Editor() {
           <LanguageSelect className="locale" />
         </div>
         <Settings />
-        <div className="configuration outline-block child">
-          <div className="tab-label">{t('tabs.color')}</div>
-          <span>抖色演算法：</span>
-          <DithKernSelect
-            options={dithKernList}
-            onChange={handleDithKernSelectChange}
-          />
-          {/* <ColorPalette /> */}
-        </div>
+        <Configs />
         <div className="preview outline-block">
           <div className="tab-label">{t('tabs.substitute')}</div>
-          <UploadImage dithKern={dithKern} setSubFace={setSubFace} />
+          <UploadImage setSubFace={setSubFace} />
                     →
           <BenchPlayer subFace={subFace} />
         </div>
