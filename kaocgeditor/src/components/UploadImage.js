@@ -24,9 +24,9 @@ function UploadImage(props) {
   }, [currentGame]);
 
   useEffect(() => {
-    console.log('useEffect: dithKern changed', props.dithKern);
+    console.log('useEffect: dithKern changed', dithKern);
     resizeImage(resizedImage, 64, 80, palette, false);
-  }, [props.dithKern]);
+  }, [dithKern]);
 
   function handleDrop(e) {
     e.preventDefault();
@@ -116,7 +116,7 @@ function UploadImage(props) {
         boxSize: [4, 4], // if method = 2
         boxPxls: 0.1, // if method = 2
         initColors: 32, // if method = 1
-        dithKern: dithKern === 'None' ? null : props.dithKern,
+        dithKern: dithKern === 'None' ? null : dithKern,
         dithDelta: 0.1,
         palette: palette,
         // palette: palettes.default.codes.map(hexToRgb),
@@ -161,7 +161,6 @@ function UploadImage(props) {
   );
 }
 UploadImage.propTypes = {
-  dithKern: PropTypes.string.isRequired,
   setSubFace: PropTypes.func.isRequired,
 };
 

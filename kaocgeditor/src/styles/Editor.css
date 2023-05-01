@@ -13,9 +13,9 @@
   grid-template-areas:
     "settings preview locale"
     "settings preview credit"
-    "config preview credit"
-    "config preview credit"
-    "config preview credit";
+    "configs preview credit"
+    "configs preview credit"
+    "configs preview credit";
   display: grid;
   gap: 10px;
   width: 800px;
@@ -63,12 +63,11 @@
 }
 
 .configuration {
-  grid-area: config;
+  grid-area: configs;
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 20px;
-  height: 100px;
   width: 240px;
 }
 
@@ -376,4 +375,8 @@ label[for="dithKernSelect"] {
 #dithKernSelect {
   display: inline-block;
   /* width: 200px; 可以设置 select 的宽度 */
+}
+
+.color-palette {
+  margin: 8px;
 }

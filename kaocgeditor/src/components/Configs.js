@@ -3,6 +3,7 @@ import {useTranslation} from 'react-i18next';
 import {useDispatch} from 'react-redux';
 
 import {setDithKern} from '../reducers';
+import ColorPalette from './ColorPalette';
 import TabLabel from './TabLabel';
 
 function DithKernSelect() {
@@ -44,7 +45,7 @@ export default function Configs() {
     <div className="configuration outline-block child">
       <TabLabel labelKey="tabs.color" />
       <DithKernSelect />
-      {/* <ColorPalette /> */}
+      <ColorPalette />
     </div>
   );
 }
