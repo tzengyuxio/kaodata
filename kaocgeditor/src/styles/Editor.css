@@ -388,3 +388,8 @@ label[for="dithKernSelect"] {
 .color-palette {
   margin: 8px;
 }
+
+.fa-icons {
+  font-size: 24px;
+  color: #0077be;
+}

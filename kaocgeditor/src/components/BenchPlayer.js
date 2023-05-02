@@ -12,7 +12,6 @@ import {hexToRgb, imageToData} from '../utils';
  * 可替補上場的頭像，一個包含圖片和「替換」按鈕的 React 組件。
  * 相對於出廠預設的先發頭像，角色類似於「替補」或「板凳球員」。
  * @param {Object} props - 組件的屬性。
- * @param {Blob} props.image - 從遊戲中讀取的圖片。
  * @param {function} props.onSubButtonClick - img 元素重繪完成後需要執行的回調函數。
  * @return {JSX.Element} BenchPlayer 組件。
  */
@@ -27,27 +26,33 @@ function BenchPlayer(props) {
             info.palette.codes.map(hexToRgb) :
             palettes.default.codes.map(hexToRgb);
   });
+  const currentGame = useSelector((state) => state.editor.currentGame);
   const {t} = useTranslation();
 
   useEffect(() => {
-    if (props.subFace) {
+    if (props.subImage) {
+      const newImageData = props.subImage.applyPalette(
+          colors,
+          false,
+          false,
+      );
       const canvas = document.createElement('canvas');
-      canvas.width = props.subFace.width;
-      canvas.height = props.subFace.height;
+      canvas.width = props.subImage.imageData.width;
+      canvas.height = props.subImage.imageData.height;
       const ctx = canvas.getContext('2d');
-      ctx.putImageData(props.subFace, 0, 0);
+      ctx.putImageData(newImageData, 0, 0);
       const url = canvas.toDataURL();
       setImageUrl(url);
       setIsSubButtonDisabled(false);
     } else {
       console.log('useEffect: props.subFace is null');
     }
-  }, [props.subFace]);
+  }, [currentGame, props.subImage]);
 
   const handleSubButtonClick = () => {
     dispatch(modifyFace(selectedIndex));
     // copy self image to selected face
-    const faceData = imageToData(props.subFace, colors);
+    const faceData = imageToData(props.subImage.imageData, colors);
     dispatch(
         updateKao({
           index: selectedIndex,
@@ -74,8 +79,7 @@ function BenchPlayer(props) {
   );
 }
 BenchPlayer.propTypes = {
-  image: PropTypes.string,
-  subFace: PropTypes.object,
+  subImage: PropTypes.object,
 };
 
 export default BenchPlayer;

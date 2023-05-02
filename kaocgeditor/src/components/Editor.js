@@ -28,24 +28,27 @@ function LanguageSelect() {
 }
 
 function Editor() {
-  const [subFace, setSubFace] = useState(null); // rgbQuant 的結果
+  const [subImage, setSubImage] = useState(null);
   const {t} = useTranslation();
 
   return (
     <div className="container">
       <div className="grid-container parent">
         <div className="locale">
+          <i className="fa-solid fa-earth-asia fa-icons"></i>{' '}
           <LanguageSelect className="locale" />
         </div>
         <Settings />
         <Configs />
         <div className="preview outline-block">
           <div className="tab-label">{t('tabs.substitute')}</div>
-          <UploadImage setSubFace={setSubFace} />
+          <UploadImage
+            subImage={subImage}
+            setSubImage={setSubImage}
+          />
                     →
-          <BenchPlayer subFace={subFace} />
+          <BenchPlayer subImage={subImage} />
         </div>
-        {/* <div className="grid-item one"></div> */}
         <CreditInfo />
       </div>
       <hr />

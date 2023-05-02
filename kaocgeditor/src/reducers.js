@@ -15,6 +15,8 @@ export const editorSlice = createSlice({
     modifiedFace: [],
     dithKern: 'None',
     paletteId: palettes.default.id,
+    substitudeKao: '',
+    substitudeKaoHH: '',
   },
   reducers: {
     selectGame: (state, action) => {
@@ -61,6 +63,14 @@ export const editorSlice = createSlice({
     setDithKern: (state, action) => {
       state.dithKern = action.payload;
     },
+    setSubstitudeKao: (state, action) => {
+      // action.payload = {kao: 'base64 data', hh: true/false}
+      if (action.payload.hh === true) {
+        state.substitudeKaoHH = action.payload.kao;
+      } else {
+        state.substitudeKao = action.payload.kao;
+      }
+    },
   },
 });
 
@@ -75,6 +85,7 @@ export const {
   loadFileDone,
   applyPalette,
   setDithKern,
+  setSubstitudeKao,
 } = editorSlice.actions;
 
 export default editorSlice.reducer;

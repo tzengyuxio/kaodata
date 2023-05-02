@@ -1,32 +1,11 @@
 import PropTypes from 'prop-types';
-import React, {useEffect, useState} from 'react';
-import {useSelector} from 'react-redux';
-import RgbQuant from 'rgbquant';
+import React, {useState} from 'react';
 
-import palettes from '../data/palettes';
-import {hexToRgb, usedColorsOfImageData} from '../utils';
+import {SubstitudeImage} from '../utils';
 
 function UploadImage(props) {
   const [imageFile, setImageFile] = useState(null);
   const [image, setImage] = useState(null); // drag-and-drop 的圖片
-  const [resizedImage, setResizedImage] = useState(null); // 調整大小後的圖片
-  const currentGame = useSelector((state) => state.editor.currentGame);
-  const dithKern = useSelector((state) => state.editor.dithKern);
-  const gameInfos = useSelector((state) => state.editor.gameInfos);
-
-  const palette = gameInfos[currentGame] ?
-        gameInfos[currentGame].palette.codes.map(hexToRgb) :
-        palettes.default.codes.map(hexToRgb);
-
-  useEffect(() => {
-    console.log('useEffect: currentGame changed to [' + currentGame + ']');
-    resizeImage(resizedImage, 64, 80, palette, false);
-  }, [currentGame]);
-
-  useEffect(() => {
-    console.log('useEffect: dithKern changed', dithKern);
-    resizeImage(resizedImage, 64, 80, palette, false);
-  }, [dithKern]);
 
   function handleDrop(e) {
     e.preventDefault();
@@ -40,8 +19,9 @@ function UploadImage(props) {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = () => {
+        // reader.result is DataURL, 'data:image/png;base64,...'
         setImage(reader.result);
-        resizeImage(reader.result, 64, 80, palette, true);
+        generateKao(reader.result, 64, 80);
       };
     }
   }
@@ -67,71 +47,33 @@ function UploadImage(props) {
     e.preventDefault();
   }
 
-  function resizeImage(fileResult, newWidth, newHeight, palette, needSave) {
+  function generateKao(dataURL, width, height) {
     const img = new Image();
 
+    // 加載圖像
     img.onload = function() {
       // Determine new dimensions within max size
-      const ratio = Math.min(
-          img.width / newWidth,
-          img.height / newHeight,
-      );
-      const width = ratio === 1 ? img.width : newWidth * ratio;
-      const height = ratio === 1 ? img.height : newHeight * ratio;
-      const sx = (img.width - width) / 2;
-      const sy = (img.height - height) / 2;
-
-      // Draw image on canvas
+      const ratio = Math.min(img.width / width, img.height / height);
+      const sw = width * ratio; // 原圖要裁下的寬度
+      const sh = height * ratio; // 原圖要裁下的高度
+      const sx = (img.width - sw) / 2;
+      const sy = (img.height - sh) / 2;
+      // 創建 canvas, draw image on canvas
       const canvas = document.createElement('canvas');
-      canvas.width = newWidth;
-      canvas.height = newHeight;
+      canvas.width = width;
+      canvas.height = height;
+      // 將圖像繪製到 canvas 上下文中
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(
-          img,
-          sx,
-          sy,
-          width,
-          height,
-          0,
-          0,
-          newWidth,
-          newHeight,
-      );
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, width, height);
 
-      // Get resized image data
-      const imageData = ctx.getImageData(0, 0, newWidth, newHeight);
-      if (needSave) {
-        // NOTE: resizedImage 是否可改用 imageData? 是的話最後 img.src 要怎麼改?
-        setResizedImage(canvas.toDataURL('image/png'));
-      }
-
-      // used colors of imageData
-      const usedColors = usedColorsOfImageData(imageData);
-      console.log('usedColors', usedColors);
-
-      // Rgb Quant
-      const opts = {
-        colors: 8,
-        method: 2, // histogram method
-        boxSize: [4, 4], // if method = 2
-        boxPxls: 0.1, // if method = 2
-        initColors: 32, // if method = 1
-        dithKern: dithKern === 'None' ? null : dithKern,
-        dithDelta: 0.1,
-        palette: palette,
-        // palette: palettes.default.codes.map(hexToRgb),
-      };
-
-      const q = new RgbQuant(opts);
-      // q.sample(imageData);
-      const out = q.reduce(imageData);
-      const carr = new Uint8ClampedArray(out.buffer);
-      const newImageData = new ImageData(carr, newWidth, newHeight);
-
-      props.setSubFace(newImageData);
+      // 獲取 ImageData 對象
+      const imageData = ctx.getImageData(0, 0, width, height);
+      const simg = new SubstitudeImage(imageData);
+      props.setSubImage(simg);
     };
 
-    img.src = fileResult;
+    // 設置圖像源
+    img.src = dataURL;
   }
 
   return (
@@ -161,7 +103,7 @@ function UploadImage(props) {
   );
 }
 UploadImage.propTypes = {
-  setSubFace: PropTypes.func.isRequired,
+  setSubImage: PropTypes.func.isRequired,
 };
 
 export default UploadImage;
