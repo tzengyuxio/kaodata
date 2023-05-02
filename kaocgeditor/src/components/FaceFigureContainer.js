@@ -18,10 +18,6 @@ export default function FaceFigureContainer() {
     return info ? info.filename : '';
   });
   const fileLoaded = useSelector((state) => state.editor.fileLoaded);
-  const halfHeight = useSelector((state) => {
-    const info = state.editor.gameInfos[state.editor.currentGame];
-    return info ? info.halfHeight : false;
-  });
   const {t, i18n} = useTranslation();
 
   useEffect(() => {
@@ -48,12 +44,12 @@ export default function FaceFigureContainer() {
               filename: kaoFile.toUpperCase(),
             })}
           </span>
-          <br />
+          {/* <br />
           {`${
                         currentGame && halfHeight ?
                             t('instruction.no_download') :
                             ''
-          } `}
+          } `} */}
         </div>
       )}
       {!currentGame && (

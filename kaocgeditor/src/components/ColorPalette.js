@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React, {useEffect, useState} from 'react';
+import {useTranslation} from 'react-i18next';
 import {useDispatch, useSelector} from 'react-redux';
 
 import palettes from '../data/palettes';
@@ -58,6 +59,7 @@ export default function ColorPalette() {
   );
   const [colors, setColors] = useState(palettes[selectedPreset].codes);
   const paletteId = useSelector((state) => state.editor.paletteId);
+  const {t} = useTranslation();
 
   useEffect(() => {
     setSelectedPreset(paletteId);
@@ -110,12 +112,24 @@ export default function ColorPalette() {
 
   return (
     <div className="color-palette">
-      <select value={selectedPreset} onChange={handlePresetChange}>
+      <select
+        value={selectedPreset}
+        onChange={handlePresetChange}
+        disabled
+      >
         {presetOptions}
       </select>
-      <button onClick={handleReset}>Reset</button>
+      <button
+        onClick={handleReset}
+        style={{marginLeft: '8px'}}
+        disabled
+      >
+        {t('buttons.reset')}
+      </button>
       <br />
-      <div onMouseLeave={handleMouseLeave}>{colorInputs}</div>
+      <div onMouseLeave={handleMouseLeave} style={{marginTop: '8px'}}>
+        {colorInputs}
+      </div>
       <div
         id="hexValue"
         style={{

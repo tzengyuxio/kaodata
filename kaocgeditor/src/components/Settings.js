@@ -45,6 +45,7 @@ function GameSelect() {
  * @return {JSX.Element} SaveFaceFile 組件。
  */
 function SaveFaceFile() {
+  const dispatch = useDispatch();
   const kaoData = useSelector((state) => state.editor.kaoData);
   const filename = useSelector((state) => {
     const info = state.editor.gameInfos[state.editor.currentGame];
@@ -60,7 +61,7 @@ function SaveFaceFile() {
   const {t} = useTranslation();
 
   const handleClick = () => {
-    const faceDataSize = 1920;
+    const faceDataSize = halfHeight ? 960 : 1920;
     const bytes = new Uint8Array(kaoData.length * faceDataSize);
 
     kaoData.map((data, index) => {
@@ -93,10 +94,10 @@ function SaveFaceFile() {
   return (
     <button
       className="save-btn save-face-file"
-      disabled={!modified || halfHeight}
+      disabled={!modified }
       onClick={handleClick}
     >
-      {t('button.save')}
+      {t('buttons.save')}
     </button>
   );
 }

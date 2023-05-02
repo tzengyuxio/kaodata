@@ -13,6 +13,20 @@ const palettes = {
       '#FFFFFF', // White
     ],
   },
+  san2_pc98: {
+    id: 'san2_pc98',
+    name: '三國志II (PC98)',
+    codes: [
+      '#000000',
+      '#00FF00',
+      '#FF0000',
+      '#FFFF00',
+      '#0000FF',
+      '#00FFFF',
+      '#FF00FF',
+      '#FFFFFF',
+    ],
+  },
   san3: {
     id: 'san3',
     name: '三國志III',

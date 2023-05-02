@@ -6,7 +6,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {base64EncArr} from '../base64.js';
 import palettes from '../data/palettes.js';
 import {modifyFace, updateKao} from '../reducers';
-import {hexToRgb, imageToData} from '../utils';
+import {hexToRgb} from '../utils';
 
 /**
  * 可替補上場的頭像，一個包含圖片和「替換」按鈕的 React 組件。
@@ -20,12 +20,14 @@ function BenchPlayer(props) {
   const [isSubButtonDisabled, setIsSubButtonDisabled] = useState(true);
   const dispatch = useDispatch();
   const selectedIndex = useSelector((state) => state.editor.selectedFace);
-  const colors = useSelector((state) => {
+  const gameInfo = useSelector((state) => {
     const info = state.editor.gameInfos[state.editor.currentGame];
-    return info ?
-            info.palette.codes.map(hexToRgb) :
-            palettes.default.codes.map(hexToRgb);
+    return info ? info : null;
   });
+  const colors = gameInfo ?
+        gameInfo.palette.codes.map(hexToRgb) :
+        palettes.default.codes.map(hexToRgb);
+  const halfHeight = gameInfo ? gameInfo.halfHeight : false;
   const currentGame = useSelector((state) => state.editor.currentGame);
   const {t} = useTranslation();
 
@@ -33,8 +35,7 @@ function BenchPlayer(props) {
     if (props.subImage) {
       const newImageData = props.subImage.applyPalette(
           colors,
-          false,
-          false,
+          halfHeight,
       );
       const canvas = document.createElement('canvas');
       canvas.width = props.subImage.imageData.width;
@@ -52,13 +53,11 @@ function BenchPlayer(props) {
   const handleSubButtonClick = () => {
     dispatch(modifyFace(selectedIndex));
     // copy self image to selected face
-    const faceData = imageToData(props.subImage.imageData, colors);
+    const kaoData = base64EncArr(
+        props.subImage.getFaceData(colors, halfHeight),
+    );
     dispatch(
-        updateKao({
-          index: selectedIndex,
-          kao: base64EncArr(faceData),
-          url: imageUrl,
-        }),
+        updateKao({index: selectedIndex, kao: kaoData, url: imageUrl}),
     );
   };
 
@@ -73,7 +72,7 @@ function BenchPlayer(props) {
         disabled={isSubButtonDisabled || selectedIndex < 0}
         onClick={handleSubButtonClick}
       >
-        {t('button.substitute')}
+        {t('buttons.substitute')}
       </button>
     </div>
   );

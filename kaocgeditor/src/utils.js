@@ -277,6 +277,21 @@ function convertSetToArray(set) {
   return arr;
 }
 
+// return array of index in half size
+function colorIndexesInHalfHeight(colorIndexes, width) {
+  const arr = Array(colorIndexes.length / 2);
+  colorIndexes.map((colorIndex, index) => {
+    const x = index % width;
+    const y = Math.floor(index / width);
+    if (y % 2 == 0) {
+      const i = Math.floor(y / 2) * width + x;
+      arr[i] = colorIndex;
+    }
+  });
+
+  return arr;
+}
+
 export function paletteConvertTable(palette) {
   const KOEI_PALETTE = [
     [0, 0, 0],
@@ -307,7 +322,7 @@ export function paletteConvertTable(palette) {
   return table;
 }
 
-export function doColorQuntization(imageData, palette, dithKern) {
+export function doColorQuntization(imageData, palette, dithKern, halfHeight) {
   const imgData = new ImageData(
       new Uint8ClampedArray(imageData.data),
       imageData.width,
@@ -357,16 +372,15 @@ export class SubstitudeImage {
      * @return {ImageData}
      */
   applyPalette(palette, halfHeight = false) {
-    console.log(
-        'applyPalette',
-        palette,
-        this.isIndexedColor,
-        this.imageData,
-        this.time,
-    );
     if (this.isIndexedColor && this.colorIndexes.length > 0) {
+      const colorIndexes = halfHeight ?
+                colorIndexesInHalfHeight(
+                    this.colorIndexes,
+                    this.imageData.width,
+                ) :
+                this.colorIndexes;
       return colorIndexesToImage(
-          this.colorIndexes,
+          colorIndexes,
           this.imageData.width,
           this.imageData.height,
           palette,
@@ -374,12 +388,34 @@ export class SubstitudeImage {
       );
     } else {
       // do color quantization again.
-      const out = doColorQuntization(
+      return doColorQuntization(
           this.imageData,
           palette,
           'FloydSteinberg',
+          halfHeight,
       );
-      return out;
+    }
+  }
+
+  getFaceData(colors, halfHeight) {
+    if (this.isIndexedColor && this.colorIndexes.length > 0) {
+      const colorIndexes = halfHeight ?
+                colorIndexesInHalfHeight(
+                    this.colorIndexes,
+                    this.imageData.width,
+                ) :
+                this.colorIndexes;
+      return indexArrayToFaceData(colorIndexes);
+    } else {
+      return imageToData(this.imageData, colors);
     }
   }
 }
+
+// TODOs:
+// 1. 色彩區的調色盤選擇要能發揮作用
+// 2. 顯示半高圖片
+// 3. 存檔半高圖片
+// 4. SAN4, SAN5 姓名
+// 5. SAN3 姓名更正
+// 6. disk 支援
