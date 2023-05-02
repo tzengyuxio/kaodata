@@ -1,7 +1,8 @@
 const palettes = {
   default: {
+    // also known as "san2", "suikoden", "koukai", "lempe", "royal"
     id: 'default',
-    name: '預設 (DOS)', // also known as "san2", "suikoden", "lempe"
+    name: '預設 (DOS)',
     codes: [
       '#000000', // Black
       '#55FF55', // Lime Green
@@ -13,18 +14,19 @@ const palettes = {
       '#FFFFFF', // White
     ],
   },
-  san2_pc98: {
-    id: 'san2_pc98',
-    name: '三國志II (PC98)',
+  default_pc98: {
+    // also known as "san1_pc98", "san2_pc98", "suikoden_pc98"
+    id: 'default_pc98',
+    name: '預設 (PC98)',
     codes: [
-      '#000000',
-      '#00FF00',
-      '#FF0000',
-      '#FFFF00',
-      '#0000FF',
-      '#00FFFF',
-      '#FF00FF',
-      '#FFFFFF',
+      '#000000', // Black
+      '#00FF00', // Green
+      '#FF0000', // Red
+      '#FFFF00', // Yellow
+      '#0000FF', // blue
+      '#00FFFF', // Cyan
+      '#FF00FF', // Magenta
+      '#FFFFFF', // White
     ],
   },
   san3: {
@@ -81,6 +83,20 @@ const palettes = {
       '#71A2B2', // Steel Blue
       '#B27171', // Rosy Brown
       '#F3E3D3', // Beige
+    ],
+  },
+  royal_pc98: {
+    id: 'royal_pc98',
+    name: '魔法皇冠 (PC98)',
+    codes: [
+      '#000000',
+      '#00BA65',
+      '#FF5555',
+      '#EFCF55',
+      '#0065BA',
+      '#459ADF',
+      '#FF55FF',
+      '#FFFFFF',
     ],
   },
 };
