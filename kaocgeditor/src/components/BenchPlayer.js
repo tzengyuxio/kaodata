@@ -28,13 +28,13 @@ function BenchPlayer(props) {
         gameInfo.palette.codes.map(hexToRgb) :
         palettes.default.codes.map(hexToRgb);
   const halfHeight = gameInfo ? gameInfo.halfHeight : false;
-  const currentGame = useSelector((state) => state.editor.currentGame);
+  const paletteId = useSelector((state) => state.editor.paletteId);
   const {t} = useTranslation();
 
   useEffect(() => {
     if (props.subImage) {
       const newImageData = props.subImage.applyPalette(
-          colors,
+          palettes[paletteId].codes.map(hexToRgb),
           halfHeight,
       );
       const canvas = document.createElement('canvas');
@@ -48,7 +48,7 @@ function BenchPlayer(props) {
     } else {
       console.log('useEffect: props.subFace is null');
     }
-  }, [currentGame, props.subImage]);
+  }, [paletteId, props.subImage]);
 
   const handleSubButtonClick = () => {
     dispatch(modifyFace(selectedIndex));

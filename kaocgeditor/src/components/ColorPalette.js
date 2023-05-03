@@ -4,7 +4,7 @@ import {useTranslation} from 'react-i18next';
 import {useDispatch, useSelector} from 'react-redux';
 
 import palettes from '../data/palettes';
-import {applyPalette} from '../reducers';
+import {setPaletteId} from '../reducers';
 
 function ColorPicker(props) {
   const elementId = 'hexValue';
@@ -64,20 +64,14 @@ export default function ColorPalette() {
   useEffect(() => {
     setSelectedPreset(paletteId);
     setColors(palettes[paletteId].codes);
-    // dispatch(applyPalette(defaultPreset, palettes[defaultPreset].codes));
   }, [paletteId]);
 
   const handlePresetChange = (e) => {
-    const presetKey = e.target.value;
-    setSelectedPreset(presetKey);
-    setColors(palettes[presetKey].codes);
-    dispatch(applyPalette(presetKey, palettes[presetKey].codes));
+    dispatch(setPaletteId(e.target.value));
   };
 
   const handleReset = () => {
-    setSelectedPreset(paletteId);
-    setColors(palettes[paletteId].codes);
-    dispatch(applyPalette(paletteId, palettes[paletteId].codes));
+    dispatch(setPaletteId());
   };
 
   function handleMouseLeave() {
@@ -115,14 +109,12 @@ export default function ColorPalette() {
       <select
         value={selectedPreset}
         onChange={handlePresetChange}
-        disabled
       >
         {presetOptions}
       </select>
       <button
         onClick={handleReset}
         style={{marginLeft: '8px'}}
-        disabled
       >
         {t('buttons.reset')}
       </button>
