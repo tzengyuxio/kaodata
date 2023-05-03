@@ -305,6 +305,10 @@ a:hover {
   color: #444;
 }
 
+#changelog {
+  width: 320px;
+}
+
 .changelog-day {
   margin-bottom: 30px;
   margin-right: 25px;

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, {useState} from 'react';
 
-import {SubstitudeImage} from '../utils';
+import {SubstitudeImage, cropImgToImageData} from '../utils';
 
 function UploadImage(props) {
   const [imageFile, setImageFile] = useState(null);
@@ -58,17 +58,31 @@ function UploadImage(props) {
       const sh = height * ratio; // 原圖要裁下的高度
       const sx = (img.width - sw) / 2;
       const sy = (img.height - sh) / 2;
-      // 創建 canvas, draw image on canvas
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      // 將圖像繪製到 canvas 上下文中
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, width, height);
 
-      // 獲取 ImageData 對象
-      const imageData = ctx.getImageData(0, 0, width, height);
-      const simg = new SubstitudeImage(imageData);
+      const imageData = cropImgToImageData(
+          img,
+          sx,
+          sy,
+          sw,
+          sh,
+          0,
+          0,
+          width,
+          height,
+      );
+      const imageDataHH = cropImgToImageData(
+          img,
+          sx,
+          sy,
+          sw,
+          sh,
+          0,
+          0,
+          width,
+          height/2,
+      );
+
+      const simg = new SubstitudeImage(imageData, imageDataHH);
       props.setSubImage(simg);
     };
 

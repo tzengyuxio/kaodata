@@ -1,17 +1,33 @@
 [
     {
-        "date": "2023-12-31",
+        "date": "2023-05-04",
         "items": [
             { "title": "加入 Changelog", "description": "" },
-            { "title": "新增遊戲支援", "description": "三國志IV, 三國志V, 拿破崙" },
-            { "title": "新增語言切換", "description": "繁體中文, 简体中文, 日本語" },
-            { "title": "新增色盤顯示", "description": "" }
+            {
+                "title": "新增遊戲支援",
+                "description": "三國志IV, 三國志V, 拿破崙"
+            },
+            {
+                "title": "新增語言切換",
+                "description": "繁體中文, 简体中文, 日本語"
+            },
+            {
+                "title": "新增色盤顯示",
+                "description": "可以切換預先設定好的色盤進行替換圖像的預覽"
+            },
+            {
+                "title": "半高(HH)格式支援",
+                "description": "針對頭像高度只有一半的遊戲 (64x40, 如三國志II, 水滸傳)，支援顯示與存檔功能"
+            }
         ]
     },
     {
         "date": "2023-04-25",
         "items": [
-            { "title": "編輯器正式上線", "description": "" }
+            {
+                "title": "編輯器正式上線",
+                "description": "支援 水滸傳, 三國志II, 三國志III, 項劉記 的頭像檔案載入與顯示, 並可進行後兩者的編輯與存檔"
+            }
         ]
     }
 ]

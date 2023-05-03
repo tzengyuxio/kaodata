@@ -48,7 +48,7 @@ function BenchPlayer(props) {
     } else {
       console.log('useEffect: props.subFace is null');
     }
-  }, [paletteId, props.subImage]);
+  }, [paletteId, halfHeight, props.subImage]);
 
   const handleSubButtonClick = () => {
     dispatch(modifyFace(selectedIndex));

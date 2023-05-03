@@ -292,6 +292,18 @@ function colorIndexesInHalfHeight(colorIndexes, width) {
   return arr;
 }
 
+// return an array for ImageData which is double height
+function doubleArray(origin, width) {
+  const target = [];
+  for (let i = 0; i < origin.length; i++) {
+    target.push(origin[i]);
+    if ((i + 1) % (4 * width) == 0) {
+      target.push(...origin.slice(i - 4 * width + 1, i + 1));
+    }
+  }
+  return target;
+}
+
 export function paletteConvertTable(palette) {
   const KOEI_PALETTE = [
     [0, 0, 0],
@@ -344,17 +356,57 @@ export function doColorQuntization(imageData, palette, dithKern, halfHeight) {
   return new ImageData(arr, imgData.width, imgData.height);
 }
 
+/**
+ * 將圖像依所需比例裁切後，轉換為 ImageData
+ * @param {HTMLImageElement} image
+ * @param {*} sx 裁切起始 x 座標
+ * @param {*} sy 裁切起始 y 座標
+ * @param {*} sw 裁切寬度
+ * @param {*} sh 裁切高度
+ * @param {*} dx 繪製起始 x 座標
+ * @param {*} dy 繪製起始 y 座標
+ * @param {*} dw 繪製寬度
+ * @param {*} dh 繪製高度
+ * @return {ImageData}
+ */
+export function cropImgToImageData(image, sx, sy, sw, sh, dx, dy, dw, dh) {
+  console.log('cropImgToImageData', sx, sy, sw, sh, dx, dy, dw, dh);
+  // 創建 canvas, draw image on canvas
+  const canvas = document.createElement('canvas');
+  canvas.width = dw;
+  canvas.height = dh;
+  // 將圖像繪製到 canvas 上下文中
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
+  // 獲取 ImageData 對象
+  return ctx.getImageData(0, 0, dw, dh);
+}
+
 export class SubstitudeImage {
-  constructor(imageData) {
+  constructor(imageData, imageDataHH) {
     const usedColors = usedColorsOfImageData(imageData);
+    const usedColorsHH = usedColorsOfImageData(imageDataHH);
     this.isIndexedColor = usedColors.size <= 8;
     this.imageData = new ImageData(
         new Uint8ClampedArray(imageData.data),
         imageData.width,
         imageData.height,
     );
+    this.imageDataHH = imageDataHH ?
+            new ImageData(
+                new Uint8ClampedArray(imageDataHH.data),
+                imageDataHH.width,
+                imageDataHH.height,
+            ) :
+            null;
     this.colorIndexes = [];
-    console.log('usedColors', usedColors, this.isIndexedColor);
+    this.appliedImageData = [];
+    console.log(
+        'usedColors',
+        usedColors,
+        usedColorsHH,
+        this.isIndexedColor,
+    );
     if (this.isIndexedColor) {
       const usedPalette = convertSetToArray(usedColors);
       const [paletteId, distance] = findClosestPalette(usedPalette);
@@ -366,13 +418,22 @@ export class SubstitudeImage {
   }
 
   /**
+     * 判斷是否直接使用 this.colorIndexes
+     * @param {boolean} halfHeight
+     * @return {boolean}
+     */
+  isUseColorIndex() {
+    return this.isIndexedColor && this.colorIndexes.length > 0;
+  }
+
+  /**
      * 依照指定的調色盤，重新產生圖片
      * @param {Array} palette
      * @param {boolean} halfHeight
      * @return {ImageData}
      */
   applyPalette(palette, halfHeight = false) {
-    if (this.isIndexedColor && this.colorIndexes.length > 0) {
+    if (this.isUseColorIndex()) {
       const colorIndexes = halfHeight ?
                 colorIndexesInHalfHeight(
                     this.colorIndexes,
@@ -386,19 +447,54 @@ export class SubstitudeImage {
           palette,
           halfHeight,
       );
+    } else if (halfHeight) {
+      // do color quantization again.
+      const imageDataHH = doColorQuntization(
+          this.imageDataHH,
+          palette,
+          'FloydSteinberg',
+          halfHeight,
+      );
+      const newData = doubleArray(imageDataHH.data, 64);
+      console.log(
+          'actual length',
+          newData.length,
+          imageDataHH.data.length,
+      );
+      console.log(
+          'ecpected length',
+          imageDataHH.width * imageDataHH.height * 4 * 2,
+      );
+      const imageData = new ImageData(
+          new Uint8ClampedArray(newData),
+          imageDataHH.width,
+          imageDataHH.height * 2,
+      );
+      this.appliedImageData = new ImageData(
+          new Uint8ClampedArray(imageDataHH.data),
+          imageDataHH.width,
+          imageDataHH.height,
+      );
+      return imageData;
     } else {
       // do color quantization again.
-      return doColorQuntization(
+      const imageData = doColorQuntization(
           this.imageData,
           palette,
           'FloydSteinberg',
           halfHeight,
       );
+      this.appliedImageData = new ImageData(
+          new Uint8ClampedArray(imageData.data),
+          imageData.width,
+          imageData.height,
+      );
+      return imageData;
     }
   }
 
   getFaceData(colors, halfHeight) {
-    if (this.isIndexedColor && this.colorIndexes.length > 0) {
+    if (this.isUseColorIndex()) {
       const colorIndexes = halfHeight ?
                 colorIndexesInHalfHeight(
                     this.colorIndexes,
@@ -406,16 +502,17 @@ export class SubstitudeImage {
                 ) :
                 this.colorIndexes;
       return indexArrayToFaceData(colorIndexes);
+    } else if (halfHeight) {
+      return imageToData(this.appliedImageData, colors);
     } else {
-      return imageToData(this.imageData, colors);
+      return imageToData(this.appliedImageData, colors);
     }
   }
 }
 
 // TODOs:
-// 1. 色彩區的調色盤選擇要能發揮作用
-// 2. 顯示半高圖片
-// 3. 存檔半高圖片
 // 4. SAN4, SAN5 姓名
 // 5. SAN3 姓名更正
 // 6. disk 支援
+// 7. 更詳細 instruction: show-pic, view-in-game, update-pic
+// 8. 替換按鈕的 enable
