@@ -3,6 +3,7 @@ import {
   lempeFaceNames,
   san2FaceNames,
   san3FaceNames,
+  san4FaceNames,
   suikodenFaceNames,
 } from './faceNames';
 import palettes from './palettes';
@@ -39,7 +40,7 @@ const gameInfos = {
     palette: palettes.san4,
     count: -1, // 701 or 818
     halfHeight: false,
-    faceNames: [],
+    faceNames: san4FaceNames,
   },
   san5: {
     id: 'san5',

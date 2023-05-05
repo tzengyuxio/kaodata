@@ -428,6 +428,7 @@ def to_unicode_name(s: bytes) -> str:
             return s.decode('ascii').strip('\x00')
         except UnicodeDecodeError:
             print('decode error: {}'.format(s))
+            return ''
     global cns11643_unicode_table
     if len(cns11643_unicode_table) == 0:
         cns11643_unicode_table = load_cns11643_unicode_table()

@@ -317,6 +317,37 @@ def get_name_list(filename: str, count: int):
             print(x)
 
 
+def get_san3_name_list(filename: str, count: int):
+    def key(a1, a2, a3, a4) -> str:
+        a1, a2, a3, a4 = ['A0' if x == '100' else x for x in [a1, a2, a3, a4]]
+        return f'S03_{a1:>02}{a2:>02}{a3:>02}{a4:>02}'
+
+    namekey = {}
+    with open('MISC_TABLE/namekey.csv',  'r') as f:
+        csv_reader = csv.reader(f)
+        for row in csv_reader:
+            namekey[row[0]] = row[1]
+
+    with open(filename, 'r', encoding='utf-8') as f:
+        names = ['' for _ in range(count)]
+        csv_reader = csv.reader(f)
+        next(csv_reader)  # header
+        for row in csv_reader:
+            name, kao = row[1], row[2]
+            namekey_index = key(row[9], row[10], row[11], row[12])
+            correct_name = namekey[namekey_index]
+            # test kao is a number or not
+            if kao.isdigit() and len(kao) < 4:
+                try:
+                    names[int(kao)] = correct_name.split(' ')[0]  # 去掉後面括號內容
+                    # names[int(kao)] = correct_name
+                except:
+                    print(kao, name)
+        print('--------------------')
+        for name in names:
+            print(f"'{name}',")
+
+
 def get_san3_scenario_name_list(game_dir: str):
     """
     列出三國志三每個劇本的武將名稱作為勘誤
@@ -394,12 +425,46 @@ def get_san3_scenario_name_list(game_dir: str):
     writer.write_table()
 
 
+def get_san4_name_list():
+    with open('/Users/yuxioz/Downloads/SAN4/SNDATA.S4', 'rb') as f:
+        kao_names = {}
+        offsets = [30892, 50637, 70672, 90527, 144632, 163447, 195512]
+        for idx, offset in enumerate(offsets):
+            f.seek(offset)
+            for i in range(1024):
+                b = f.read(30)
+                if len(b) < 30:
+                    print('scenario', idx+1, 'end in ', i, '(out of data)')
+                    break
+                name = to_unicode_name(b[:10])
+                kao = int.from_bytes(b[20:22], 'little')
+                if name == '':
+                    print('scenario', idx+1, 'end in ', i)
+                    break
+                if kao not in kao_names:
+                    kao_names[kao] = name
+        # ==== show persons with 專用 kao cg
+        # for k in sorted(kao_names):
+        #     if k > 1024:
+        #         break
+        #     print(k, kao_names[k])
+        # ==== show total count
+        # print('total size:', len(kao_names))
+        for i in range(250):
+            name = kao_names[i] if i in kao_names else ''
+            comment = '' if i in kao_names else f' // {i}, 0x{i:02X}'
+            print(f"'{name}',{comment}")
+
+
 if __name__ == '__main__':
     # 將中文轉換成 KOEI-TW 編碼
-    # ss = ['徽沍', '匈奴']
+    # ss = ['羌族', '張飛', '關羽', '劉巴', '呂義', '呂凱']
     # kt = [encode_text(s) for s in ss]
     # for s, k in zip(ss, kt):
     #     print('{}: {} -> {}'.format(s, encode_text(s).hex().upper(), to_unicode_name(k)))
+
+    # print(to_unicode_name(b'\x93\x7a\xc2\x9a'))  # 王粲
+    # print(to_unicode_name(b'\x9c\xaf\x9f\x4a'))  # 袁術
 
     # extract_sui_strings()
 
@@ -409,6 +474,9 @@ if __name__ == '__main__':
 
     # get_name_list('PERSONS_TABLE/san2_persons.csv', 219) # 三國志II 人物名單
     # get_name_list('PERSONS_TABLE/san3_persons_s1.csv', 307)  # 三國志III 人物名單
+    # get_san3_name_list('PERSONS_TABLE/san3_persons_s1.csv', 230)  # 三國志III 人物名單 (by namekey)
     # get_name_list('PERSONS_TABLE/suikoden_persons_s1.csv', 255)  # 水滸傳 人物名單
 
-    get_san3_scenario_name_list('/Users/tzengyuxio/DOSBox/SAN3')
+    # get_san3_scenario_name_list('/Users/tzengyuxio/DOSBox/SAN3')
+
+    get_san4_name_list()
