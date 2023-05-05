@@ -12,7 +12,7 @@ export function FaceFigure(props) {
   const name = useSelector((state) => {
     const info = state.editor.gameInfos[state.editor.currentGame];
     const n = info.faceNames[props.id];
-    return n === '' ? '(未命名)' : n;
+    return n === '' ? '——' : n;
   });
 
   const selected = useSelector(
