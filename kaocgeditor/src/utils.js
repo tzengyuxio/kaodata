@@ -511,7 +511,6 @@ export class SubstitudeImage {
 }
 
 // TODOs:
-// 4. SAN4, SAN5 姓名
 // 6. disk 支援
 // 7. 更詳細 instruction: show-pic, view-in-game, update-pic
 // 8. 替換按鈕的 enable

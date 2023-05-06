@@ -25,7 +25,7 @@ export default function Instruction() {
   });
 
   return (
-    <React.Fragment>
+    <>
       <div>{t('instruction.title')}</div>
       <ol ref={nodeRef}>
         {React.Children.map(
@@ -35,6 +35,6 @@ export default function Instruction() {
             ),
         )}
       </ol>
-    </React.Fragment>
+    </>
   );
 }

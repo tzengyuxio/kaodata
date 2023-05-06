@@ -53,13 +53,13 @@ export default function FaceFigureContainer() {
         </div>
       )}
       {!currentGame && (
-        <React.Fragment>
+        <>
           <div className="no-game-selected">
             {t('instruction.select_game')}
           </div>
           <br />
           {instruction}
-        </React.Fragment>
+        </>
       )}
     </div>
   );

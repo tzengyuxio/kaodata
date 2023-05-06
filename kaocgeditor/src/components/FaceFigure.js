@@ -50,7 +50,12 @@ export function FaceFigure(props) {
       <figcaption>
         {props.id}
         <br />
-        {name}
+        {name.split('\n').map((str) => (
+          <>
+            {str}
+            <br />
+          </>
+        ))}
       </figcaption>
     </figure>
   );
