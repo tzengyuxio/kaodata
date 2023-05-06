@@ -25,6 +25,22 @@
   - 劉巴 A6AB9351 00 03 F8
   - 呂義 9564A399 00 47 F0
 
+decode error: b'C0\x00\x00\x03\x01\x00\xff\xff\xff'
+scenario 1 end in  222
+decode error: b'C0\x00\x00\x03\x01\x00\xff\xff\xff'
+scenario 2 end in  222
+decode error: b'C0\x00\x00\x03\x01\x00\xff\xff\xff'
+scenario 3 end in  234
+decode error: b'C0\x00\x00\x03\x01\x00\xff\xff\xff'
+scenario 4 end in  207
+decode error: b'C0\x00\x00\x03\x01\x00\xff\xff\xff'
+scenario 5 end in  198
+decode error: b'C0\x00\x00\x03\x01\x00\xff\xff\xff'
+scenario 6 end in  209
+scenario 7 end in  95 (out of data)
+
+新武將可選擇的 70 個頭像中，前 30 個是專用，後 40 個是大眾臉
+
 ## 參考來源
 
 - 這邊有 1~11 代的能力一覽表：[楊奉とは (ヨウホウとは) \[単語記事\] - ニコニコ大百科](https://dic.nicovideo.jp/a/%E6%A5%8A%E5%A5%89)

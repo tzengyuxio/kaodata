@@ -48,7 +48,7 @@ export function FaceFigure(props) {
     >
       {imgUrl && <img src={imgUrl} alt={`${name} 顏ＣＧ`} />}
       <figcaption>
-        {props.id + 1}
+        {props.id}
         <br />
         {name}
       </figcaption>
