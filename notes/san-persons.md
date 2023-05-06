@@ -39,7 +39,36 @@ decode error: b'C0\x00\x00\x03\x01\x00\xff\xff\xff'
 scenario 6 end in  209
 scenario 7 end in  95 (out of data)
 
-新武將可選擇的 70 個頭像中，前 30 個是專用，後 40 個是大眾臉
+新武將男可選擇的 70 個頭像中，前 30 個是專用，後 40 個是大眾臉
+
+## SAN5
+
+- SNDATA.S5
+  - 伊籍 名字 offset: 49607, 72510, 95342, 118159, 192851, 215491
+  - 伊籍 能力 offset: 42024, 65547, 87721, 111313, 185640, 208366
+  - 張飛 13144
+  - 關羽 10826
+  - 華雄 10788 (差 38 bytes)
+- offsets: 10180, 28250, 49607, 72510, 95304, 118121,  192851, 215453
+
+名字後 30, 31 兩 bytes 為顏編號
+
+decode error: b'F\x00\xff\x00\x00\x00\x00\x00\x00\x00'
+scenario 1 end in  148
+decode error: b'^\x00\xff\x00\x00\x00\x00\x00\x00\x00'
+scenario 2 end in  188
+decode error: b'q\x00\xff\x00\x00\x00\x00\x00\x00\x00'
+scenario 3 end in  245
+decode error: b'i\x00\xff\x00\x00\x00\x00\x00\x00\x00'
+scenario 4 end in  225
+decode error: b'k\x00\xff\x00\x00\x00\x00\x00\x00\x00'
+scenario 5 end in  246
+decode error: b'a\x00\xff\x00\x00\x00\x00\x00\x00\x00'
+scenario 6 end in  221
+decode error: b'G\x00\xff\x00\x00\x00\x00\x00\x00\x00'
+scenario 7 end in  233
+decode error: b'd\x00\xff\x00\x00\x00\x00\x00\x00\x00'
+scenario 8 end in  230
 
 ## 參考來源
 

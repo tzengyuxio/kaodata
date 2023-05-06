@@ -4,6 +4,7 @@ import {
   san2FaceNames,
   san3FaceNames,
   san4FaceNames,
+  san5FaceNames,
   suikodenFaceNames,
 } from './faceNames';
 import palettes from './palettes';
@@ -51,7 +52,7 @@ const gameInfos = {
     palette: palettes.san5,
     count: -1,
     halfHeight: false,
-    faceNames: [],
+    faceNames: san5FaceNames,
   },
   kohryuki: {
     id: 'kohryuki',

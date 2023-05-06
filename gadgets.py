@@ -446,7 +446,7 @@ def get_san4_name_list():
 
     with open('/Users/tzengyuxio/DOSBox/SAN4/TAIKI.S4', 'rb') as f:
         f.seek(62)
-        for i in range(1024):
+        for i in range(1024): # TODO: 1024 也許需要放大調整試試
             b = f.read(50)
             if len(b) < 50:
                 print('out of data: ', i)
@@ -505,20 +505,67 @@ def get_san4_name_list():
         for n in npc_names:
             print(n)
 
+def get_san5_name_list():
+    kao_names = {}
+    with open('/Users/tzengyuxio/DOSBox/SAN5/SNDATA.S5', 'rb') as f:
+        offsets = [10180, 28250, 49607, 72510, 95304, 118121,  192851, 215453]
+        for idx, offset in enumerate(offsets):
+            f.seek(offset)
+            for i in range(1024):
+                b = f.read(38)
+                if len(b) < 38:
+                    print('scenario', idx+1, 'end in ', i, '(out of data)')
+                    break
+                name = to_unicode_name(b[:10])
+                kao = int.from_bytes(b[30:32], 'little')
+                if name == '':
+                    print('scenario', idx+1, 'end in ', i)
+                    break
+                if kao not in kao_names:
+                    kao_names[kao] = name
+    with open('/Users/tzengyuxio/DOSBox/SAN5/TAIKI.S5', 'rb') as f:
+        f.seek(74)
+        for i in range(2400):
+            b = f.read(69)
+            if len(b) < 69:
+                print('out of data: ', i)
+                break
+            name = to_unicode_name(b[31:41])
+            kao = int.from_bytes(b[61:63], 'little')
+            if kao not in kao_names:
+                kao_names[kao] = name
+    # ==== show persons with 專用 kao cg
+    # for k in sorted(kao_names):
+    #     # if k > 1024:
+    #     #     break
+    #     print(k, kao_names[k])
+    # ==== show total count
+    # print('total size:', len(kao_names))
+    for i in range(1024):
+        name = kao_names[i] if i in kao_names else ''
+        comment = '' if i in kao_names or i > 500 else f' // {i}, 0x{i:02X}'
+        if comment == '' and i % 16 == 0:
+            comment = f' // {i}, 0x{i:02X}'
+        print(f"'{name}',{comment}")
+
+
 
 if __name__ == '__main__':
     # 將中文轉換成 KOEI-TW 編碼
-    ss = ['華佗', '普淨', '書僮', '士兵', '密探']
-    kt = [encode_text(s) for s in ss]
-    for s, k in zip(ss, kt):
-        print('{}: {} -> {}'.format(s, encode_text(s).hex().upper(), to_unicode_name(k)))
+    # ss = ['伊籍', '張飛', '關羽', '華雄']
+    # kt = [encode_text(s) for s in ss]
+    # for s, k in zip(ss, kt):
+    #     print('{}: {} -> {}'.format(s, encode_text(s).hex().upper(), to_unicode_name(k)))
 
+    # print(to_unicode_name(b'\x92\xbf\xa3\x77'))  # 于禁
+    # print(to_unicode_name(b'\x9c\xaf\x9a\x47'))  # 袁胤
     # print(to_unicode_name(b'\x93\x7a\xc2\x9a'))  # 王粲
     # print(to_unicode_name(b'\x9c\xaf\x9f\x4a'))  # 袁術
     # print(to_unicode_name(b'\x9E\x39\x97\x9C'))  # 曹昂
     # print(to_unicode_name(b'\xAD\xB6\x9A\x9A'))  # 蘇飛
     # print(to_unicode_name(b'\x94\x44\xad\xa5'))  # 伊籍, kao: 1E
-    print(to_unicode_name(b'\x93\xb2\x9c\xea\xaa\x77'))  # 司馬徽
+    # print(to_unicode_name(b'\x93\xb2\x9c\xea\xaa\x77'))  # 司馬徽
+    print(to_unicode_name(b'\x9b\x30\x9c\xf0'))  # 孫乾
 
     # extract_sui_strings()
 
@@ -533,4 +580,5 @@ if __name__ == '__main__':
 
     # get_san3_scenario_name_list('/Users/tzengyuxio/DOSBox/SAN3')
 
-    get_san4_name_list()
+    # get_san4_name_list()
+    get_san5_name_list()
