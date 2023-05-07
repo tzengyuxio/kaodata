@@ -29,6 +29,21 @@ const palettes = {
       '#FFFFFF', // White
     ],
   },
+  default_x68: {
+    // also known as "san2_x68"
+    id: 'default_x68',
+    name: '預設 (X68000)',
+    codes: [
+      '#000000', // Black
+      '#00E700', // Green
+      '#E70000', // Red
+      '#E7E700', // Yellow
+      '#0000E7', // blue
+      '#00E7E7', // Cyan
+      '#E700E7', // Magenta
+      '#E7E7E7', // White
+    ],
+  },
   san3: {
     id: 'san3',
     name: '三國志III',

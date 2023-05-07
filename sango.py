@@ -108,7 +108,21 @@ def san2_face(face_file, out_dir, prefix):
         hh = False
         # NOTE: 在第二組 offset_info 之後還有 52 個 face 大小的 montage 資料
         part_size = calc_part_size(face_w, face_h, len(palette), hh=hh)
-        offset_infos = [(189440, 95*part_size), (372736, 124*part_size)]  # (offset, face_count * part_size)
+        # 371840 = 189440 + 95 * part_size
+        offset_infos = [(189440, 95*part_size), (371840+896, 124*part_size)]  # (offset, face_count * part_size)
+        loader = create_floppy_image_stream(face_file, offset_infos, part_size)
+    elif '.hdm' in face_file.lower():
+        """X68_SAN2_C.HDM"""
+        palette = color_codes_to_palette(
+            ['#000000', '#00E700', '#E70000', '#E7E700', '#0000E7', '#00E7E7', '#E700E7', '#E7E7E7']
+        )
+        hh = False
+        # 211072 = 28672 + 95 * part_size
+        # 396288 = (211072+896) + 95 * part_size
+        part_size = calc_part_size(face_w, face_h, len(palette), hh=hh)
+        offset_infos = [(28672, 95*part_size), (211072+896, 96*part_size),
+                        (396288+896+128, 28*part_size)]  # (offset, face_count * part_size)
+        # NOTE: 在第三組 offset_info 之後還有 60 個 face 大小的 montage 資料
         loader = create_floppy_image_stream(face_file, offset_infos, part_size)
 
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, hh=hh, data_loader=loader)

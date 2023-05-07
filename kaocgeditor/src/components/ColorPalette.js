@@ -106,22 +106,7 @@ export default function ColorPalette() {
 
   return (
     <div className="color-palette">
-      <select
-        value={selectedPreset}
-        onChange={handlePresetChange}
-      >
-        {presetOptions}
-      </select>
-      <button
-        onClick={handleReset}
-        style={{marginLeft: '8px'}}
-      >
-        {t('buttons.reset')}
-      </button>
-      <br />
-      <div onMouseLeave={handleMouseLeave} style={{marginTop: '8px'}}>
-        {colorInputs}
-      </div>
+      <div onMouseLeave={handleMouseLeave}>{colorInputs}</div>
       <div
         id="hexValue"
         style={{
@@ -136,6 +121,13 @@ export default function ColorPalette() {
       >
         {hexValue.toUpperCase()}
       </div>
+      <br />
+      <select value={selectedPreset} onChange={handlePresetChange}>
+        {presetOptions}
+      </select>
+      <button onClick={handleReset} style={{marginLeft: '8px'}}>
+        {t('buttons.reset')}
+      </button>
     </div>
   );
 }
