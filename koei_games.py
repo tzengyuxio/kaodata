@@ -8,6 +8,39 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True  # for KOUKAI3 palette file
 
 
 @click.group()
+def eiketsu():
+    """三國志英傑傳
+
+    FACEDAT.R3  461KB LS11
+    FACEDAT.R3  342KB LS11
+    """
+    pass
+
+
+@click.command(help='顏 CG 解析')
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+def eiketsu_face(face_file, out_dir, prefix):
+    palette = color_codes_to_palette(
+        ['#000000', '#419241', '#B24120', '#F3C361', '#104192', '#6FAEAE', '#D371B2', '#F3F3F3']
+    )
+    face_w, face_h = 64, 80
+    with open (face_file, 'rb') as f:
+        for i in range(240): # 217
+            offset = int.from_bytes(f.read(4), 'little')
+            size = int.from_bytes(f.read(2), 'little')
+            print(f'{i} {offset}, {size}')
+
+    # extract_images(face_file, face_w, face_h, palette, out_dir, prefix)
+
+
+eiketsu.add_command(eiketsu_face, 'face')
+
+##############################################################################
+
+
+@click.group()
 def europe():
     """歐陸戰線
 

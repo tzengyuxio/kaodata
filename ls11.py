@@ -36,7 +36,12 @@ def recover(codes: list[int], dictionary: bytes) -> bytes:
             nc = 3 + code  # number of copy
             for _ in range(nc):
                 pos = len(recover_data) - delta
-                recover_data.append(recover_data[pos])
+                try:
+                    recover_data.append(recover_data[pos])
+                except IndexError:
+                    # TODO: review this exception handler
+                    print(f"IndexError: {len(recover_data)=}, {pos=}, {delta=}")
+                    recover_data.append(0)
             delta = 0
         elif code < 256:  # replace code with dictionary
             recover_data.append(dictionary[code])

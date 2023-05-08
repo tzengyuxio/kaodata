@@ -777,6 +777,7 @@ dekoei.add_command(san12)
 dekoei.add_command(san13)
 dekoei.add_command(san14)
 
+dekoei.add_command(eiketsu)
 dekoei.add_command(europe)
 dekoei.add_command(ishin)  # 維新之嵐
 # dekoei.add_command(ishin2)  # 維新之嵐2
