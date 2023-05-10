@@ -23,7 +23,7 @@ def eiketsu():
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def eiketsu_face(face_file, out_dir, prefix):
     palette = color_codes_to_palette(
-        ['#000000', '#419241', '#B24120', '#F3C361', '#104192', '#6FAEAE', '#D371B2', '#F3F3F3']
+        ['#000000', '#419241', '#B24120', '#F3C361', '#104192', '#6FAEAE', '#D371B2', '#F3F3F3'] # 未定
     )
     face_w, face_h = 64, 80
     with open (face_file, 'rb') as f:

@@ -16,7 +16,7 @@ from ls11 import ls11_decode, LS11_MAGIC
 
 console = Console()
 cns11643_unicode_table = {}
-unicode_koeitw_table : dict[str, bytes] = {}
+unicode_koeitw_table: dict[str, bytes] = {}
 
 BGCOLOR = (55, 55, 55)
 
@@ -523,3 +523,54 @@ def print_table(title: str, headers: list, persons: list, to: str = 'rich') -> N
         table.add_row(*[p[h.name] for h in headers])
 
     console.print(table)
+
+
+def conv_palette(_16bit: int) -> int:
+    """
+    input 16-bit color, output 24-bit color
+    """
+    b = (_16bit >> 0) & 0x0F
+    r = (_16bit >> 4) & 0x0F
+    g = (_16bit >> 8) & 0x0F
+
+    r = r * 0x11
+    g = g * 0x11
+    b = b * 0x11
+
+    return ((r << 16) | (g << 8) | b)
+
+
+def unpack():
+    """
+    return size of unpacked data
+    """
+    dic = 0
+    dst = 0
+    line = 64
+    bitflag = 0x0000
+    while (True):
+        if not (bitflag & 0xFF00):
+            # bitflag = 0xFF00 | *src++
+            # 這個 if 裡的操作相當於透過 bigflag 做 for i in range(8)
+            pass
+        if bitflag & 1:
+            # 字典壓縮
+            pass
+        else:
+            # 重複壓縮
+            # let s1 = 0b A0 A1 A2 A3 A4 A5 A6 A7
+            #     s2 = 0b B0 B1 B2 B3 B4 B5 B6 B7
+            # convert to:
+            #     d1 = 0b  0  0  0  1 A0 A4 B0 B4
+            #     d2 = 0b  0  0  0  1 A1 A5 B1 B5
+            #     d3 = 0b  0  0  0  1 A2 A6 B2 B6
+            #     d4 = 0b  0  0  0  1 A3 A7 B3 B7
+            pass
+        bitflag >>= 1
+
+        # dict
+        dic += line
+        if dic >= dst + line:
+            dic -= line
+
+    return 0  # dst - dst_begin
