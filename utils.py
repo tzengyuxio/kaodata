@@ -540,6 +540,13 @@ def conv_palette(_16bit: int) -> int:
     return ((r << 16) | (g << 8) | b)
 
 
+def pack():
+    """
+    npk pack
+    """
+
+
+
 def unpack():
     """
     return size of unpacked data
@@ -554,10 +561,10 @@ def unpack():
             # 這個 if 裡的操作相當於透過 bigflag 做 for i in range(8)
             pass
         if bitflag & 1:
-            # 字典壓縮
+            # 字典壓縮, 如果最右邊的 bit 是 1
             pass
         else:
-            # 重複壓縮
+            # 重複壓縮, 如果最右邊的 bit 是 0
             # let s1 = 0b A0 A1 A2 A3 A4 A5 A6 A7
             #     s2 = 0b B0 B1 B2 B3 B4 B5 B6 B7
             # convert to:
