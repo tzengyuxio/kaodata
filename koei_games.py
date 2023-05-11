@@ -479,16 +479,21 @@ def liberty_face(face_file, out_dir, prefix):
         console = Console()
         console.print(table)
         print('block size: min({}), max({}), avg{}'.format(min(block_sizes), max(block_sizes), avg(block_sizes)))
-    with open('/Users/tzengyuxio/DOSBox/LIBERTY/EVENT.IDX', 'rb') as f:
+
+    run_count = 18
+    # with open('/Users/tzengyuxio/DOSBox/LIBERTY/EVENT.IDX', 'rb') as f:
+    with open('/Users/yuxioz/repos/kaodata/LIBERTY/EVENT.IDX', 'rb') as f:
+    # with open('/Users/yuxioz/repos/kaodata/LIBERTY/FACE.IDX', 'rb') as f:
         f.read(4)  # 'IDX'
-        for cnt in range(18):
-            # if cnt != 7:
-            #     continue
+        for cnt in range(run_count):
+            if cnt == 0:
+                break
+                # continue
             f.seek(4+cnt*4)
             start = int.from_bytes(f.read(4), LITTLE_ENDIAN)
             end = int.from_bytes(f.read(4), LITTLE_ENDIAN)
             f.seek(start)
-            data = f.read(end-start) if cnt < 21 else f.read()
+            data = f.read(end-start) if cnt < run_count else f.read()
             with open(f'{out_dir}/first-block-{cnt}.npk', 'wb') as fout:
                 fout.write(data)
             fnpk = io.BytesIO(data)
@@ -505,7 +510,8 @@ def liberty_face(face_file, out_dir, prefix):
             #     palette.append(color)
             # palette.reverse()
             # pixel value
-            fnpk.seek(0x30)
+            # fnpk.seek(0x30) # for command and event
+            fnpk.seek(0x04) # for face.dat
             output = unpack(fnpk.read(), w)
             with open(f'{out_dir}/first-block-{cnt}.bin', 'wb') as fout:
                 fout.write(output)
@@ -515,6 +521,19 @@ def liberty_face(face_file, out_dir, prefix):
                 c = palette[color_index]
                 image.putpixel((x, y), c)
             image.save(f'{out_dir}/first-block-{cnt}.png')
+    # with open('/Users/yuxioz/repos/kaodata/LIBERTY/FACE.IDX', 'rb') as f:
+    #     f.seek(0x4b0)
+    #     data = f.read(1763)
+    #     face_data = unpack(data[36:], 64)
+    #     image = Image.new('RGB', (64, 80), BGCOLOR)
+    #     for px_index, color_index in enumerate(face_data):
+    #         y, x = divmod(px_index, 64)
+    #         if y == 80:
+    #             break
+    #         c = palette[color_index]
+    #         image.putpixel((x, y), c)
+    #     image.save(f'{out_dir}/first-block-f00.png')
+
 
 
 liberty.add_command(liberty_face, 'face')

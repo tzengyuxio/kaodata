@@ -554,7 +554,7 @@ def unpack(src: bytes, line) -> bytes:
     dest = bytearray()
     bitflag = 0x0000
     data_len = len(src)
-    while (data.tell() < data_len):
+    while (data.tell() < data_len and len(dest) <= 10240):
         if not (bitflag & 0xFF00):
             # 這個 if 裡的操作相當於透過 bigflag 做 for i in range(8)
             bitflag = 0xFF00 | data.read(1)[0]
