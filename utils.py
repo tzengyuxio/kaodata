@@ -525,7 +525,7 @@ def print_table(title: str, headers: list, persons: list, to: str = 'rich') -> N
     console.print(table)
 
 
-def conv_palette(_16bit: int) -> int:
+def conv_palette(_16bit: int) -> tuple[int, int, int]:
     """
     input 16-bit color, output 24-bit color
     """
@@ -537,7 +537,7 @@ def conv_palette(_16bit: int) -> int:
     g = g * 0x11
     b = b * 0x11
 
-    return ((r << 16) | (g << 8) | b)
+    return (r, g, b)
 
 
 def pack():
@@ -546,25 +546,37 @@ def pack():
     """
 
 
-
-def unpack():
+def unpack(src: bytes, line) -> bytes:
     """
     return size of unpacked data
     """
-    dic = 0
-    dst = 0
-    line = 64
+    data = io.BytesIO(src)
+    dest = bytearray()
     bitflag = 0x0000
-    while (True):
+    data_len = len(src)
+    while (data.tell() < data_len):
         if not (bitflag & 0xFF00):
-            # bitflag = 0xFF00 | *src++
             # 這個 if 裡的操作相當於透過 bigflag 做 for i in range(8)
-            pass
+            bitflag = 0xFF00 | data.read(1)[0]
+        print('bitflag: {}, cursor={}, dest_len={}'.format(hex(bitflag), data.tell(), len(dest)))
+
         if bitflag & 1:
             # 字典壓縮, 如果最右邊的 bit 是 1
-            pass
+            b = data.read(1)[0]
+            run_count = ((b & 0x1F) + 1) << 2  # info.len
+            run_offset = ((b & 0x60) >> 3) + 4  # info.range
+            if (b & 0x80):
+                run_offset = run_offset * (line >> 2)
+            print('    over_line={}, run_offset={}, run_count={}'.format((b & 0x80) != 0, run_offset, run_count))
+            for _ in range(run_count):
+                try:
+                    # run_offset = max(run_offset, 1)
+                    dest.append(dest[-run_offset])
+                except IndexError:
+                    print('IndexError: run_count={}, run_offset={}, line={}, cursor={}'.format(
+                        run_count, run_offset, line, data.tell()))
         else:
-            # 重複壓縮, 如果最右邊的 bit 是 0
+            # 重複壓縮, 如果最右邊的 bit 是 0, 對應到 NotCompInfo
             # let s1 = 0b A0 A1 A2 A3 A4 A5 A6 A7
             #     s2 = 0b B0 B1 B2 B3 B4 B5 B6 B7
             # convert to:
@@ -572,12 +584,15 @@ def unpack():
             #     d2 = 0b  0  0  0  1 A1 A5 B1 B5
             #     d3 = 0b  0  0  0  1 A2 A6 B2 B6
             #     d4 = 0b  0  0  0  1 A3 A7 B3 B7
-            pass
+            b1 = data.read(1)[0]
+            b2 = data.read(1)[0]
+            for _ in range(4):
+                d = ((b1 & 0x80) >> 4) | ((b1 & 0x08) >> 1) | ((b2 & 0x80) >> 6) | ((b2 & 0x08) >> 3)
+                # print('d: {}, b1: {}, b2: {}'.format(d, hex(b1), hex(b2)))
+                dest.append(d)
+                b1 = (b1 << 1) & 0xFF
+                b2 = (b2 << 1) & 0xFF
+
         bitflag >>= 1
 
-        # dict
-        dic += line
-        if dic >= dst + line:
-            dic -= line
-
-    return 0  # dst - dst_begin
+    return bytes(dest)

@@ -23,11 +23,11 @@ def eiketsu():
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def eiketsu_face(face_file, out_dir, prefix):
     palette = color_codes_to_palette(
-        ['#000000', '#419241', '#B24120', '#F3C361', '#104192', '#6FAEAE', '#D371B2', '#F3F3F3'] # 未定
+        ['#000000', '#419241', '#B24120', '#F3C361', '#104192', '#6FAEAE', '#D371B2', '#F3F3F3']  # 未定
     )
     face_w, face_h = 64, 80
-    with open (face_file, 'rb') as f:
-        for i in range(240): # 217
+    with open(face_file, 'rb') as f:
+        for i in range(240):  # 217
             offset = int.from_bytes(f.read(4), 'little')
             size = int.from_bytes(f.read(2), 'little')
             print(f'{i} {offset}, {size}')
@@ -421,8 +421,11 @@ def liberty_face(face_file, out_dir, prefix):
     ./dekoei.py liberty face -f ~/DOSBox/LIBERTY/FACE.IDX --out_dir LIBERTY --prefix "FACE"
     ./dekoei.py liberty face -f ~/DOSBox/LIBERTY/GRAPHICS.IDX --out_dir LIBERTY --prefix "GRAPHICS"
     """
+        # ['#000000', '#0000FF', '#FF0000', '#FF00FF', '#00FF00', '#00FFFF', '#FFFF00', '#FFFFFF',
+        #  '#777777', '#0000AA', '#AA0000', '#AA00AA', '#00AA00', '#00AAAA', '#AAAA00', '#AAAAAA']
     palette = color_codes_to_palette(
-        ['#000000', '#55FF55', '#FF5555', '#FFFF55', '#5555FF', '#55FFFF', '#FF55FF', '#FFFFFF']  # NOT READY
+        ['#000000', '#104192', '#B25110', '#A27171', '#417100', '#82A2B2', '#E3B292', '#F3E3D3',
+         '#000000', '#001082', '#105110', '#A28241', '#208230', '#4161D3', '#B29271', '#F3F3F3']
     )
     face_w, face_h = 64, 80
 
@@ -461,7 +464,7 @@ def liberty_face(face_file, out_dir, prefix):
             f.seek(offset)
             fb = f.read(4)  # first block
             next_offset = file_size if i == len(offsets)-1 else offsets[i+1]
-            print('[{:02d}] {}, {} {}'.format(i, offset, next_offset - offset, fb))
+            # print('[{:02d}] {}, {} {}'.format(i, offset, next_offset - offset, fb))
             block_size = next_offset - offset
             block_sizes.append(block_size)
             w = int.from_bytes(fb[:2], LITTLE_ENDIAN)
@@ -476,6 +479,42 @@ def liberty_face(face_file, out_dir, prefix):
         console = Console()
         console.print(table)
         print('block size: min({}), max({}), avg{}'.format(min(block_sizes), max(block_sizes), avg(block_sizes)))
+    with open('/Users/tzengyuxio/DOSBox/LIBERTY/EVENT.IDX', 'rb') as f:
+        f.read(4)  # 'IDX'
+        for cnt in range(18):
+            # if cnt != 7:
+            #     continue
+            f.seek(4+cnt*4)
+            start = int.from_bytes(f.read(4), LITTLE_ENDIAN)
+            end = int.from_bytes(f.read(4), LITTLE_ENDIAN)
+            f.seek(start)
+            data = f.read(end-start) if cnt < 21 else f.read()
+            with open(f'{out_dir}/first-block-{cnt}.npk', 'wb') as fout:
+                fout.write(data)
+            fnpk = io.BytesIO(data)
+            fnpk.seek(12)
+            w = int.from_bytes(fnpk.read(2), LITTLE_ENDIAN)
+            h = int.from_bytes(fnpk.read(2), LITTLE_ENDIAN)
+            print('[{}] first block: {}x{}'.format(cnt, w, h))
+            # ---- color palette
+            # palette = []
+            # for i in range(16):
+            #     cc = int.from_bytes(fnpk.read(2), LITTLE_ENDIAN)
+            #     color = conv_palette(cc)
+            #     print('color[{:02d}]: {}'.format(i, color))
+            #     palette.append(color)
+            # palette.reverse()
+            # pixel value
+            fnpk.seek(0x30)
+            output = unpack(fnpk.read(), w)
+            with open(f'{out_dir}/first-block-{cnt}.bin', 'wb') as fout:
+                fout.write(output)
+            image = Image.new('RGB', (w, h), BGCOLOR)
+            for px_index, color_index in enumerate(output):
+                y, x = divmod(px_index, w)
+                c = palette[color_index]
+                image.putpixel((x, y), c)
+            image.save(f'{out_dir}/first-block-{cnt}.png')
 
 
 liberty.add_command(liberty_face, 'face')
