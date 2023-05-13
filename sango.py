@@ -83,6 +83,7 @@ def san2():
 
     dekoei.py san2 face -f kao/SAN2_DOS_KAODATA.DAT
     dekoei.py san2 face -f kao/SAN2_PC98_三國志2_b.fdi
+    dekoei.py san2 face -f kao/SAN2_WIN_FACE01.SN2 --out_dir _outdir_san2win --prefix SAN2_WIN_F
     """
     pass
 
@@ -124,6 +125,29 @@ def san2_face(face_file, out_dir, prefix):
                         (396288+896+128, 28*part_size)]  # (offset, face_count * part_size)
         # NOTE: 在第三組 offset_info 之後還有 60 個 face 大小的 montage 資料
         loader = create_floppy_image_stream(face_file, offset_infos, part_size)
+    elif '.sn2' in face_file.lower():
+        """FACE01.SN2, FACE02.SAN2"""
+        bmp_size = 6198
+        images = []
+        files = [face_file]
+        files.append(face_file.replace('FACE01', 'FACE02'))
+        for f in files:
+            with open(f, 'rb') as f:
+                data = f.read(bmp_size)
+                while data:
+                    img = Image.open(io.BytesIO(data))
+                    images.append(img)
+                    data = f.read(bmp_size)
+        # save face index: all, special, mob
+        save_index_image(images[1:], 64, 80, 16, f'{out_dir}/{prefix}00-INDEX.png')
+        save_index_image(images[1:220], 64, 80, 16, f'{out_dir}/{prefix}00-INDEX_KAO.png')
+        save_index_image(images[220:], 64, 80, 16, f'{out_dir}/{prefix}00-INDEX_MOB.png')
+        # save single faces
+        for idx, img in enumerate(images[1:]):
+            filename = f'{out_dir}/{prefix}{idx:04d}.png'
+            img.save(filename)
+        return
+
 
     extract_images(face_file, face_w, face_h, palette, out_dir, prefix, hh=hh, data_loader=loader)
 
