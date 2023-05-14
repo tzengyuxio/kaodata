@@ -421,122 +421,85 @@ def liberty_face(face_file, out_dir, prefix):
     ./dekoei.py liberty face -f ~/DOSBox/LIBERTY/FACE.IDX --out_dir LIBERTY --prefix "FACE"
     ./dekoei.py liberty face -f ~/DOSBox/LIBERTY/GRAPHICS.IDX --out_dir LIBERTY --prefix "GRAPHICS"
     """
-        # ['#000000', '#0000FF', '#FF0000', '#FF00FF', '#00FF00', '#00FFFF', '#FFFF00', '#FFFFFF',
-        #  '#777777', '#0000AA', '#AA0000', '#AA00AA', '#00AA00', '#00AAAA', '#AAAA00', '#AAAAAA']
     palette = color_codes_to_palette(
-        ['#000000', '#104192', '#B25110', '#A27171', '#417100', '#82A2B2', '#E3B292', '#F3E3D3',
-         '#000000', '#001082', '#105110', '#A28241', '#208230', '#4161D3', '#B29271', '#F3F3F3']
+        ['#000000', '#104192', '#B25110', '#A27171', '#417100', '#82A2B2', '#E3B292', '#F3E3D3']
     )
-    face_w, face_h = 64, 80
-
-    def avg(x):  # average
-        s = 0
-        for xx in x:
-            s += xx
-        return s / len(x)
 
     os.makedirs(out_dir, exist_ok=True)
 
     file_size = os.stat(face_file).st_size
+    images = []
     with open(face_file, 'rb') as f:
         f.read(3)  # 'IDX'
-
-        count = int.from_bytes(f.read(1), LITTLE_ENDIAN)
-        print('count: {}'.format(count))
-        # count = 999 # switch for FACE.IDX
+        f.read(1)  # 0x2B (43), 應該是 0x12B (299), 高位元被截斷
+        n = 299  # 1196 / 4
         offsets = []
-        while len(offsets) < count:
+        for _ in range(n):
             offset = int.from_bytes(f.read(4), LITTLE_ENDIAN)
-            if offset == 5242944:  # 0x40005000LE
-                break
             offsets.append(offset)
-        print('offset count: {}'.format(len(offsets)))
-        block_sizes = []
-        table = Table(title=face_file)
-        table.add_column("ID", justify="right", style="cyan", no_wrap=True)
-        table.add_column("width", style="magenta")
-        table.add_column("height", style="magenta")
-        table.add_column("block size", justify="right", style="green")
-        table.add_column("times", justify="right", style="green")
-        table.add_column("first byte", justify="right", style="green")
-        for i in range(len(offsets)):
-            offset = offsets[i]
+        offsets.append(file_size)
+        for idx, (offset, next_offset) in enumerate(zip(offsets, offsets[1:])):
+            size = next_offset - offset
             f.seek(offset)
-            fb = f.read(4)  # first block
-            next_offset = file_size if i == len(offsets)-1 else offsets[i+1]
-            # print('[{:02d}] {}, {} {}'.format(i, offset, next_offset - offset, fb))
-            block_size = next_offset - offset
-            block_sizes.append(block_size)
-            w = int.from_bytes(fb[:2], LITTLE_ENDIAN)
-            h = int.from_bytes(fb[2:], LITTLE_ENDIAN)
-            out_filename = '{}/{}{:04d}_{}x{}'.format(out_dir, prefix, i, w, h)
-            with open(out_filename, 'wb') as fout:
-                raw_data = f.read(block_size-4)
-                first_byte = int.from_bytes(raw_data[:2], LITTLE_ENDIAN)
-                fout.write(raw_data)
-                table.add_row(str(i), str(w), str(h), str(len(raw_data)), str((len(raw_data)-2)/w/h), str(first_byte))
-        # print block_infos in rows
-        console = Console()
-        console.print(table)
-        print('block size: min({}), max({}), avg{}'.format(min(block_sizes), max(block_sizes), avg(block_sizes)))
-
-    run_count = 18
-    # with open('/Users/tzengyuxio/DOSBox/LIBERTY/EVENT.IDX', 'rb') as f:
-    with open('/Users/yuxioz/repos/kaodata/LIBERTY/EVENT.IDX', 'rb') as f:
-    # with open('/Users/yuxioz/repos/kaodata/LIBERTY/FACE.IDX', 'rb') as f:
-        f.read(4)  # 'IDX'
-        for cnt in range(run_count):
-            if cnt == 0:
-                break
-                # continue
-            f.seek(4+cnt*4)
-            start = int.from_bytes(f.read(4), LITTLE_ENDIAN)
-            end = int.from_bytes(f.read(4), LITTLE_ENDIAN)
-            f.seek(start)
-            data = f.read(end-start) if cnt < run_count else f.read()
-            with open(f'{out_dir}/first-block-{cnt}.npk', 'wb') as fout:
-                fout.write(data)
-            fnpk = io.BytesIO(data)
-            fnpk.seek(12)
-            w = int.from_bytes(fnpk.read(2), LITTLE_ENDIAN)
-            h = int.from_bytes(fnpk.read(2), LITTLE_ENDIAN)
-            print('[{}] first block: {}x{}'.format(cnt, w, h))
-            # ---- color palette
-            # palette = []
-            # for i in range(16):
-            #     cc = int.from_bytes(fnpk.read(2), LITTLE_ENDIAN)
-            #     color = conv_palette(cc)
-            #     print('color[{:02d}]: {}'.format(i, color))
-            #     palette.append(color)
-            # palette.reverse()
-            # pixel value
-            # fnpk.seek(0x30) # for command and event
-            fnpk.seek(0x04) # for face.dat
-            output = unpack(fnpk.read(), w)
-            with open(f'{out_dir}/first-block-{cnt}.bin', 'wb') as fout:
-                fout.write(output)
-            image = Image.new('RGB', (w, h), BGCOLOR)
-            for px_index, color_index in enumerate(output):
-                y, x = divmod(px_index, w)
+            data = f.read(size)
+            width = int.from_bytes(data[0:2], LITTLE_ENDIAN)
+            height = int.from_bytes(data[2:4], LITTLE_ENDIAN)
+            color_indexes = unpack_npk_3bits(data[4:], width)
+            # print(f'#{idx:03d} {width}x{height} {len(color_indexes)}')
+            image = Image.new('RGB', (width, height), BGCOLOR)
+            for px_index, color_index in enumerate(color_indexes):
+                y, x = divmod(px_index, width)
                 c = palette[color_index]
                 image.putpixel((x, y), c)
-            image.save(f'{out_dir}/first-block-{cnt}.png')
-    # with open('/Users/yuxioz/repos/kaodata/LIBERTY/FACE.IDX', 'rb') as f:
-    #     f.seek(0x4b0)
-    #     data = f.read(1763)
-    #     face_data = unpack(data[36:], 64)
-    #     image = Image.new('RGB', (64, 80), BGCOLOR)
-    #     for px_index, color_index in enumerate(face_data):
-    #         y, x = divmod(px_index, 64)
-    #         if y == 80:
-    #             break
-    #         c = palette[color_index]
-    #         image.putpixel((x, y), c)
-    #     image.save(f'{out_dir}/first-block-f00.png')
+            images.append(image)
+    # save face index: all, special, mob
+    save_index_image(images, 64, 80, 16, f'{out_dir}/{prefix}00-INDEX.png')
+    # save single faces
+    images = {str(i): img for i, img in enumerate(images)} if isinstance(images, list) else images
+    save_single_images(images, out_dir, prefix)
 
+
+@click.command(help='CG 解析')
+@click.option('-f', '--file', 'graphic_file', help="圖像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+def liberty_graphic(graphic_file, out_dir, prefix):
+    palette = color_codes_to_palette(
+        ['#000000', '#104192', '#B25110', '#A27171', '#417100', '#82A2B2', '#E3B292', '#F3E3D3',
+         '#000000', '#001082', '#105110', '#A28241', '#208230', '#4161D3', '#B29271', '#F3F3F3']
+    )
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+    with open(graphic_file, 'rb') as f:
+        file_size = os.stat(graphic_file).st_size
+        header = f.read(3)
+        if header != b'IDX':
+            print('not IDX file')
+        count = int.from_bytes(f.read(1), LITTLE_ENDIAN)
+        offsets = []
+        for _ in range(count):
+            offset = int.from_bytes(f.read(4), LITTLE_ENDIAN)
+            offsets.append(offset)
+        offsets.append(file_size)
+        for idx, (offset, next_offset) in enumerate(zip(offsets, offsets[1:])):
+            f.seek(offset)
+            npk_data = f.read(next_offset-offset)
+            width = int.from_bytes(npk_data[0x0c:0x0e], LITTLE_ENDIAN)
+            height = int.from_bytes(npk_data[0x0e:0x10], LITTLE_ENDIAN)
+            # 0x10 ~ 0x30 is palette
+            color_indexed_data = unpack_npk(npk_data[0x30:], width)
+            image = Image.new('RGB', (width, height), BGCOLOR)
+            for px_index, color_index in enumerate(color_indexed_data):
+                y, x = divmod(px_index, width)
+                c = palette[color_index]
+                image.putpixel((x, y), c)
+            image.save(f'{out_dir}/{prefix}{idx:03d}.png')
+        print(f'save {count} images')
 
 
 liberty.add_command(liberty_face, 'face')
+liberty.add_command(liberty_graphic, 'graphic')
 
 ##############################################################################
 

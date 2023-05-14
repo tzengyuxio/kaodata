@@ -546,7 +546,7 @@ def pack():
     """
 
 
-def unpack(src: bytes, line) -> bytes:
+def unpack_npk(src: bytes, line) -> bytes:
     """
     return size of unpacked data
     """
@@ -558,41 +558,68 @@ def unpack(src: bytes, line) -> bytes:
         if not (bitflag & 0xFF00):
             # 這個 if 裡的操作相當於透過 bigflag 做 for i in range(8)
             bitflag = 0xFF00 | data.read(1)[0]
-        print('bitflag: {}, cursor={}, dest_len={}'.format(hex(bitflag), data.tell(), len(dest)))
+        # print('bitflag: {}, cursor={}, dest_len={}'.format(hex(bitflag), data.tell(), len(dest)))
 
         if bitflag & 1:
-            # 字典壓縮, 如果最右邊的 bit 是 1
+            # read 1 byte, and copy to dest
+            # let b = 0b A0 B0 B1 C0 C1 C2 C3 C4
+            #                     ^^^^^^^^^^^^^^ repeat count (1~32) * 4
+            #               ^^^^^ offset (1~4) * 4
+            #            ^^ over_line, if true, offset *= line (ignore the '4' above)
             b = data.read(1)[0]
-            run_count = ((b & 0x1F) + 1) << 2  # info.len
-            run_offset = ((b & 0x60) >> 3) + 4  # info.range
-            if (b & 0x80):
-                run_offset = run_offset * (line >> 2)
-            print('    over_line={}, run_offset={}, run_count={}'.format((b & 0x80) != 0, run_offset, run_count))
-            for _ in range(run_count):
-                try:
-                    # run_offset = max(run_offset, 1)
-                    dest.append(dest[-run_offset])
-                except IndexError:
-                    print('IndexError: run_count={}, run_offset={}, line={}, cursor={}'.format(
-                        run_count, run_offset, line, data.tell()))
+            run_size = ((b & 0x1F) + 1)         # info.len / repeat count
+            run_offset = ((b & 0x60) >> 5) + 1  # info.range
+            run_offset = run_offset * line if (b & 0x80) else run_offset * 4
+            for _ in range(run_size*4):
+                dest.append(dest[-run_offset])
         else:
-            # 重複壓縮, 如果最右邊的 bit 是 0, 對應到 NotCompInfo
-            # let s1 = 0b A0 A1 A2 A3 A4 A5 A6 A7
-            #     s2 = 0b B0 B1 B2 B3 B4 B5 B6 B7
+            # read 2 bytes, and convert to 4 bytes to dest
+            # let b1 = 0b A0 A1 A2 A3 A4 A5 A6 A7
+            #     b2 = 0b B0 B1 B2 B3 B4 B5 B6 B7
             # convert to:
-            #     d1 = 0b  0  0  0  1 A0 A4 B0 B4
-            #     d2 = 0b  0  0  0  1 A1 A5 B1 B5
-            #     d3 = 0b  0  0  0  1 A2 A6 B2 B6
-            #     d4 = 0b  0  0  0  1 A3 A7 B3 B7
+            #     d1 = 0b  0  0  0  0 A0 A4 B0 B4
+            #     d2 = 0b  0  0  0  0 A1 A5 B1 B5
+            #     d3 = 0b  0  0  0  0 A2 A6 B2 B6
+            #     d4 = 0b  0  0  0  0 A3 A7 B3 B7
             b1 = data.read(1)[0]
             b2 = data.read(1)[0]
             for _ in range(4):
-                d = ((b1 & 0x80) >> 4) | ((b1 & 0x08) >> 1) | ((b2 & 0x80) >> 6) | ((b2 & 0x08) >> 3)
-                # print('d: {}, b1: {}, b2: {}'.format(d, hex(b1), hex(b2)))
+                d = ((b1 & 0x80) >> 4) | ((b1 & 0x08) >> 1) | \
+                    ((b2 & 0x80) >> 6) | ((b2 & 0x08) >> 3)
                 dest.append(d)
                 b1 = (b1 << 1) & 0xFF
                 b2 = (b2 << 1) & 0xFF
 
         bitflag >>= 1
 
+    return bytes(dest)
+
+def unpack_npk_3bits(src: bytes, line) -> bytes:
+    """
+    return size of unpacked data
+    """
+    data = io.BytesIO(src)
+    dest = bytearray()
+    data_len = len(src)
+    while (data.tell() < data_len):
+        b = data.read(1)[0]
+        if b & 0x80:
+            run_size = ((b & 0x0F) + 1)         # info.len
+            run_offset = ((b & 0x30) >> 4) + 1  # info.range
+            run_offset = run_offset * line if (b & 0x40) else run_offset * 4
+            for _ in range(run_size*4):
+                dest.append(dest[-run_offset])
+            # print(f'type: {b:08b}, direction: {direction}, offset: {offset}, run_size: {run_size} pos={len(color_indexes)}')
+        else:
+            b1 = b
+            b2 = data.read(1)[0]
+            count = ((b1 & 0xF0) >> 4) + 1
+            buf = []
+            for _ in range(4):
+                d = ((b1 & 0x08) >> 1) | ((b2 & 0x80) >> 6) | ((b2 & 0x08) >> 3)
+                buf.append(d)
+                b1 = b1 << 1
+                b2 = b2 << 1
+            dest.extend(buf * count)
+            # print(f'type: {(b1>>4):02x} {(b2>>4):02x}, count: {count}, simple_repeat: {simple_repeat} pos={len(color_indexes)}')
     return bytes(dest)
