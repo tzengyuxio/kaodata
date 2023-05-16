@@ -50,10 +50,10 @@ def recover(codes: list[int], dictionary: bytes) -> bytes:
     return bytes(recover_data)
 
 
-def ls11_decode(data: bytes) -> bytes:
+def ls11_decode_parts(data: bytes, print_only=False) -> list[bytes]:
     if data[:4] not in LS11_MAGIC:
         # TODO(yuxioz): wrong header, log chars here.
-        return bytes()
+        return []
 
     dictionary = data[16:16+256]
     pos = 16+256
@@ -65,14 +65,35 @@ def ls11_decode(data: bytes) -> bytes:
         infos.append((compressed_size, uncompressed_size, offset))
         pos += 12
 
-    decoded_data = bytearray()
+    if print_only:
+        for info in infos:
+            compressed_size, uncompressed_size, offset = info
+            header = data[offset:offset+3]
+            if header == b'NPK':
+                print(info, 'NPK')
+            else:
+                print(info)
+        return []
+
+    decoded_data = []
     # for i in track(range(len(infos)), description="Decoding... "):
     # rich.errors.LiveError: Only one live display may be active at once
     for i in range(len(infos)):
         compressed_size, uncompressed_size, offset = infos[i]
         compressed_data = data[offset:offset+compressed_size]
+        if compressed_size == uncompressed_size:
+            decoded_data.append(compressed_data)
+            continue
         codes = get_codes(compressed_data)
         recover_data = recover(codes, dictionary)
-        decoded_data.extend(recover_data[:uncompressed_size])
+        decoded_data.append(recover_data[:uncompressed_size])
 
-    return bytes(decoded_data)
+    return decoded_data
+
+
+def ls11_decode(data: bytes, print_only=False) -> bytes:
+    decoded_data = ls11_decode_parts(data, print_only)
+    if len(decoded_data) == 0:
+        return b''
+
+    return b''.join(decoded_data)

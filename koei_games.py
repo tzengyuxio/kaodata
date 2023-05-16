@@ -1,9 +1,11 @@
+import bitarray
 import click
 from ls11 import *
 from rich.table import Table
 from PIL import ImageFile
 from utils import *
 from koei_person import *
+from itertools import chain
 ImageFile.LOAD_TRUNCATED_IMAGES = True  # for KOUKAI3 palette file
 
 
@@ -23,14 +25,72 @@ def eiketsu():
 @click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
 def eiketsu_face(face_file, out_dir, prefix):
     palette = color_codes_to_palette(
-        ['#000000', '#419241', '#B24120', '#F3C361', '#104192', '#6FAEAE', '#D371B2', '#F3F3F3']  # 未定
+        ['#777777x', '#2045AA', '#EF6500', '#CF75AA', '#00BA75', '#8ACFFF', '#FFCF55', '#FFFFFF',
+         '#000000', '#2045AA', '#0000FFx', '#FFFF00x', '#FF00FFx', '#00FFFFx', '#AAAAAAx', '#BBBBBBx']  # 使用: 1~8, 9(未抓圖證實), 15未使用
     )
     face_w, face_h = 64, 80
+    images = []
+    os.makedirs(out_dir, exist_ok=True)
     with open(face_file, 'rb') as f:
-        for i in range(240):  # 217
-            offset = int.from_bytes(f.read(4), 'little')
-            size = int.from_bytes(f.read(2), 'little')
-            print(f'{i} {offset}, {size}')
+        if f.read(4) != b'LS11':
+            print('Not LS11 file: DOS version?')
+            f.seek(0)
+            count = 240
+            offset_infos = []
+            for _ in range(count):
+                # offset 這部分沒問題
+                #   後來發現這部分 offset 跟 SAN4 KAODATA 一樣 340*6 之後開始頭像資料
+                #   (340 張頭像, 每個 offset info 6 bytes)
+                #   SAN4 KAODATA 的資料是以 0x04000500 開頭，這是圖像尺寸，很有可能與 npk_3bits 相同
+                offset = int.from_bytes(f.read(4), LITTLE_ENDIAN)
+                size = int.from_bytes(f.read(2), LITTLE_ENDIAN)
+                offset_infos.append((offset, size))
+            for i in range(3):
+                offset, size = offset_infos[i]
+                f.seek(offset)
+                data = f.read(size)
+                print(f'#{i} offset={offset} size={size}')
+                # 如何解析 這部分仍是一團謎
+                #   每一段 data 開頭都有類似的 7bytes: 02540850 003303
+                #   推測可能是某種固定 header 經過壓縮，所以開頭 7 bytes 都一致
+                #   但如果是 NPK 經過 LS11 壓縮，又沒有字典可查
+                #   可能要把這段 data 寫成檔案試著用各種方式解壓看看
+                # begin - unknown how to unpack
+                color_indexed_data = unpack_npk(data[8:], face_w)
+                image = Image.new('RGB', (face_w, face_h), BGCOLOR)
+                for px_index, color_index in enumerate(color_indexed_data):
+                    if px_index >= face_w * face_h:
+                        break
+                    y, x = divmod(px_index, face_w)
+                    c = palette[color_index]
+                    image.putpixel((x, y), c)
+                # end - unknown how to unpack
+                images.append(image)
+            # save single faces
+            images = {str(i): img for i, img in enumerate(images)} if isinstance(images, list) else images
+            save_single_images(images, out_dir, prefix)
+            return
+        f.seek(0)
+        npks = ls11_decode_parts(f.read(), print_only=False)
+        for idx, npk_data in enumerate(npks):
+            width = int.from_bytes(npk_data[0x0c:0x0e], LITTLE_ENDIAN)
+            height = int.from_bytes(npk_data[0x0e:0x10], LITTLE_ENDIAN)
+            # raw = list(npk_data[0x10:0x30])
+            # color_data = [struct.unpack('<h', bytes(raw[i:i+2]))[0] for i in range(0, len(raw), 2)]
+            # palette = [conv_palette(p) for p in color_data]
+            color_indexed_data = unpack_npk(npk_data[0x30:], width)
+            image = Image.new('RGB', (width, height), BGCOLOR)
+            for px_index, color_index in enumerate(color_indexed_data):
+                y, x = divmod(px_index, width)
+                c = palette[color_index]
+                image.putpixel((x, y), c)
+            images.append(image)
+            # image.save(f'{out_dir}/{prefix}{idx:03d}.png')
+    # save face index: all, special, mob
+    save_index_image(images, 64, 80, 16, f'{out_dir}/{prefix}00-INDEX.png')
+    # save single faces
+    images = {str(i): img for i, img in enumerate(images)} if isinstance(images, list) else images
+    save_single_images(images, out_dir, prefix)
 
     # extract_images(face_file, face_w, face_h, palette, out_dir, prefix)
 
@@ -63,6 +123,117 @@ def europe_face(face_file, out_dir, prefix):
 
 
 europe.add_command(europe_face, 'face')
+
+##############################################################################
+
+
+@click.group()
+def genpei():
+    """
+    源平合戰
+
+    Kaodata.gp
+    Montage.gp
+    """
+    pass
+
+
+@click.command(help='顏 CG 解析')
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+def genpei_face(face_file, out_dir, prefix):
+    palette = color_codes_to_palette(
+        ['#000000', '#009230', '#D34100', '#F3B241', '#1041A2', '#71B2B2', '#E38251', '#F3F3D3']
+    )
+    face_w, face_h = 128, 160
+
+    # extract_images(face_file, face_w, face_h, palette, out_dir, prefix)
+    os.makedirs(out_dir, exist_ok=True)
+    images = []
+    pattern = b'\x80\x00\xa0\x00\x70'
+    pattern2 = b'\x80\x00\xa0\x00\x7f'
+    offsets = []
+    with open(face_file, 'rb') as f:
+        # offsets = [0, 4403, 5068, 10068, 10760, 14932, 15490]
+        data = bytearray(f.read())
+        index = data.find(pattern)
+        while index != -1:
+            offsets.append(index)
+            index = data.find(pattern, index+1)
+        index = data.find(pattern2)
+        while index != -1:
+            offsets.append(index)
+            index = data.find(pattern2, index+1)
+        # 交錯 list
+        # mid = len(offsets) // 2
+        # print(offsets[:mid])
+        # print(offsets[mid:])
+        # offsets = list(chain.from_iterable(zip(offsets[:mid], offsets[mid:])))
+        offsets = sorted(offsets)
+        offsets.append(len(data))
+        print(f'{len(offsets)=}')
+        for idx, offset in enumerate(offsets):
+            if idx == len(offsets) - 1:
+                break
+            next_offset = offsets[idx+1]
+            print(f'{idx=} {offset=} {next_offset=} {next_offset-offset=}')
+        for idx, offset in enumerate(offsets):
+            print(f'processing {idx=} {offset=}')
+            if idx == len(offsets) - 1: # or idx >= 31: # 第 32 個出問題
+                break
+            next_offset = offsets[idx+1]
+            f.seek(offset)
+            data = f.read(next_offset - offset)
+            color_indexes = unpack_npk_3bits(data[4:], face_w)
+            image = Image.new('RGB', (face_w, face_h), BGCOLOR)
+            for px_index, color_index in enumerate(color_indexes):
+                if px_index >= face_w * face_h:
+                    break
+                y, x = divmod(px_index, face_w)
+                c = palette[color_index]
+                # try:
+                image.putpixel((x, y), c)
+                # except IndexError:
+                #     print(f'IndexError: {px_index=} {x=} {y=} {color_index=} {len(color_indexes)=}')
+            images.append(image)
+            # print(f'{idx=} {offset=} {next_offset=} {len(data)=} {len(color_indexes)=}')  # len(output): 20480, 20492
+    # save single faces
+    images = {str(i): img for i, img in enumerate(images)} if isinstance(images, list) else images
+    save_single_images(images, out_dir, prefix)
+
+
+@click.command(help='顏 CG 解析')
+@click.option('-f', '--face', 'face_file', help="頭像檔案", required=True)
+@click.option('--out_dir', 'out_dir', default='_output', help='output directory')
+@click.option('--prefix', 'prefix', default='', help='filename prefix of output files')
+def genpei_montage(face_file, out_dir, prefix):
+    palette = color_codes_to_palette(
+        ['#000000', '#009230', '#D34100', '#F3B241', '#1041A2', '#71B2B2', '#E38251', '#F3F3D3']
+    )
+    face_w, face_h = 72, 77
+    areas = [(72, 77), (128, 99), (72, 88), (128, 103), (120, 78), (128, 99)]
+    areas = [x for x in areas for _ in range(8)]
+
+    # extract_images(face_file, face_w, face_h, palette, out_dir, prefix)
+
+    file_size = os.stat(face_file).st_size
+    with open(face_file, 'rb') as f:
+        for idx, (w, h) in enumerate(areas):
+            data_size = int(w * h / 8 * 3)
+            mask_size = int(w * h / 8)
+            data = f.read(data_size)
+            mask = f.read(mask_size)
+            bits = bitarray.bitarray()
+            bits.frombytes(mask)
+            alpha = [0 if b else 255 for b in bits]
+            img = data_to_image(data, w, h, palette, alpha=alpha)
+            save_single_images({f'{idx}': img}, out_dir, prefix)
+        print(f'{f.tell()=} / {file_size=}')
+
+
+genpei.add_command(genpei_face, 'face')
+genpei.add_command(genpei_montage, 'montage')
 
 ##############################################################################
 

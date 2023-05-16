@@ -129,7 +129,7 @@ def to_color_indexes(data: bytes, num_colors: int):
     raise ValueError('Expected 4, 8, 16, 64 or 256 colors in palette.')
 
 
-def data_to_image(data: bytes, w: int, h: int, palette: list, hh=False) -> Image.Image:
+def data_to_image(data: bytes, w: int, h: int, palette: list, hh=False, alpha=None) -> Image.Image:
     """
     Convert binary bytes to image.
 
@@ -140,11 +140,16 @@ def data_to_image(data: bytes, w: int, h: int, palette: list, hh=False) -> Image
     :param hh:          data contains only half height of size
     :return:            PIL.Image
     """
-    image = Image.new('RGB', (w, h), BGCOLOR)
+    mode = 'RGB'
+    if alpha is None:
+        alpha = [255] * (w*h)
+    else:
+        mode = 'RGBA'
+    image = Image.new(mode, (w, h), BGCOLOR)
     color_indexes = to_color_indexes(data, len(palette))
     for px_index, color_index in enumerate(color_indexes):
         y, x = divmod(px_index, w)
-        c = palette[color_index]
+        c = palette[color_index] + (alpha[px_index],)
         if hh:
             image.putpixel((x, 2*y), c)
             image.putpixel((x, 2*y+1), c)
@@ -570,6 +575,7 @@ def unpack_npk(src: bytes, line) -> bytes:
             run_size = ((b & 0x1F) + 1)         # info.len / repeat count
             run_offset = ((b & 0x60) >> 5) + 1  # info.range
             run_offset = run_offset * line if (b & 0x80) else run_offset * 4
+            print(f'{data.tell(): 6d} type: {bitflag:016b}, dir: {(b & 0x80) >> 7}, offset: {run_offset}, run_size: {run_size}, dest_len: {len(dest)}')
             for _ in range(run_size*4):
                 dest.append(dest[-run_offset])
         else:
@@ -589,10 +595,12 @@ def unpack_npk(src: bytes, line) -> bytes:
                 dest.append(d)
                 b1 = (b1 << 1) & 0xFF
                 b2 = (b2 << 1) & 0xFF
+            print(f'{data.tell(): 6d} type: {bitflag:016b}, dest_len: {len(dest)}')
 
         bitflag >>= 1
 
     return bytes(dest)
+
 
 def unpack_npk_3bits(src: bytes, line) -> bytes:
     """
@@ -609,7 +617,7 @@ def unpack_npk_3bits(src: bytes, line) -> bytes:
             run_offset = run_offset * line if (b & 0x40) else run_offset * 4
             for _ in range(run_size*4):
                 dest.append(dest[-run_offset])
-            # print(f'type: {b:08b}, direction: {direction}, offset: {offset}, run_size: {run_size} pos={len(color_indexes)}')
+            # print(f'{data.tell(): 6d} type: {b:08b}, dir: {b & 0x40}, offset: {run_offset}, run_size: {run_size} pos={len(dest)}')
         else:
             b1 = b
             b2 = data.read(1)[0]
@@ -621,5 +629,5 @@ def unpack_npk_3bits(src: bytes, line) -> bytes:
                 b1 = b1 << 1
                 b2 = b2 << 1
             dest.extend(buf * count)
-            # print(f'type: {(b1>>4):02x} {(b2>>4):02x}, count: {count}, simple_repeat: {simple_repeat} pos={len(color_indexes)}')
+            # print(f'{data.tell(): 6d} type: {(b1>>4):02x} {(b2>>4):02x}, count: {count}, buf: {buf} pos={len(dest)}')
     return bytes(dest)

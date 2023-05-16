@@ -86,6 +86,20 @@ const palettes = {
       '#EFDFCF',
     ],
   },
+  genpei: {
+    id: 'genpei',
+    name: '源平合戰',
+    codes: [
+      '#000000',
+      '#009230',
+      '#D34100',
+      '#F3B241',
+      '#1041A2',
+      '#71B2B2',
+      '#E38251',
+      '#F3F3D3',
+    ],
+  },
   kohryuki: {
     id: 'kohryuki',
     name: '項劉記',
@@ -98,6 +112,20 @@ const palettes = {
       '#71A2B2', // Steel Blue
       '#B27171', // Rosy Brown
       '#F3E3D3', // Beige
+    ],
+  },
+  liberty: {
+    id: 'liberty',
+    name: '獨立戰爭',
+    codes: [
+      '#000000',
+      '#104192',
+      '#B25110',
+      '#A27171',
+      '#417100',
+      '#82A2B2',
+      '#E3B292',
+      '#F3E3D3',
     ],
   },
   royal_pc98: {
