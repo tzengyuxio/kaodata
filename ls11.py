@@ -1,4 +1,4 @@
-from bitstream import BitStream
+import bitarray
 from rich.progress import track
 
 LS11_ENDIAN = 'big'
@@ -8,19 +8,21 @@ LS11_MAGIC = [b'LS11', b'Ls12']
 def get_codes(data: bytes) -> list[int]:
     """將壓縮資料轉換為字典索引值 list"""
     codes = []
-    stream = BitStream(data, bytes)
+    stream = bitarray.bitarray()
+    stream.frombytes(data)
     mask_len, pos, pos_end = 0, 0, len(data)*8
     while True:
-        bit = stream.read(bool)
+        bit = stream[pos]
         mask_len += 1
         pos += 1
         if not bit:
             mask = (1 << mask_len) - 2
             factor = 0
             for _ in range(mask_len):
-                factor = (factor << 1) | stream.read(bool)
+                factor = (factor << 1) | stream[pos]
+                pos += 1
             codes.append(mask+factor)
-            pos += mask_len
+            # pos += mask_len
             mask_len = 0
         if pos >= pos_end:
             break

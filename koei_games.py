@@ -153,6 +153,8 @@ def genpei_face(face_file, out_dir, prefix):
     images = []
     pattern = b'\x80\x00\xa0\x00\x70'
     pattern2 = b'\x80\x00\xa0\x00\x7f'
+    # offsets: main.exe 316703 0x4d51f 開始，2 bytes a size,
+    # 第80個對到 idx 151
     offsets = []
     with open(face_file, 'rb') as f:
         # offsets = [0, 4403, 5068, 10068, 10760, 14932, 15490]
