@@ -7,8 +7,8 @@ import requests
 from bs4 import BeautifulSoup
 from pytablewriter import MarkdownTableWriter, UnicodeTableWriter
 from pytablewriter.style import Style
-from utils import to_unicode_name, to_koeitw
-from san_person import *
+from dekoei.utils import to_unicode_name, to_koeitw
+from dekoei.san_person import *
 
 
 kohryuki_names = ['項羽', '劉邦', '英布', '韓信', '范增', '章邯', '項莊', '司馬欣', '董翳', '章平',
@@ -565,7 +565,7 @@ if __name__ == '__main__':
     # print(to_unicode_name(b'\xAD\xB6\x9A\x9A'))  # 蘇飛
     # print(to_unicode_name(b'\x94\x44\xad\xa5'))  # 伊籍, kao: 1E
     # print(to_unicode_name(b'\x93\xb2\x9c\xea\xaa\x77'))  # 司馬徽
-    print(to_unicode_name(b'\x9b\x30\x9c\xf0'))  # 孫乾
+    # print(to_unicode_name(b'\x9b\x30\x9c\xf0'))  # 孫乾
 
     # extract_sui_strings()
 

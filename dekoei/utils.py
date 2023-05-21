@@ -559,7 +559,8 @@ def unpack_npk(src: bytes, line) -> bytes:
     dest = bytearray()
     bitflag = 0x0000
     data_len = len(src)
-    while (data.tell() < data_len and len(dest) <= 10240):
+    while (data.tell() < data_len):
+    # while (data.tell() < data_len and len(dest) <= 10240):
         if not (bitflag & 0xFF00):
             # 這個 if 裡的操作相當於透過 bigflag 做 for i in range(8)
             bitflag = 0xFF00 | data.read(1)[0]
@@ -575,7 +576,7 @@ def unpack_npk(src: bytes, line) -> bytes:
             run_size = ((b & 0x1F) + 1)         # info.len / repeat count
             run_offset = ((b & 0x60) >> 5) + 1  # info.range
             run_offset = run_offset * line if (b & 0x80) else run_offset * 4
-            print(f'{data.tell(): 6d} type: {bitflag:016b}, dir: {(b & 0x80) >> 7}, offset: {run_offset}, run_size: {run_size}, dest_len: {len(dest)}')
+            # print(f'{data.tell(): 6d} type: {bitflag:016b}, dir: {(b & 0x80) >> 7}, offset: {run_offset}, run_size: {run_size}, dest_len: {len(dest)}')
             for _ in range(run_size*4):
                 dest.append(dest[-run_offset])
         else:
@@ -595,7 +596,7 @@ def unpack_npk(src: bytes, line) -> bytes:
                 dest.append(d)
                 b1 = (b1 << 1) & 0xFF
                 b2 = (b2 << 1) & 0xFF
-            print(f'{data.tell(): 6d} type: {bitflag:016b}, dest_len: {len(dest)}')
+            # print(f'{data.tell(): 6d} type: {bitflag:016b}, dest_len: {len(dest)}')
 
         bitflag >>= 1
 
