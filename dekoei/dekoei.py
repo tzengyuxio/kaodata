@@ -6,13 +6,13 @@ from PIL import ImageFile
 import os
 import os.path
 import math
-from bitstream import BitStream
 import io
 from utils import grouper
 from g1t import *
 from sango import *
 from nobu import *
 from koei_games import *
+from liberty import liberty
 
 
 @click.group()
@@ -108,19 +108,20 @@ def san14():
 
 def get_codes(data):
     codes = []
-    stream = BitStream(data, bytes)
+    stream = bitarray.bitarray()
+    stream.frombytes(data)
     c1, c2 = 0, 0
     cursor = 0
     pos_end = len(data)*8
     l = 0
     while True:
-        bit = stream.read(bool)
+        bit = stream[cursor]
         cursor += 1
         c1 = (c1 << 1) | bit
         l += 1
         if not bit:
             for i in range(l):
-                c2 = (c2 << 1) | stream.read(bool)
+                c2 = (c2 << 1) | stream[cursor]
                 cursor += 1
             codes.append(c1+c2)
             c1, c2 = 0, 0
