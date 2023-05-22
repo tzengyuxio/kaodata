@@ -13,6 +13,7 @@ from sango import *
 from nobu import *
 from koei_games import *
 from liberty import liberty
+from genpei import genpei
 
 
 @click.group()

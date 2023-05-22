@@ -78,6 +78,54 @@ def liberty():
     pass
 
 
+@click.command(help="CG 解析")
+@click.option("-f", "--file", "cg_file", help="圖像檔案", required=True)
+@click.option("--out_dir", "out_dir", default="_output", help="output directory")
+@click.option("--prefix", "prefix", default="", help="filename prefix of output files")
+def liberty_cg(cg_file, out_dir, prefix):
+    """
+    ./dekoei.py liberty face -f ~/DOSBox/LIBERTY/GRAPHICS.IDX --out_dir LIBERTY --prefix "GRAPHICS"
+    """
+    os.makedirs(out_dir, exist_ok=True)
+
+    palette = (
+        color_codes_to_palette(liberty_event_colors)
+        if "event" in cg_file.lower()
+        else color_codes_to_palette(liberty_colors)
+    )
+
+    with open(cg_file, "rb") as f:
+        header = f.read(3)
+        if header != b"IDX":
+            print("not IDX file")
+            return
+        count = int.from_bytes(f.read(1), LITTLE_ENDIAN)
+
+        offsets = []
+        for _ in range(count):
+            offset = int.from_bytes(f.read(4), LITTLE_ENDIAN)
+            offsets.append(offset)
+        file_size = os.stat(cg_file).st_size
+        offsets.append(file_size)
+
+        for i in range(len(offsets) - 1):
+            offset = offsets[i]
+            size = offsets[i + 1] - offset
+            f.seek(offset)
+            npk_data = f.read(size)
+            width = int.from_bytes(npk_data[0x0C:0x0E], LITTLE_ENDIAN)
+            height = int.from_bytes(npk_data[0x0E:0x10], LITTLE_ENDIAN)
+            # palette = npk_data[0x10:0x30]
+            color_indexes = unpack_npk(npk_data[0x30:], width)
+            image = Image.new("RGB", (width, height), BGCOLOR)
+            for px_index, color_index in enumerate(color_indexes):
+                y, x = divmod(px_index, width)
+                c = palette[color_index]
+                image.putpixel((x, y), c)
+            image.save(f"{out_dir}/{prefix}{i:03d}.png")
+        print(f"save {count} images")
+
+
 @click.command(help="顏 CG 解析")
 @click.option("-f", "--face", "face_file", help="頭像檔案", required=True)
 @click.option("--out_dir", "out_dir", default="_output", help="output directory")
@@ -130,53 +178,5 @@ def liberty_face(face_file, out_dir, prefix):
     save_single_images(images, out_dir, prefix)
 
 
-@click.command(help="CG 解析")
-@click.option("-f", "--file", "graphic_file", help="圖像檔案", required=True)
-@click.option("--out_dir", "out_dir", default="_output", help="output directory")
-@click.option("--prefix", "prefix", default="", help="filename prefix of output files")
-def liberty_graphic(graphic_file, out_dir, prefix):
-    """
-    ./dekoei.py liberty face -f ~/DOSBox/LIBERTY/GRAPHICS.IDX --out_dir LIBERTY --prefix "GRAPHICS"
-    """
-    os.makedirs(out_dir, exist_ok=True)
-
-    palette = (
-        color_codes_to_palette(liberty_event_colors)
-        if "event" in graphic_file.lower()
-        else color_codes_to_palette(liberty_colors)
-    )
-
-    with open(graphic_file, "rb") as f:
-        header = f.read(3)
-        if header != b"IDX":
-            print("not IDX file")
-            return
-        count = int.from_bytes(f.read(1), LITTLE_ENDIAN)
-
-        offsets = []
-        for _ in range(count):
-            offset = int.from_bytes(f.read(4), LITTLE_ENDIAN)
-            offsets.append(offset)
-        file_size = os.stat(graphic_file).st_size
-        offsets.append(file_size)
-
-        for i in range(len(offsets) - 1):
-            offset = offsets[i]
-            size = offsets[i + 1] - offset
-            f.seek(offset)
-            npk_data = f.read(size)
-            width = int.from_bytes(npk_data[0x0C:0x0E], LITTLE_ENDIAN)
-            height = int.from_bytes(npk_data[0x0E:0x10], LITTLE_ENDIAN)
-            # palette = npk_data[0x10:0x30]
-            color_indexes = unpack_npk(npk_data[0x30:], width)
-            image = Image.new("RGB", (width, height), BGCOLOR)
-            for px_index, color_index in enumerate(color_indexes):
-                y, x = divmod(px_index, width)
-                c = palette[color_index]
-                image.putpixel((x, y), c)
-            image.save(f"{out_dir}/{prefix}{i:03d}.png")
-        print(f"save {count} images")
-
-
+liberty.add_command(liberty_cg, "cg")
 liberty.add_command(liberty_face, "face")
-liberty.add_command(liberty_graphic, "graphic")
