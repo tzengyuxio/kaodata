@@ -551,7 +551,7 @@ def pack():
     """
 
 
-def unpack_npk(src: bytes, line) -> bytes:
+def unpack_npk(src: bytes, line, height) -> bytes:
     """
     return size of unpacked data
     """
@@ -559,7 +559,8 @@ def unpack_npk(src: bytes, line) -> bytes:
     dest = bytearray()
     bitflag = 0x0000
     data_len = len(src)
-    while (data.tell() < data_len):
+    dest_len = line * height
+    while (data.tell() < data_len and len(dest) < dest_len):
     # while (data.tell() < data_len and len(dest) <= 10240):
         if not (bitflag & 0xFF00):
             # 這個 if 裡的操作相當於透過 bigflag 做 for i in range(8)
@@ -588,8 +589,12 @@ def unpack_npk(src: bytes, line) -> bytes:
             #     d2 = 0b  0  0  0  0 A1 A5 B1 B5
             #     d3 = 0b  0  0  0  0 A2 A6 B2 B6
             #     d4 = 0b  0  0  0  0 A3 A7 B3 B7
-            b1 = data.read(1)[0]
-            b2 = data.read(1)[0]
+            try:
+                b1 = data.read(1)[0]
+                b2 = data.read(1)[0]
+            except:
+                print(len(dest), data.tell())
+                break
             for _ in range(4):
                 d = ((b1 & 0x80) >> 4) | ((b1 & 0x08) >> 1) | \
                     ((b2 & 0x80) >> 6) | ((b2 & 0x08) >> 3)
@@ -600,6 +605,8 @@ def unpack_npk(src: bytes, line) -> bytes:
 
         bitflag >>= 1
 
+    if data_len - data.tell() > 0:
+        print(f'    used: {data.tell():6d} left: {data_len-data.tell():6d}')
     return bytes(dest)
 
 

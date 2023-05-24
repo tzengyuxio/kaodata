@@ -548,6 +548,16 @@ def get_san5_name_list():
             comment = f' // {i}, 0x{i:02X}'
         print(f"'{name}',{comment}")
 
+def genpei_opendat_header():
+    with open("/Users/tzengyuxio/DOSBox/genpei/opendat.gp", 'rb') as f:
+        for i in range(41):
+            for j in range(16):
+                a = f.read(1).hex()[1:]
+                b = f.read(1).hex()[1:]
+                c = f.read(1).hex()[1:]
+                print(f'{a}{b}{c} ', end='')
+            print()
+
 
 
 if __name__ == '__main__':
@@ -581,4 +591,5 @@ if __name__ == '__main__':
     # get_san3_scenario_name_list('/Users/tzengyuxio/DOSBox/SAN3')
 
     # get_san4_name_list()
-    get_san5_name_list()
+    # get_san5_name_list()
+    genpei_opendat_header()
