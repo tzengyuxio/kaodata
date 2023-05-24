@@ -610,14 +610,15 @@ def unpack_npk(src: bytes, line, height) -> bytes:
     return bytes(dest)
 
 
-def unpack_npk_3bits(src: bytes, line) -> bytes:
+def unpack_npk_3bits(src: bytes, line, height) -> bytes:
     """
     return size of unpacked data
     """
     data = io.BytesIO(src)
     dest = bytearray()
     data_len = len(src)
-    while (data.tell() < data_len):
+    dest_len = line * height
+    while (data.tell() < data_len and len(dest) < dest_len):
         b = data.read(1)[0]
         if b & 0x80:
             run_size = ((b & 0x0F) + 1)         # info.len
@@ -638,4 +639,6 @@ def unpack_npk_3bits(src: bytes, line) -> bytes:
                 b2 = b2 << 1
             dest.extend(buf * count)
             # print(f'{data.tell(): 6d} type: {(b1>>4):02x} {(b2>>4):02x}, count: {count}, buf: {buf} pos={len(dest)}')
+    if data_len - data.tell() > 0:
+        print(f'    used: {data.tell():6d} left: {data_len-data.tell():6d}')
     return bytes(dest)

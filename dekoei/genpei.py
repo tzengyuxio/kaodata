@@ -218,12 +218,29 @@ def genpei_cg(cg_file, out_dir, prefix):
         print(f"save {len(offsets)-1} images")
 
         if "cmd2" in cg_file.lower():
+            f.seek(86140)
+            offsets = []
+            data = bytearray(f.read())
+            offset = data.find(b"\xa0\x00\x80\x00")
+            while offset != -1:
+                offsets.append(offset)
+                offset = data.find(b"\xa0\x00\x80\x00", offset+1)
+            for idx, offset in enumerate(offsets):
+                if idx != len(offsets)-1:
+                    sz = offsets[idx+1] - offset
+                    print(f"{idx=} {offset=:08X} {sz=:08X}")
+                else:
+                    print(f"{idx=} {offset=:08X}")
+
+        if "cmd2" in cg_file.lower():
             with open(cg_file, 'rb') as f, open(f"{out_dir}/{prefix}cmd2.bin", 'wb') as f2:
                 f.seek(86140)
                 data = f.read(1152)
                 f2.write(data)
-                szs = [4267,4336,3633+2848] # offsets: [87292, 91559, 95895, 99528, 102376]
+                # szs = [4267,4336,3633+2848] # offsets: [87292, 91559, 95895, 99528, 102376]
+                szs = [0x109f + 0xc, 0x10f0, 0x1951, 0x1820, 0x1602, 0x19ac, 0x1624, 0x1458, 0x167c, 0x1b00, 0x1874+0x411]
                 for idx, sz in enumerate(szs):
+                    print(f"{idx=} {sz=:08d} 0x{sz=:08X} offset=0x{f.tell():08X}")
                     data = f.read(sz)
                     color_index = []
                     if data[:3] == b"NPK":
@@ -232,7 +249,8 @@ def genpei_cg(cg_file, out_dir, prefix):
                         color_indexes = unpack_npk(data[0x30:], width, height)
                     else:
                         width = int.from_bytes(data[0x00:0x02], LITTLE_ENDIAN)
-                        color_indexes = unpack_npk_3bits(data[4:], width)
+                        height = int.from_bytes(data[0x02:0x04], LITTLE_ENDIAN) 
+                        color_indexes = unpack_npk_3bits(data[4:], width, height)
                     image = Image.new("RGB", (width, height))
                     for px_index, color_index in enumerate(color_indexes):
                         y, x = divmod(px_index, width)
@@ -240,6 +258,16 @@ def genpei_cg(cg_file, out_dir, prefix):
                         image.putpixel((x, y), c)
                     image.save(f"{out_dir}/cmd_{prefix}{idx:04d}.png")
                     print(f"save cmd {idx} image")
+            # "cmd2" 目前到 0x02502f, 151599, 後面還有 162,372 bytes
+                f.seek(0x02502f)
+                data = f.read(1920)
+                img = data_to_image(data, 64, 80, color_codes_to_palette(genpei_face_colors))
+                img.save(f"{out_dir}/cmd2kao.png")
+                # f.seek(279604)
+                f.seek(279603)
+                data = f.read(1920*18-192)
+                img = data_to_image(data, 64, 1432, color_codes_to_palette(genpei_face_colors))
+                img.save(f"{out_dir}/cmd2word.png")
             
 
 
