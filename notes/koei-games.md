@@ -2,6 +2,11 @@
 
 雜七雜八的都記在這邊
 
+## 拿破崙
+
+- 有戰場 MAP [ランペルール](https://secky.org/arcade/lempe/index.html)
+- handbook 介紹 [ランペルール](https://syumisya.com/koei/ex/LA.html)
+
 ## 項劉記
 
 大地圖 (see [https://cafe.naver.com/koeimod/256])

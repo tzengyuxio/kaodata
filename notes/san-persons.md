@@ -87,6 +87,7 @@ scenario 8 end in  230
 
 - 光榮美術館目前 39 作 (2023/3/1), koei-wiki 已整理 27 作，但尚未完整發布
 - 光榮美術館目前 40 作 (2023/5/15), koei-wiki 已整理 30 作，發布 23 作。
+- [光榮美術館](http://www.mitene.or.jp/~wintree/rent/keeekn/koeiface/koeiface_top.htm)
 
 ## 人物解析步驟
 

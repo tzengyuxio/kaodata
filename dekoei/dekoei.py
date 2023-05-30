@@ -14,6 +14,9 @@ from nobu import *
 from koei_games import *
 from liberty import liberty
 from genpei import genpei
+from san1 import san1
+from san2 import san2
+from san3 import san3
 
 
 @click.group()
