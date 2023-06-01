@@ -1,15 +1,23 @@
+import io
+import os
 import struct
 import click
 from PIL import Image
 
 from utils import (
+    BGCOLOR,
+    LITTLE_ENDIAN,
     calc_part_size,
     color_codes_to_palette,
     create_floppy_image_stream,
     extract_images,
+    load_images_with_data,
     load_person,
+    output_images,
     print_table,
     save_index_image,
+    save_single_images,
+    unpack_npk_3bits,
 )
 from san_person import (
     S2Person,
@@ -193,5 +201,88 @@ def san2_person(file, taiki_file, to):
     print_table(s2_table_title, s2_headers, persons, to)
 
 
+@click.command(help="地圖資料解析")
+@click.option("--game_dir", "game_dir", default="san2", help="game directory")
+@click.option("--out_dir", "out_dir", default="_output", help="output directory")
+def san2_map(game_dir, out_dir):
+    palette = color_codes_to_palette(
+        [
+            "#000000",
+            "#55FF55",
+            "#FF5555",
+            "#FFFF55",
+            "#5555FF",
+            "#55FFFF",
+            "#FF55FF",
+            "#FFFFFF",
+        ]
+    )
+    hex_file = f"{game_dir}/HEXDATA.DAT"
+    hex_file = os.path.expanduser(hex_file)
+    map_size = 12 * 13
+    total_map_size = map_size * 41
+    terrain_type_count = 7  # 平原 森林 丘陵 高山 水域 營寨 城池
+    terrain_cg_size = int(32 * 16 / 8 * 3)  # 192
+    with open(hex_file, "rb") as f:
+        f.seek(total_map_size * 2)
+        data = f.read(terrain_cg_size * terrain_type_count)
+        images = load_images_with_data(
+            data, 32, 32, palette, True, terrain_cg_size, terrain_type_count
+        )
+        output_images(images, out_dir, "")
+
+@click.command(help="其他資料解析")
+@click.option("--game_dir", "game_dir", default="san2", help="game directory")
+@click.option("--out_dir", "out_dir", default="_output", help="output directory")
+def san2_grp(game_dir, out_dir):
+    """
+    1) 640 x 200 劇本選擇圖
+    2) 296 x 200 大地圖
+    3) 344 x 200 右半邊框
+    4) 336 x   3 分隔線
+    5)  80 x  56 圖框
+    6) 128 x  64 外交事件
+    7) 128 x  64 信件攔截事件
+    """
+    palette = color_codes_to_palette(
+        [
+            "#000000",
+            "#55FF55",
+            "#FF5555",
+            "#FFFF55",
+            "#5555FF",
+            "#55FFFF",
+            "#FF55FF",
+            "#FFFFFF",
+        ]
+    )
+    grp_file = f"{game_dir}/GRPDATA.DAT"
+    grp_file = os.path.expanduser(grp_file)
+    images = []
+    with open(grp_file, 'rb') as f:
+        offset_info = [(0, 14254), (14254, 11012), (25266, 1695), (26961, 25), (26986, 174), (27160, 2311), (29471, 14232)]
+        for offset, size in offset_info:
+            f.seek(offset)
+            data = f.read(size)
+            w = int.from_bytes(data[0:2], LITTLE_ENDIAN)
+            h = int.from_bytes(data[2:4], LITTLE_ENDIAN)
+            print(w, h)
+            color_indexes = unpack_npk_3bits(data[4:], w, h)
+            image = Image.new("RGB", (w, h), BGCOLOR)
+            for px_index, color_index in enumerate(color_indexes):
+                y, x = divmod(px_index, w)
+                c = palette[color_index]
+                image.putpixel((x, y), c)
+            images.append(image)
+    images = (
+        {str(i): img for i, img in enumerate(images)}
+        if isinstance(images, list)
+        else images
+    )
+    save_single_images(images, out_dir, "")
+
+
 san2.add_command(san2_face, "face")
+san2.add_command(san2_grp, "grp")
+san2.add_command(san2_map, "map")
 san2.add_command(san2_person, "person")
