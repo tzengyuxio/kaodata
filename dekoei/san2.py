@@ -303,7 +303,8 @@ def san2_grpa(game_dir, out_dir):
     # left: 864 bytes, 箭頭, 6 方向 6 張，每張 144, 寬 24, 高可能為 16(hh, 32)
     # 風向箭頭
     # 目前未知: 馬, 戰爭圖
-    grp_file = f"{game_dir}/GRPDATA.DAT"
+    # grp_file = f"{game_dir}/GRPDATA.DAT"
+    grp_file = f"{game_dir}/ENDING.DAT"
     grp_file = os.path.expanduser(grp_file)
     images = []
     offsets = []
@@ -311,7 +312,10 @@ def san2_grpa(game_dir, out_dir):
         f.seek(0, os.SEEK_END)
         file_size = f.tell()
         next_offset = 0
+        # i = 0
+        # while i < 1:
         while True:
+            # i += 1
             offset = next_offset
             f.seek(offset)
             dest = bytearray()

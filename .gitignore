@@ -131,7 +131,7 @@ dmypy.json
 # kaodata
 .idea
 .vscode
-_output
+_output*
 GAMES
 KAO
 TEST_OUTPUT
