@@ -10,6 +10,7 @@ from utils import (
     calc_part_size,
     color_codes_to_palette,
     create_floppy_image_stream,
+    data_to_image,
     extract_images,
     load_images_with_data,
     load_person,
@@ -281,8 +282,102 @@ def san2_grp(game_dir, out_dir):
     )
     save_single_images(images, out_dir, "")
 
+@click.command(help="其他資料解析")
+@click.option("--game_dir", "game_dir", default="san2", help="game directory")
+@click.option("--out_dir", "out_dir", default="_output", help="output directory")
+def san2_grpa(game_dir, out_dir):
+    palette = color_codes_to_palette(
+        [
+            "#000000",
+            "#55FF55",
+            "#FF5555",
+            "#FFFF55",
+            "#5555FF",
+            "#55FFFF",
+            "#FF55FF",
+            "#FFFFFF",
+        ]
+    )
+    # file size 46715
+    # 30 張圖 45851
+    # left: 864 bytes, 推測可能是馬的動畫
+    grp_file = f"{game_dir}/GRPDATA.DAT"
+    grp_file = os.path.expanduser(grp_file)
+    images = []
+    offsets = []
+    with open(grp_file, 'rb') as f:
+        f.seek(0, os.SEEK_END)
+        file_size = f.tell()
+        next_offset = 0
+        while True:
+            offset = next_offset
+            f.seek(offset)
+            dest = bytearray()
+            w = int.from_bytes(f.read(2), LITTLE_ENDIAN)
+            h = int.from_bytes(f.read(2), LITTLE_ENDIAN)
+            if w == 0 or h == 0:
+                print(f'OUT OF RANGE: {w=} {h=} pos:{offset=}')
+                break
+            dest_len = w * h
+            while (f.tell() < file_size and len(dest) < dest_len):
+                b = f.read(1)[0]
+                if b & 0x80:
+                    run_size = ((b & 0x0F) + 1)         # info.len
+                    run_offset = ((b & 0x30) >> 4) + 1  # info.range
+                    run_offset = run_offset * w if (b & 0x40) else run_offset * 4
+                    for _ in range(run_size*4):
+                        dest.append(dest[-run_offset])
+                    # print(f'{data.tell(): 6d} type: {b:08b}, dir: {b & 0x40}, offset: {run_offset}, run_size: {run_size} pos={len(dest)}')
+                else:
+                    b1 = b
+                    b2 = f.read(1)[0]
+                    count = ((b1 & 0xF0) >> 4) + 1
+                    buf = []
+                    for _ in range(4):
+                        d = ((b1 & 0x08) >> 1) | ((b2 & 0x80) >> 6) | ((b2 & 0x08) >> 3)
+                        buf.append(d)
+                        b1 = b1 << 1
+                        b2 = b2 << 1
+                    dest.extend(buf * count)
+                    # print(f'{data.tell(): 6d} type: {(b1>>4):02x} {(b2>>4):02x}, count: {count}, buf: {buf} pos={len(dest)}')
+            # save image
+            print(f'{w=}, {h=}')
+            image = Image.new("RGB", (w, h*2), BGCOLOR)
+            for px_index, color_index in enumerate(bytes(dest)):
+                y, x = divmod(px_index, w)
+                c = palette[color_index]
+                # image.putpixel((x, y), c)
+                image.putpixel((x, 2*y), c)
+                image.putpixel((x, 2*y+1), c)
+            images.append(image)
+            # prepare for loop
+            next_offset = f.tell()
+            offsets.append((offset, next_offset-offset))
+            if next_offset >= file_size:
+                break
+        if next_offset < file_size:
+            w = 24
+            h = 24
+            data_size = int(w * h / 2 / 8 * 3) # 108
+            for i in range(8):
+                data = f.read(data_size)
+                img = data_to_image(data, w, h, palette, True)
+                images.append(img)
+    total_size = 0
+    for offset, size in offsets:
+        print(f'{offset=}, {size=}')
+        total_size += size
+    print(f'{total_size=}')
+    images = (
+        {str(i): img for i, img in enumerate(images)}
+        if isinstance(images, list)
+        else images
+    )
+    save_single_images(images, out_dir, "")
+
 
 san2.add_command(san2_face, "face")
 san2.add_command(san2_grp, "grp")
+san2.add_command(san2_grpa, "grpa")
 san2.add_command(san2_map, "map")
 san2.add_command(san2_person, "person")

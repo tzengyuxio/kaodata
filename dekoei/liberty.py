@@ -159,7 +159,7 @@ def liberty_face(face_file, out_dir, prefix):
             data = f.read(size)
             face_w = int.from_bytes(data[0:2], LITTLE_ENDIAN)
             face_h = int.from_bytes(data[2:4], LITTLE_ENDIAN)
-            color_indexes = unpack_npk_3bits(data[4:], face_w)
+            color_indexes = unpack_npk_3bits(data[4:], face_w, face_h)
             # print(f'#{idx:03d} {width}x{height} {len(color_indexes)}')
             image = Image.new("RGB", (face_w, face_h), BGCOLOR)
             for px_index, color_index in enumerate(color_indexes):
