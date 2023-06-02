@@ -300,7 +300,9 @@ def san2_grpa(game_dir, out_dir):
     )
     # file size 46715
     # 30 張圖 45851
-    # left: 864 bytes, 推測可能是馬的動畫
+    # left: 864 bytes, 箭頭, 6 方向 6 張，每張 144, 寬 24, 高可能為 16(hh, 32)
+    # 風向箭頭
+    # 目前未知: 馬, 戰爭圖
     grp_file = f"{game_dir}/GRPDATA.DAT"
     grp_file = os.path.expanduser(grp_file)
     images = []
@@ -357,9 +359,9 @@ def san2_grpa(game_dir, out_dir):
                 break
         if next_offset < file_size:
             w = 24
-            h = 24
+            h = 32
             data_size = int(w * h / 2 / 8 * 3) # 108
-            for i in range(8):
+            for i in range(6):
                 data = f.read(data_size)
                 img = data_to_image(data, w, h, palette, True)
                 images.append(img)
