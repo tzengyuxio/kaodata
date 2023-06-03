@@ -28,6 +28,19 @@ from san_person import (
     s2_table_title,
 )
 
+san2_face_palette = color_codes_to_palette(
+    [
+        "#000000",
+        "#55FF55",
+        "#FF5555",
+        "#FFFF55",
+        "#5555FF",
+        "#55FFFF",
+        "#FF55FF",
+        "#FFFFFF",
+    ]
+)
+
 
 @click.group()
 def san2():
@@ -232,6 +245,7 @@ def san2_map(game_dir, out_dir):
         )
         output_images(images, out_dir, "")
 
+
 @click.command(help="其他資料解析")
 @click.option("--game_dir", "game_dir", default="san2", help="game directory")
 @click.option("--out_dir", "out_dir", default="_output", help="output directory")
@@ -260,8 +274,16 @@ def san2_grp(game_dir, out_dir):
     grp_file = f"{game_dir}/GRPDATA.DAT"
     grp_file = os.path.expanduser(grp_file)
     images = []
-    with open(grp_file, 'rb') as f:
-        offset_info = [(0, 14254), (14254, 11012), (25266, 1695), (26961, 25), (26986, 174), (27160, 2311), (29471, 14232)]
+    with open(grp_file, "rb") as f:
+        offset_info = [
+            (0, 14254),
+            (14254, 11012),
+            (25266, 1695),
+            (26961, 25),
+            (26986, 174),
+            (27160, 2311),
+            (29471, 14232),
+        ]
         for offset, size in offset_info:
             f.seek(offset)
             data = f.read(size)
@@ -282,19 +304,22 @@ def san2_grp(game_dir, out_dir):
     )
     save_single_images(images, out_dir, "")
 
+
 @click.command(help="其他資料解析")
 @click.option("--game_dir", "game_dir", default="san2", help="game directory")
 @click.option("--out_dir", "out_dir", default="_output", help="output directory")
-def san2_grpa(game_dir, out_dir):
+@click.option("--prefix", "prefix", default="", help="filename prefix of output files")
+def san2_grpa(game_dir, out_dir, prefix):
+    os.makedirs(out_dir, exist_ok=True)
     palette = color_codes_to_palette(
         [
             "#000000",
-            "#55FF55",
-            "#FF5555",
-            "#FFFF55",
             "#5555FF",
-            "#55FFFF",
+            "#FF5555",
             "#FF55FF",
+            "#55FF55",
+            "#55FFFF",
+            "#FFFF55",
             "#FFFFFF",
         ]
     )
@@ -303,12 +328,12 @@ def san2_grpa(game_dir, out_dir):
     # left: 864 bytes, 箭頭, 6 方向 6 張，每張 144, 寬 24, 高可能為 16(hh, 32)
     # 風向箭頭
     # 目前未知: 馬, 戰爭圖
-    # grp_file = f"{game_dir}/GRPDATA.DAT"
-    grp_file = f"{game_dir}/ENDING.DAT"
+    grp_file = f"{game_dir}/GRPDATA.DAT"
+    # grp_file = f"{game_dir}/PACKDATA.DAT"
     grp_file = os.path.expanduser(grp_file)
     images = []
     offsets = []
-    with open(grp_file, 'rb') as f:
+    with open(grp_file, "rb") as f:
         f.seek(0, os.SEEK_END)
         file_size = f.tell()
         next_offset = 0
@@ -322,16 +347,17 @@ def san2_grpa(game_dir, out_dir):
             w = int.from_bytes(f.read(2), LITTLE_ENDIAN)
             h = int.from_bytes(f.read(2), LITTLE_ENDIAN)
             if w == 0 or h == 0:
-                print(f'OUT OF RANGE: {w=} {h=} pos:{offset=}')
+                print(f"OUT OF RANGE: {w=} {h=} pos:{offset=}")
+                f.seek(f.tell()-4)
                 break
             dest_len = w * h
-            while (f.tell() < file_size and len(dest) < dest_len):
+            while f.tell() < file_size and len(dest) < dest_len:
                 b = f.read(1)[0]
                 if b & 0x80:
-                    run_size = ((b & 0x0F) + 1)         # info.len
+                    run_size = (b & 0x0F) + 1  # info.len
                     run_offset = ((b & 0x30) >> 4) + 1  # info.range
                     run_offset = run_offset * w if (b & 0x40) else run_offset * 4
-                    for _ in range(run_size*4):
+                    for _ in range(run_size * 4):
                         dest.append(dest[-run_offset])
                     # print(f'{data.tell(): 6d} type: {b:08b}, dir: {b & 0x40}, offset: {run_offset}, run_size: {run_size} pos={len(dest)}')
                 else:
@@ -347,39 +373,41 @@ def san2_grpa(game_dir, out_dir):
                     dest.extend(buf * count)
                     # print(f'{data.tell(): 6d} type: {(b1>>4):02x} {(b2>>4):02x}, count: {count}, buf: {buf} pos={len(dest)}')
             # save image
-            print(f'{w=}, {h=}')
-            image = Image.new("RGB", (w, h*2), BGCOLOR)
+            print(f"{w=}, {h=}")
+            image = Image.new("RGB", (w, h * 2), BGCOLOR)
             for px_index, color_index in enumerate(bytes(dest)):
                 y, x = divmod(px_index, w)
                 c = palette[color_index]
                 # image.putpixel((x, y), c)
-                image.putpixel((x, 2*y), c)
-                image.putpixel((x, 2*y+1), c)
+                image.putpixel((x, 2 * y), c)
+                image.putpixel((x, 2 * y + 1), c)
             images.append(image)
             # prepare for loop
             next_offset = f.tell()
-            offsets.append((offset, next_offset-offset))
+            offsets.append((offset, next_offset - offset))
             if next_offset >= file_size:
                 break
         if next_offset < file_size:
             w = 24
             h = 32
-            data_size = int(w * h / 2 / 8 * 3) # 108
+            # data_size = int(w * h / 2 / 8 * 3)  # 144
+            data_size = 144
             for i in range(6):
                 data = f.read(data_size)
-                img = data_to_image(data, w, h, palette, True)
+                print(len(data))
+                img = data_to_image(data, w, h, san2_face_palette, True)
                 images.append(img)
     total_size = 0
     for offset, size in offsets:
-        print(f'{offset=}, {size=}')
+        print(f"{offset=}, {size=}")
         total_size += size
-    print(f'{total_size=}')
+    print(f"{total_size=}")
     images = (
         {str(i): img for i, img in enumerate(images)}
         if isinstance(images, list)
         else images
     )
-    save_single_images(images, out_dir, "")
+    save_single_images(images, out_dir, prefix)
 
 
 san2.add_command(san2_face, "face")
