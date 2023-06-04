@@ -10,13 +10,23 @@
     </div>
     <div>
       <label for="input1">輸入文字:</label>
-      <input type="text" id="input1" v-model="inputText" />
+      <input
+        type="text"
+        id="input1"
+        v-model="inputText"
+        @keyup.enter="encodeText"
+      />
       <button @click="encodeText">轉換</button>
       <div>轉換結果: {{ encodedText }}</div>
     </div>
     <div>
       <label for="input2">輸入 hex string:</label>
-      <input type="text" id="input2" v-model="inputHex" />
+      <input
+        type="text"
+        id="input2"
+        v-model="inputHex"
+        @keyup.enter="decodeText"
+      />
       <button @click="decodeText">轉換</button>
       <div>轉換結果: {{ decodedText }}</div>
     </div>
@@ -140,7 +150,6 @@ export default {
         }
       }
 
-      console.log(selectedEncoding) // 做點什麼事情
       return selectedEncoding
     }
   }

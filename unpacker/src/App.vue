@@ -1,32 +1,35 @@
 <template>
- <div>
+  <div>
     <nav>
       <button @click="currentTab = 'HomePage'">Home</button>
       <button @click="currentTab = 'AboutPage'">About</button>
       <button @click="currentTab = 'FontCode'">Font Code</button>
+      <button @click="currentTab = 'ImageParser'">Image Parser</button>
     </nav>
     <component :is="currentTab"></component>
   </div>
 </template>
 
 <script>
-import HomePage from './components/Home.vue';
-import AboutPage from './components/About.vue';
-import FontCode from './components/FontCode.vue';
+import HomePage from './components/Home.vue'
+import AboutPage from './components/About.vue'
+import FontCode from './components/FontCode.vue'
+import ImageParser from './components/ImageParser.vue'
 
 export default {
-	name: 'App',
-	components: {
-		HomePage,
-		AboutPage,
-		FontCode,
-	},
-	data() {
-		return {
-			currentTab: 'FontCode',
-		};
-	},
-};
+  name: 'App',
+  components: {
+    HomePage,
+    AboutPage,
+    FontCode,
+    ImageParser
+  },
+  data () {
+    return {
+      currentTab: 'ImageParser'
+    }
+  }
+}
 </script>
 
 <style>
