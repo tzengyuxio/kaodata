@@ -411,7 +411,18 @@ def cns_from_order(n: int) -> str:
     return '{}-{:4X}'.format(2, (hi + 0x21) << 8 | lo + 0x21)
 
 
-def load_cns11643_unicode_table(filename: str = 'Unicode/CNS2UNICODE_Unicode BMP.txt') -> dict[str, str]:
+def cns_to_order(s: str) -> int:
+    if s == '':
+        return -1
+    plane, code = s.split('-')
+    offset = 0 if plane == '1' else 5546
+    hi_start = '44' if plane == '1' else '21'
+    hi = int(code[:2], 16) - int(hi_start, 16)
+    lo = int(code[2:], 16) - int('21', 16)
+    return offset + hi * 94 + lo
+
+
+def load_cns11643_unicode_table(filename: str = '../Unicode/CNS2UNICODE_Unicode BMP.txt') -> dict[str, str]:
     table = {'': ''}
     with open(filename, 'r') as f:
         while entry := f.readline():
