@@ -1,10 +1,10 @@
 <template>
   <div>
     <nav>
-      <button @click="currentTab = 'HomePage'">Home</button>
-      <button @click="currentTab = 'AboutPage'">About</button>
-      <button @click="currentTab = 'FontCode'">Font Code</button>
-      <button @click="currentTab = 'ImageParser'">Image Parser</button>
+      <button class="border ml-1" @click="currentTab = 'HomePage'">Home</button>
+      <button class="border ml-1" @click="currentTab = 'AboutPage'">About</button>
+      <button class="border ml-1" @click="currentTab = 'FontCode'">Font Code</button>
+      <button class="border ml-1" @click="currentTab = 'ImageParser'">Image Parser</button>
     </nav>
     <component :is="currentTab"></component>
   </div>
