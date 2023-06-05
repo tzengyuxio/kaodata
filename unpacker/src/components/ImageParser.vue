@@ -69,7 +69,6 @@ export default {
         reader.onload = () => {
           this.fileBytes = new Uint8Array(reader.result)
           this.drawImages()
-          console.log(this.fileBytes.length)
         }
         reader.onerror = (error) => {
           console.error('Load file error:', error)
@@ -85,22 +84,29 @@ export default {
     },
     drawImages () {
       if (this.fileBytes) {
-        const w = 64
-        const h = 80
+        // let w = 64
+        // let h = 80
         let cursor = 0
         const colors = this.colors.map(hexToRGB)
         const gallery = this.$refs.gallery
         while (cursor < this.fileBytes.length) {
           const data = this.fileBytes.slice(cursor)
-          const [colorIndexes, used] = unpackKao(data, w, h)
+            const [colorIndexes, used, w, h] = unpackKao(data, 320, 121)
+        //   const [colorIndexes, used, w, h] = unpackGrp(data)
+          //   const [colorIndexes, used, w, h] = unpackNpk(data)
+          if (colorIndexes === null) {
+            break
+          }
+          console.log('drawImages:', this.fileBytes.length, cursor, used, w, h)
           cursor += used
-          console.log(this.fileBytes.length, cursor, used)
           const imageData = colorIndexesToImage(colorIndexes, w, h, colors)
 
           const canvas = document.createElement('canvas')
           canvas.classList = 'm-0.5'
           canvas.width = w
           canvas.height = h
+          canvas.style.width = w + 'px'
+          canvas.style.height = h + 'px'
           canvas.getContext('2d').putImageData(imageData, 0, 0)
           gallery.appendChild(canvas)
         }
