@@ -96,13 +96,14 @@ export default {
         const colors = this.colors.map(hexToRGB)
         const gallery = this.$refs.gallery
         let unpacker = null
+        const data = this.fileBytes
         while (cursor < this.fileBytes.length) {
-          const data = this.fileBytes.slice(cursor)
+          // const data = this.fileBytes.slice(cursor)
           if (unpacker === null) {
             const type = this.guessType(data)
             unpacker = unpackers[type]
           }
-          const [colorIndexes, used, w, h] = unpacker(data, 64, 80)
+          const [colorIndexes, used, w, h] = unpacker(data, cursor, 64, 80)
           if (colorIndexes === null) {
             break
           }
@@ -111,11 +112,11 @@ export default {
           const imageData = colorIndexesToImage(colorIndexes, w, h, colors)
 
           const canvas = document.createElement('canvas')
+          canvas.classList = 'image-canvas m-0.5'
           canvas.width = w
           canvas.height = h
           canvas.style.width = w + 'px'
           canvas.style.height = h + 'px'
-          canvas.classList = 'image-canvas m-0.5'
           canvas.getContext('2d').putImageData(imageData, 0, 0)
           gallery.appendChild(canvas)
         }

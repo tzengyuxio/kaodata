@@ -1,9 +1,9 @@
 .image-canvas:hover {
-    border: 1px solid black;
-    padding: 1px;
+    border: 2px solid red;
+    padding: 2px;
 }
 
 .image-canvas {
-    border: 1px solid gray;
-    padding: 1px;
+    border: 2px solid gray;
+    padding: 2px;
 }
