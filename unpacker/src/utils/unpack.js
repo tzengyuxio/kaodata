@@ -26,12 +26,12 @@ export function hexToRGB (hex) {
  * @param {number} h - the height of the image in pixels
  * @return {[number], number} an array of color indexes and the size of the unpacked data used
  */
-export function unpackKao (data, startPos, w, h) {
+export function unpackKao (data, w, h) {
   const dataSize = ((w * h) / 8) * 3
-  if (data.length < startPos + dataSize) {
+  if (data.length < dataSize) {
     return [null, 0, w, h]
-  } else if (data.length >= startPos + dataSize) {
-    data = data.slice(startPos, startPos + dataSize)
+  } else if (data.length >= dataSize) {
+    data = data.slice(0, dataSize)
   }
 
   // kaocgeditor: toColorIndexes
@@ -51,14 +51,14 @@ export function unpackKao (data, startPos, w, h) {
   return [indexes, dataSize, w, h]
 }
 
-export function unpackGrp (data, startPos) {
-  const w = (data[startPos + 1] << 8) | data[startPos + 0]
-  const h = (data[startPos + 3] << 8) | data[startPos + 2]
+export function unpackGrp (data) {
+  const w = (data[1] << 8) | data[0]
+  const h = (data[3] << 8) | data[2]
   if (w <= 0 || w > 800 || h <= 0 || h > 800) {
     console.log('unpackGrp: out of range', w, h)
     return [null, 0, w, h]
   }
-  let pos = startPos + 4
+  let pos = 4
   const expectedSize = w * h
   const indexes = []
   while (pos < data.length && indexes.length < expectedSize) {
@@ -87,22 +87,22 @@ export function unpackGrp (data, startPos) {
     }
   }
   //   console.log('unpackGrp: info', w, h, expectedSize, indexes.length)
-  return [indexes, pos - startPos, w, h]
+  return [indexes, pos, w, h]
 }
 
-export function unpackNpk (data, startPos) {
+export function unpackNpk (data) {
   // first 6 bytes are 'NPK016'
   // next 2 bytes: unknown yet
-  const sw = (data[startPos + 9] << 8) | data[startPos + 8] // screen width
-  const sh = (data[startPos + 11] << 8) | data[startPos + 10] // screen height
-  const w = (data[startPos + 13] << 8) | data[startPos + 12]
-  const h = (data[startPos + 15] << 8) | data[startPos + 14]
+  const sw = (data[9] << 8) | data[8] // screen width
+  const sh = (data[11] << 8) | data[10] // screen height
+  const w = (data[13] << 8) | data[12]
+  const h = (data[15] << 8) | data[14]
   if (sw <= 0 || sw > 800 || sh <= 0 || sh > 800 || w > sw || h > sh) {
     console.log('unpackGrp: out of range(sw, sh, w, h)', sw, sh, w, h)
     return [null, 0, w, h]
   }
   // next 32 bytes: palette (not work)
-  let pos = startPos + 0x30
+  let pos = 0x30
   const expectedSize = w * h
   const indexes = []
   while (pos < data.length && indexes.length < expectedSize) {
@@ -135,7 +135,7 @@ export function unpackNpk (data, startPos) {
       }
     }
   }
-  return [indexes, pos - startPos, w, h]
+  return [indexes, pos, w, h]
 }
 
 export function colorIndexesToImage (indexes, w, h, colors) {

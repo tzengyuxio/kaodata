@@ -29,7 +29,7 @@
         </div>
       </div>
       <div class="parameter-block mt-4 border">
-        <!-- 留空 -->
+        <OffsetInfos />
       </div>
     </div>
     <div class="flex right-area flex-grow flex-wrap border" ref="gallery">
@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import OffsetInfos from './OffsetInfos.vue'
 import palettes from '../data/palettes.js'
 import {
   unpackKao,
@@ -50,6 +51,7 @@ import {
 
 export default {
   name: 'ImageParser',
+  components: { OffsetInfos },
   data () {
     return {
       fileBytes: null,
@@ -96,14 +98,14 @@ export default {
         const colors = this.colors.map(hexToRGB)
         const gallery = this.$refs.gallery
         let unpacker = null
-        const data = this.fileBytes
         while (cursor < this.fileBytes.length) {
-          // const data = this.fileBytes.slice(cursor)
+          const data = this.fileBytes.slice(cursor)
           if (unpacker === null) {
             const type = this.guessType(data)
+            console.log('guess type: ', type)
             unpacker = unpackers[type]
           }
-          const [colorIndexes, used, w, h] = unpacker(data, cursor, 64, 80)
+          const [colorIndexes, used, w, h] = unpacker(data, 64, 80)
           if (colorIndexes === null) {
             break
           }
