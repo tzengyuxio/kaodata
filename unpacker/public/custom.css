@@ -1,0 +1,9 @@
+.image-canvas:hover {
+    border: 1px solid black;
+    padding: 1px;
+}
+
+.image-canvas {
+    border: 1px solid gray;
+    padding: 1px;
+}

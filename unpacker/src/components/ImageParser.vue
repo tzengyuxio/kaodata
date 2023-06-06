@@ -40,7 +40,13 @@
 
 <script>
 import palettes from '../data/palettes.js'
-import { unpackKao, colorIndexesToImage, hexToRGB } from '../utils/unpack.js'
+import {
+  unpackKao,
+  unpackGrp,
+  unpackNpk,
+  colorIndexesToImage,
+  hexToRGB
+} from '../utils/unpack.js'
 
 export default {
   name: 'ImageParser',
@@ -63,6 +69,7 @@ export default {
   },
   methods: {
     onFileChange (event) {
+      this.reset()
       this.selectedFile = event.target.files[0]
       if (this.selectedFile) {
         const reader = new FileReader()
@@ -83,17 +90,19 @@ export default {
       gallery.innerHTML = ''
     },
     drawImages () {
+      const unpackers = { kao: unpackKao, npk: unpackNpk, grp: unpackGrp }
       if (this.fileBytes) {
-        // let w = 64
-        // let h = 80
         let cursor = 0
         const colors = this.colors.map(hexToRGB)
         const gallery = this.$refs.gallery
+        let unpacker = null
         while (cursor < this.fileBytes.length) {
           const data = this.fileBytes.slice(cursor)
-            const [colorIndexes, used, w, h] = unpackKao(data, 320, 121)
-        //   const [colorIndexes, used, w, h] = unpackGrp(data)
-          //   const [colorIndexes, used, w, h] = unpackNpk(data)
+          if (unpacker === null) {
+            const type = this.guessType(data)
+            unpacker = unpackers[type]
+          }
+          const [colorIndexes, used, w, h] = unpacker(data, 64, 80)
           if (colorIndexes === null) {
             break
           }
@@ -102,17 +111,29 @@ export default {
           const imageData = colorIndexesToImage(colorIndexes, w, h, colors)
 
           const canvas = document.createElement('canvas')
-          canvas.classList = 'm-0.5'
           canvas.width = w
           canvas.height = h
           canvas.style.width = w + 'px'
           canvas.style.height = h + 'px'
+          canvas.classList = 'image-canvas m-0.5'
           canvas.getContext('2d').putImageData(imageData, 0, 0)
           gallery.appendChild(canvas)
         }
       } else {
         console.error("The selected file isn't a file.")
       }
+    },
+    guessType (data) {
+      const header = String.fromCharCode(...data.slice(0, 4))
+      if (header.startsWith('NPK')) {
+        return 'npk'
+      }
+      const w = (data[1] << 8) | data[0]
+      const h = (data[3] << 8) | data[2]
+      if (w > 0 && w <= 800 && h > 0 && h <= 600) {
+        return 'grp'
+      }
+      return 'kao'
     }
   },
   mounted () {
